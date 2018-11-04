@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class CursorManager : MonoBehaviour
 {
-    // セル情報描画関連
-    public Text nameText, abText, dbText, mabText;
-
     // カーソル描画関連
     public GameObject cursorObj; // カーソルObj
     private Vector2 mouseScreenPos;
@@ -18,7 +15,7 @@ public class CursorManager : MonoBehaviour
     // スタンバイUI
     public GameObject standbyUI;
 
-    // フォーカスUnit関連
+    // フォーカスUnit関連  
     [HideInInspector]
     public UnitInfo focusUnit;
     private Vector3 oldFocusUnitPos;
@@ -32,13 +29,15 @@ public class CursorManager : MonoBehaviour
     private GameObject activeArea;
     private GameObject attackArea;
     private GameObject rootArea;
-    private GameObject areaBlue;
-    private GameObject areaRed;
-    private GameObject markerObj;
+    public GameObject areaBlue;
+    public GameObject areaRed;
+    public GameObject markerObj;
+    public Sprite[] makerSprites;
 
     // インスタンス
     public RouteManager routeManager;
     public UIUnitInfo uIUnitInfo;
+    public UICellInfo uIcellInfo;
     private CursorManager cursorManager;
 
     TURN turn = TURN.START;
@@ -69,9 +68,6 @@ public class CursorManager : MonoBehaviour
         attackArea.transform.parent = transform;
         activeArea.transform.parent = transform;
         rootArea.transform.parent = transform;
-        markerObj = Resources.Load<GameObject>("Prefabs/Marker");
-        areaBlue = Resources.Load<GameObject>("Prefabs/AreaBlue");
-        areaRed = Resources.Load<GameObject>("Prefabs/AreaRed");
 
         // インスタンスの初期化
         cursorManager = GetComponent<CursorManager>();
@@ -241,7 +237,7 @@ public class CursorManager : MonoBehaviour
             cursorObj.transform.position = cursorPos;
 
             // セル情報の更新
-            setData(MapManager.GetFieldData().cells[-(int)cursorPos.y, (int)cursorPos.x]);
+            uIcellInfo.SetData(MapManager.GetFieldData().cells[-(int)cursorPos.y, (int)cursorPos.x]);
 
             // 移動マーカの更新
             if (showMarker)
@@ -323,10 +319,114 @@ public class CursorManager : MonoBehaviour
                 // 目標までのルートを取得
                 routeManager.CheckShortestRoute(ref cursorManager, cursorPos);
 
-                // マーカの生成
+                // マーカの生成とスプライト変更
                 Vector3 nextPos = focusUnit.moveController.getPos();
-                foreach (Vector3 rootPos in moveRoot)
-                    Instantiate(markerObj, nextPos += rootPos, Quaternion.identity).transform.parent = rootArea.transform;
+                int spriteId = 0;
+                Quaternion angle = Quaternion.identity;
+                int moveRootCount = moveRoot.Count;
+                for (int i = 0; i < moveRootCount; i++)
+                {
+
+                    if (moveRoot[i] == Vector3.up)
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 2;
+                            angle = Quaternion.identity;
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.up)
+                            {
+                                if (moveRoot[i + 1] == Vector3.left)
+                                    angle.eulerAngles = new Vector3(0, 180, 0);
+                                else
+                                    angle = Quaternion.identity;
+                                spriteId = 1;
+                            }
+                            else
+                            {
+                                spriteId = 0;
+                                angle = Quaternion.identity;
+                            }
+                        }
+                    }
+                    else if (moveRoot[i] == Vector3.down)
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 2;
+                            angle.eulerAngles = new Vector3(0, 0, 180);
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.down)
+                            {
+                                if (moveRoot[i + 1] == Vector3.left)
+                                    angle.eulerAngles = new Vector3(0, 0, 180);
+                                else
+                                    angle.eulerAngles = new Vector3(180, 0, 0);
+                                spriteId = 1;
+                            }
+                            else
+                            {
+                                spriteId = 0;
+                                angle.eulerAngles = new Vector3(0, 0, 180);
+                            }
+                        }
+
+                    }
+                    else if (moveRoot[i] == Vector3.right)
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 2;
+                            angle.eulerAngles = new Vector3(0, 0, -90);
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.right)
+                            {
+                                if (moveRoot[i + 1] == Vector3.up)
+                                    angle.eulerAngles = new Vector3(0, 180, 90);
+                                else
+                                    angle.eulerAngles = new Vector3(0, 0, -90);
+                                spriteId = 1;
+                            }
+                            else
+                            {
+                                spriteId = 0;
+                                angle.eulerAngles = new Vector3(0, 0, -90);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 2;
+                            angle.eulerAngles = new Vector3(0, 0, 90);
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.left)
+                            {
+                                if (moveRoot[i + 1] == Vector3.up)
+                                    angle.eulerAngles = new Vector3(0, 0, 90);
+                                else
+                                    angle.eulerAngles = new Vector3(0, 180, -90);
+                                spriteId = 1;
+                            }
+                            else
+                            {
+                                spriteId = 0;
+                                angle.eulerAngles = new Vector3(0, 0, 90);
+                            }
+                        }
+                    }
+                    markerObj.GetComponent<SpriteRenderer>().sprite = makerSprites[spriteId];
+                    Instantiate(markerObj, nextPos += moveRoot[i], angle).transform.parent = rootArea.transform;
+                }
             }
             else if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == RouteManager.AREA.UNIT)
                 RemoveMarker(); // カーソルがユニット上なら表示しない
@@ -356,18 +456,6 @@ public class CursorManager : MonoBehaviour
     private void RemoveMarker()
     {
         foreach (Transform r in rootArea.transform) Destroy(r.gameObject);
-    }
-
-    /// <summary>
-    /// エリア情報の更新
-    /// </summary>
-    /// <param name="cellInfo">Cell info.</param>
-    private void setData(CellInfo cellInfo)
-    {
-        nameText.text = cellInfo.name;
-        abText.text = string.Format("AB:{0}", cellInfo.avoidanceBonus.ToString());
-        dbText.text = string.Format("DB:{0}", cellInfo.defenseBonus.ToString());
-        mabText.text = string.Format("MAB:{0}", cellInfo.magicalDefenseBonus.ToString());
     }
 
     /// <summary>
