@@ -935,7 +935,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 463d020d0fbb74bca9f674c3da235487, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cursorObj: {fileID: 1528286589854410, guid: c38140521bb1b49e79c3d2e2e9ce3c57, type: 2}
+  cursorObj: {fileID: 1359748850485236, guid: c38140521bb1b49e79c3d2e2e9ce3c57, type: 2}
   activeUI: {fileID: 1692388449}
   standbyUI: {fileID: 778494444}
   focusUnit: {fileID: 0}
@@ -944,9 +944,10 @@ MonoBehaviour:
   areaRed: {fileID: 1356426005745628, guid: cd19a9393d59c44f084c4dc1786ca6d3, type: 2}
   markerObj: {fileID: 1355178946539778, guid: 1e915756703584ea6822ff26895ec704, type: 2}
   makerSprites:
-  - {fileID: 21300000, guid: 57b3707409bccbd4fa0820c53ce7e3db, type: 3}
-  - {fileID: 21300000, guid: 09a82d18d5eee3849a001c59ef4b5575, type: 3}
-  - {fileID: 21300000, guid: 8af332afc3ffefc468b1a4cc5ab7ee2e, type: 3}
+  - {fileID: 21300000, guid: 2b7e944b218a336459a7451b2226cc4c, type: 3}
+  - {fileID: 21300000, guid: 3071854ab49a4364d9a9547b14a60e22, type: 3}
+  - {fileID: 21300000, guid: 1cf1d84c75992bc468badb68dc09de8a, type: 3}
+  - {fileID: 21300000, guid: 81aa2677ce684fd4cbd4d45e29c3efea, type: 3}
   routeManager: {fileID: 1040709627}
   uIUnitInfo: {fileID: 40512277}
   uIcellInfo: {fileID: 165246495}
