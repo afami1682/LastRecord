@@ -324,14 +324,21 @@ public class CursorManager : MonoBehaviour
                 int spriteId = 0;
                 Quaternion angle = Quaternion.identity;
                 int moveRootCount = moveRoot.Count;
+                if (moveRootCount != 0)
+                {
+                    if (moveRoot[0] == Vector3.down) angle.eulerAngles = new Vector3(180, 0, 0);
+                    else if (moveRoot[0] == Vector3.left) angle.eulerAngles = new Vector3(0, 0, 90);
+                    else if (moveRoot[0] == Vector3.right) angle.eulerAngles = new Vector3(0, 0, -90);
+                    markerObj.GetComponent<SpriteRenderer>().sprite = makerSprites[spriteId];
+                    Instantiate(markerObj, nextPos, angle).transform.parent = rootArea.transform;
+                }
                 for (int i = 0; i < moveRootCount; i++)
                 {
-
                     if (moveRoot[i] == Vector3.up)
                     {
                         if (i + 1 == moveRootCount)
                         {
-                            spriteId = 2;
+                            spriteId = 3;
                             angle = Quaternion.identity;
                         }
                         else
@@ -342,11 +349,11 @@ public class CursorManager : MonoBehaviour
                                     angle.eulerAngles = new Vector3(0, 180, 0);
                                 else
                                     angle = Quaternion.identity;
-                                spriteId = 1;
+                                spriteId = 2;
                             }
                             else
                             {
-                                spriteId = 0;
+                                spriteId = 1;
                                 angle = Quaternion.identity;
                             }
                         }
@@ -355,7 +362,7 @@ public class CursorManager : MonoBehaviour
                     {
                         if (i + 1 == moveRootCount)
                         {
-                            spriteId = 2;
+                            spriteId = 3;
                             angle.eulerAngles = new Vector3(0, 0, 180);
                         }
                         else
@@ -366,11 +373,11 @@ public class CursorManager : MonoBehaviour
                                     angle.eulerAngles = new Vector3(0, 0, 180);
                                 else
                                     angle.eulerAngles = new Vector3(180, 0, 0);
-                                spriteId = 1;
+                                spriteId = 2;
                             }
                             else
                             {
-                                spriteId = 0;
+                                spriteId = 1;
                                 angle.eulerAngles = new Vector3(0, 0, 180);
                             }
                         }
@@ -380,7 +387,7 @@ public class CursorManager : MonoBehaviour
                     {
                         if (i + 1 == moveRootCount)
                         {
-                            spriteId = 2;
+                            spriteId = 3;
                             angle.eulerAngles = new Vector3(0, 0, -90);
                         }
                         else
@@ -391,11 +398,11 @@ public class CursorManager : MonoBehaviour
                                     angle.eulerAngles = new Vector3(0, 180, 90);
                                 else
                                     angle.eulerAngles = new Vector3(0, 0, -90);
-                                spriteId = 1;
+                                spriteId = 2;
                             }
                             else
                             {
-                                spriteId = 0;
+                                spriteId = 1;
                                 angle.eulerAngles = new Vector3(0, 0, -90);
                             }
                         }
@@ -404,7 +411,7 @@ public class CursorManager : MonoBehaviour
                     {
                         if (i + 1 == moveRootCount)
                         {
-                            spriteId = 2;
+                            spriteId = 3;
                             angle.eulerAngles = new Vector3(0, 0, 90);
                         }
                         else
@@ -415,11 +422,11 @@ public class CursorManager : MonoBehaviour
                                     angle.eulerAngles = new Vector3(0, 0, 90);
                                 else
                                     angle.eulerAngles = new Vector3(0, 180, -90);
-                                spriteId = 1;
+                                spriteId = 2;
                             }
                             else
                             {
-                                spriteId = 0;
+                                spriteId = 1;
                                 angle.eulerAngles = new Vector3(0, 0, 90);
                             }
                         }
