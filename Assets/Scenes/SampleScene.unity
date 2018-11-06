@@ -290,7 +290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9ebfa02f86b540fcbd20902afc22c3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  flame: {fileID: 2095369351}
+  selectUnitInfo: {fileID: 2095369351}
   faceImage: {fileID: 1704701382}
   nameText: {fileID: 1252398257}
   levelText: {fileID: 555726396}
@@ -815,38 +815,7 @@ RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-<<<<<<< HEAD
   m_GameObject: {fileID: 263750733}
-=======
-  m_GameObject: {fileID: 710814532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 463d020d0fbb74bca9f674c3da235487, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cursorObj: {fileID: 1359748850485236, guid: c38140521bb1b49e79c3d2e2e9ce3c57, type: 2}
-  activeUI: {fileID: 1692388449}
-  standbyUI: {fileID: 778494444}
-  focusUnit: {fileID: 0}
-  moveRoot: []
-  areaBlue: {fileID: 1318635036286588, guid: 2a737f3c919124f10a7ccdf42979483c, type: 2}
-  areaRed: {fileID: 1356426005745628, guid: cd19a9393d59c44f084c4dc1786ca6d3, type: 2}
-  markerObj: {fileID: 1355178946539778, guid: 1e915756703584ea6822ff26895ec704, type: 2}
-  makerSprites:
-  - {fileID: 21300000, guid: 2b7e944b218a336459a7451b2226cc4c, type: 3}
-  - {fileID: 21300000, guid: 3071854ab49a4364d9a9547b14a60e22, type: 3}
-  - {fileID: 21300000, guid: 1cf1d84c75992bc468badb68dc09de8a, type: 3}
-  - {fileID: 21300000, guid: 81aa2677ce684fd4cbd4d45e29c3efea, type: 3}
-  routeManager: {fileID: 1040709627}
-  uIUnitInfo: {fileID: 40512277}
-  uIcellInfo: {fileID: 165246495}
---- !u!4 &710814534
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 710814532}
->>>>>>> b25456c80156c79d8a42977fc8e9b935064acafc
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -1204,7 +1173,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &533611048
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1582,7 +1551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 463d020d0fbb74bca9f674c3da235487, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cursorObj: {fileID: 1528286589854410, guid: c38140521bb1b49e79c3d2e2e9ce3c57, type: 2}
+  cursorObj: {fileID: 1359748850485236, guid: c38140521bb1b49e79c3d2e2e9ce3c57, type: 2}
   activeUI: {fileID: 1692388449}
   standbyUI: {fileID: 778494444}
   focusUnit: {fileID: 0}
@@ -1591,9 +1560,10 @@ MonoBehaviour:
   areaRed: {fileID: 1356426005745628, guid: cd19a9393d59c44f084c4dc1786ca6d3, type: 2}
   markerObj: {fileID: 1355178946539778, guid: 1e915756703584ea6822ff26895ec704, type: 2}
   makerSprites:
-  - {fileID: 21300000, guid: 57b3707409bccbd4fa0820c53ce7e3db, type: 3}
-  - {fileID: 21300000, guid: 09a82d18d5eee3849a001c59ef4b5575, type: 3}
-  - {fileID: 21300000, guid: 8af332afc3ffefc468b1a4cc5ab7ee2e, type: 3}
+  - {fileID: 21300000, guid: 2b7e944b218a336459a7451b2226cc4c, type: 3}
+  - {fileID: 21300000, guid: 3071854ab49a4364d9a9547b14a60e22, type: 3}
+  - {fileID: 21300000, guid: 1cf1d84c75992bc468badb68dc09de8a, type: 3}
+  - {fileID: 21300000, guid: 81aa2677ce684fd4cbd4d45e29c3efea, type: 3}
   routeManager: {fileID: 1040709627}
   uIUnitInfo: {fileID: 40512277}
   uIcellInfo: {fileID: 165246495}
@@ -4431,7 +4401,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 9508efcfeda794b1db6593cad3947278, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -16237,7 +16207,7 @@ GameObject:
   - component: {fileID: 2095369354}
   - component: {fileID: 2095369353}
   m_Layer: 5
-  m_Name: Flame
+  m_Name: SelectUnitInfo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

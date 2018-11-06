@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UIUnitInfo : MonoBehaviour
 {
 
-    public GameObject flame;
+    public GameObject selectUnitInfo;
     public Image faceImage;
     public Text nameText;
     public Text levelText;
@@ -29,13 +29,13 @@ public class UIUnitInfo : MonoBehaviour
         gageImageColor = gageImage.GetComponent<Image>();
 
         // ゲーム開始時は非表示
-        flame.SetActive(false);
+        selectUnitInfo.SetActive(false);
     }
 
     public void ShowUnitInfo(UnitInfo unitInfo)
     {
         // フォーカスユニットがいるならユニット情報を表示する
-        flame.SetActive(true);
+        selectUnitInfo.SetActive(true);
         faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.ID);
         nameText.text = unitInfo.Name;
         levelText.text = string.Format("Lv: {0}", unitInfo.Level);
@@ -54,6 +54,6 @@ public class UIUnitInfo : MonoBehaviour
 
     public void CloseUnitInfo()
     {
-        flame.SetActive(false);
+        selectUnitInfo.SetActive(false);
     }
 }
