@@ -89,21 +89,17 @@ public class RouteManager : MonoBehaviour
         if (checkPos == cursorManager.focusUnit.moveController.getPos())
             return cursorManager.moveRoot;
 
+        // 上下左右のコストをチェクし昇順に並び替える
         List<NodeRoot> list = new List<NodeRoot>();
-        int val;
-        val = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.up);
-        if (-1 < val)
-            list.Insert(list.Count, new NodeRoot(MOVE.UP, val));
-        val = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.down);
-        if (-1 < val)
-            list.Insert(list.Count, new NodeRoot(MOVE.DOWN, val));
-        val = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.left);
-        if (-1 < val)
-            list.Insert(list.Count, new NodeRoot(MOVE.LEFT, val));
-        val = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.right);
-        if (-1 < val)
-            list.Insert(list.Count, new NodeRoot(MOVE.RIGHT, val));
-        list.Sort((a, b) => a.cost.CompareTo(b.cost)); // cost順にソート
+        int valUp = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.up);
+        if (-1 < valUp) list.Insert(list.Count, new NodeRoot(MOVE.UP, valUp));
+        int valDown = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.down);
+        if (-1 < valDown) list.Insert(list.Count, new NodeRoot(MOVE.DOWN, valDown));
+        int valLeft = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.left);
+        if (-1 < valLeft) list.Insert(list.Count, new NodeRoot(MOVE.LEFT, valLeft));
+        int valRight = CheckNodeCost(ref nodeList, ref cursorManager.activeAreaList, checkPos + Vector3.right);
+        if (-1 < valRight) list.Insert(list.Count, new NodeRoot(MOVE.RIGHT, valRight));
+        list.Sort((a, b) => a.cost.CompareTo(b.cost));
 
         // もっともコストの低いマスにチェックを移す
         switch (list[0].move)
