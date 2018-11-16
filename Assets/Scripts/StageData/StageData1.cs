@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapData1 : MonoBehaviour
+public class StageData1
 {
-    public FieldBase getData()
+    public FieldBase getFieldData()
     {
         FieldBase fieldBase = new FieldBase();
         fieldBase.name = "マップ1";
@@ -43,5 +43,29 @@ public class MapData1 : MonoBehaviour
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
         return fieldBase;
+    }
+
+    public List<UnitInfo> getUnitData()
+    {
+        int unitId = -1;
+        UnitInfo unit;
+        List<UnitInfo> unitList = new List<UnitInfo>();
+
+
+        unit = new UnitInfo();
+        unit.id = unitId++;
+       // unit.hp
+
+
+
+        unitList.Add(unit);
+
+
+
+
+
+
+
+        return unitList;
     }
 }

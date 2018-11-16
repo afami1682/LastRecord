@@ -15,8 +15,8 @@ public class MapManager : MonoBehaviour
         switch (mapId)
         {
             case 1:
-                MapData1 mapData1 = gameObject.AddComponent<MapData1>();
-                fieldBase = mapData1.getData();
+                StageData1 stageData = new StageData1();
+                fieldBase = stageData.getFieldData();
                 break;
             default:
                 Debug.Log("マップデータが読み込まれてません");

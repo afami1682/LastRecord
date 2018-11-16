@@ -16,7 +16,6 @@ public class RouteManager : MonoBehaviour
     /// <param name="cursorManager">Cursor manager.</param>
     /// <param name="endPos">End position.</param>
     public void CheckShortestRoute(ref CursorManager cursorManager, Vector3 endPos)
-
     {
         // 最短の移動ルート情報
         cursorManager.moveRoot = new List<Vector3>();
@@ -211,7 +210,7 @@ public class RouteManager : MonoBehaviour
         }
 
         // 移動コストを超えた場合は終了
-        if (cursorManager.focusUnit.moveDistance <= cursorManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost)
+        if (cursorManager.focusUnit.movementRange <= cursorManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost)
             return;
 
         // 次に検証する座標を指定（上下左右）

@@ -19,7 +19,7 @@ public class RCSLabel : MonoBehaviour
     public int statusValMax; //ステータス値の最大値
     public GameObject textPref;
 
-    float margin = 0.6f;
+    float margin = 0.7f;
 
     /// <summary>
     /// Creates the text.
@@ -47,8 +47,6 @@ public class RCSLabel : MonoBehaviour
 
             // 表示位置
             p = Vector2.zero;
-            p.x -= text.rectTransform.pivot.x;
-            p.y -= text.rectTransform.pivot.y;
             p.x += x;
             p.y += y;
             textObj.transform.localPosition = new Vector3(p.x, p.y, 0);

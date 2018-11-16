@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// マップ上でUnitにカーソルが当たった時に表示されるUI（Unit情報）の管理クラス
+/// </summary>
 public class UIUnitInfo : MonoBehaviour
 {
-
     public GameObject selectUnitInfo;
     public Image faceImage;
     public Text nameText;
@@ -14,6 +16,9 @@ public class UIUnitInfo : MonoBehaviour
     public GameObject gageImage;
     public RectTransform gageImageBk;
 
+    /// <summary>
+    /// 各体力割合時の色指定
+    /// </summary>
     public Color lifeGreen;
     public Color lifeYellow;
     public Color lifeRed;
@@ -36,11 +41,11 @@ public class UIUnitInfo : MonoBehaviour
     {
         // フォーカスユニットがいるならユニット情報を表示する
         selectUnitInfo.SetActive(true);
-        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.ID);
-        nameText.text = unitInfo.Name;
-        levelText.text = string.Format("Lv: {0}", unitInfo.Level);
-        lifeText.text = string.Format("HP: {0}/{1}", unitInfo.HP, unitInfo.maxHP);
-        lifeRate = (float)unitInfo.HP / (float)unitInfo.maxHP;
+        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
+        nameText.text = unitInfo.name;
+        levelText.text = string.Format("Lv: {0}", unitInfo.level);
+        lifeText.text = string.Format("HP: {0}/{1}", unitInfo.hp, unitInfo.vitality);
+        lifeRate = (float)unitInfo.hp / (float)unitInfo.vitality;
         gageImageRect.sizeDelta = new Vector2(
             lifeRate * (float)gageImageBk.sizeDelta.x,
                                           gageImageBk.sizeDelta.y);
