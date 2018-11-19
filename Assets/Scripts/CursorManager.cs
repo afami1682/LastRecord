@@ -40,17 +40,9 @@ public class CursorManager : MonoBehaviour
     public UICellInfo uIcellInfo;
     private CursorManager cursorManager;
 
-    TURN turn = TURN.START;
-    enum TURN
-    {
-        START,
-        SELECT,
-        FOCUS,
-        MOVE,
-        BATTLE,
-        RESULT,
-        END
-    };
+    Enum.TURN turn = Enum.TURN.START;
+
+    public static object TURN { get; private set; }
 
     void Start()
     {
@@ -77,11 +69,11 @@ public class CursorManager : MonoBehaviour
     {
         switch (turn)
         {
-            case TURN.START:
-                turn = TURN.SELECT;
+            case Enum.TURN.START:
+                turn = Enum.TURN.SELECT;
                 break;
 
-            case TURN.SELECT:
+            case Enum.TURN.SELECT:
                 // カーソルの更新
                 CursorUpdate(false);
 
@@ -92,7 +84,7 @@ public class CursorManager : MonoBehaviour
                             AddActiveArea(); // 未行動のユニットがいればフォーカスする
                 break;
 
-            case TURN.FOCUS:
+            case Enum.TURN.FOCUS:
                 // UI切り替え
                 activeArea.SetActive(true);
                 rootArea.SetActive(true);
@@ -102,7 +94,7 @@ public class CursorManager : MonoBehaviour
 
                 // クリック処理
                 if (Input.GetMouseButtonDown(0))
-                    if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == RouteManager.AREA.MOVE)
+                    if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.MOVE)
                     {
                         // 他ユニットがいなければ
                         if (!GameManager.GetMapUnit(cursorPos))
@@ -118,7 +110,7 @@ public class CursorManager : MonoBehaviour
                             cursorObj.SetActive(false);
                             activeArea.SetActive(false);
 
-                            turn = TURN.MOVE;
+                            turn = Enum.TURN.MOVE;
                         }
                     }
                     else
@@ -128,17 +120,17 @@ public class CursorManager : MonoBehaviour
                         RemoveMarker();
                         RemoveActiveArea();
 
-                        turn = TURN.SELECT;
+                        turn = Enum.TURN.SELECT;
                     }
                 break;
 
-            case TURN.MOVE:
+            case Enum.TURN.MOVE:
                 // 移動が終わったらUIを切り替える
                 if (!focusUnit.moveController.movingFlg)
                     activeUI.SetActive(true);
                 break;
 
-            case TURN.BATTLE:
+            case Enum.TURN.BATTLE:
                 // UI切り替え
                 activeArea.SetActive(false);
                 activeUI.SetActive(false);
@@ -149,10 +141,10 @@ public class CursorManager : MonoBehaviour
                     AddAttackArea();
                 break;
 
-            case TURN.RESULT:
+            case Enum.TURN.RESULT:
                 break;
 
-            case TURN.END:
+            case Enum.TURN.END:
                 break;
         }
     }
@@ -162,7 +154,7 @@ public class CursorManager : MonoBehaviour
     /// </summary>
     public void OnAttackBtn()
     {
-        turn = TURN.BATTLE;
+        turn = Enum.TURN.BATTLE;
     }
 
     /// <summary>
@@ -181,7 +173,7 @@ public class CursorManager : MonoBehaviour
         activeUI.SetActive(false);
         cursorObj.SetActive(true);
 
-        turn = TURN.SELECT;
+        turn = Enum.TURN.SELECT;
     }
 
     /// <summary>
@@ -200,7 +192,7 @@ public class CursorManager : MonoBehaviour
         activeUI.SetActive(false);
         cursorObj.SetActive(true);
 
-        turn = TURN.SELECT;
+        turn = Enum.TURN.SELECT;
     }
 
     public void OnCancelStandby()
@@ -212,7 +204,7 @@ public class CursorManager : MonoBehaviour
 
         RemoveAttackArea();
 
-        turn = TURN.MOVE;
+        turn = Enum.TURN.MOVE;
     }
 
     /// <summary>
@@ -242,7 +234,7 @@ public class CursorManager : MonoBehaviour
             // 移動マーカの更新
             if (showMarker)
                 AddMarker();
-            
+
             // ユニット情報の更新
             if (GameManager.GetMapUnit(cursorPos))
                 uIUnitInfo.ShowUnitInfo(GameManager.GetMapUnit(cursorPos));
@@ -268,7 +260,7 @@ public class CursorManager : MonoBehaviour
         // エリアパネルの表示
         for (int y = 0; y < MapManager.GetFieldData().height; y++)
             for (int x = 0; x < MapManager.GetFieldData().width; x++)
-                if (activeAreaList[y, x].aREA == RouteManager.AREA.MOVE || activeAreaList[y, x].aREA == RouteManager.AREA.UNIT)
+                if (activeAreaList[y, x].aREA == Enum.AREA.MOVE || activeAreaList[y, x].aREA == Enum.AREA.UNIT)
                 {
                     // 移動エリアの表示
                     Instantiate(areaBlue, new Vector3(x, -y, 0), Quaternion.identity).transform.parent = activeArea.transform;
@@ -280,10 +272,10 @@ public class CursorManager : MonoBehaviour
         // 攻撃エリアの表示
         for (int ay = 0; ay < MapManager.GetFieldData().height; ay++)
             for (int ax = 0; ax < MapManager.GetFieldData().width; ax++)
-                if (activeAreaList[ay, ax].aREA == RouteManager.AREA.ATTACK)
+                if (activeAreaList[ay, ax].aREA == Enum.AREA.ATTACK)
                     Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = activeArea.transform;
 
-        turn = TURN.FOCUS;
+        turn = Enum.TURN.FOCUS;
     }
 
 
@@ -299,7 +291,7 @@ public class CursorManager : MonoBehaviour
         routeManager.CheckAttackArea(ref attackAreaList, focusUnit.moveController.getPos(), ref focusUnit);
         for (int ay = 0; ay < MapManager.GetFieldData().height; ay++)
             for (int ax = 0; ax < MapManager.GetFieldData().width; ax++)
-                if (attackAreaList[ay, ax].aREA == RouteManager.AREA.ATTACK)
+                if (attackAreaList[ay, ax].aREA == Enum.AREA.ATTACK)
                     Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = attackArea.transform;
     }
 
@@ -311,7 +303,7 @@ public class CursorManager : MonoBehaviour
         // アクティブエリアがあるなら、マーカを表示する
         if (activeAreaList != null)
             // 移動エリア内ならマーカを表示する
-            if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == RouteManager.AREA.MOVE)
+            if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.MOVE)
             {
                 // マーカの削除
                 RemoveMarker();
@@ -435,7 +427,7 @@ public class CursorManager : MonoBehaviour
                     Instantiate(markerObj, nextPos += moveRoot[i], angle).transform.parent = rootArea.transform;
                 }
             }
-            else if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == RouteManager.AREA.UNIT)
+            else if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.UNIT)
                 RemoveMarker(); // カーソルがユニット上なら表示しない
     }
 

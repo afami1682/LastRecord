@@ -8,7 +8,6 @@ public class MoveController : MonoBehaviour
     // ゲーム設定値
     const float MOVE_SPEED = 8F; // 移動速度
     const float NEXT_MOVE_ERROR = 0.1F; // 移動の誤差補完値
-    enum ANIM { NONE, UP, DOWN, LEFT, RIGHT } // アニメーションID
 
     // 移動ルート管理用の2次元配列
     private List<Vector3> moveRoot = new List<Vector3>(); // 自動行動用、移動ルート
@@ -39,10 +38,10 @@ public class MoveController : MonoBehaviour
             moveRoot.RemoveAt(0);
 
             // アニメーションの切り替え
-            if (nextPos == Vector3.up) animator.SetInteger("Walk", (int)ANIM.UP);
-            else if (nextPos == Vector3.down) animator.SetInteger("Walk", (int)ANIM.DOWN);
-            else if (nextPos == Vector3.left) animator.SetInteger("Walk", (int)ANIM.LEFT);
-            else if (nextPos == Vector3.right) animator.SetInteger("Walk", (int)ANIM.RIGHT);
+            if (nextPos == Vector3.up) animator.SetInteger("Walk", (int)Enum.MOVE.UP);
+            else if (nextPos == Vector3.down) animator.SetInteger("Walk", (int)Enum.MOVE.DOWN);
+            else if (nextPos == Vector3.left) animator.SetInteger("Walk", (int)Enum.MOVE.LEFT);
+            else if (nextPos == Vector3.right) animator.SetInteger("Walk", (int)Enum.MOVE.RIGHT);
 
             // 移動開始
             moveFlg = true;

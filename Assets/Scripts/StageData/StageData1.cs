@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class StageData1
 {
+    /// <summary>
+    /// ステージのフィールドデータ（基）を返す
+    /// </summary>
+    /// <returns>The field data.</returns>
     public FieldBase getFieldData()
     {
         FieldBase fieldBase = new FieldBase();
