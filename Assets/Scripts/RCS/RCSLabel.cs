@@ -14,7 +14,7 @@ public class RCSLabel : MonoBehaviour
     [HideInInspector]
     public int statusListCount; // ステータスの数
     [HideInInspector]
-    public List<NodeStatus> statusList;
+    public List<Struct.NodeStatus> statusList;
     [HideInInspector]
     public int statusValMax; //ステータス値の最大値
     public GameObject textPref;

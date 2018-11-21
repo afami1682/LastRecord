@@ -12,7 +12,7 @@ public class UICellInfo : MonoBehaviour {
     /// エリア情報の更新
     /// </summary>
     /// <param name="cellInfo"></param>
-    public void SetData(CellInfo cellInfo)
+    public void SetData(Struct.CellInfo cellInfo)
     {
         nameText.text = cellInfo.name;
         abText.text = string.Format("AB:{0}", cellInfo.avoidanceBonus.ToString());

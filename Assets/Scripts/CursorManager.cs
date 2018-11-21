@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// カーソルの描画,アクティブエリアの描画,フォーカスユニットの制御
+/// </summary>
 public class CursorManager : MonoBehaviour
 {
     // カーソル描画関連
@@ -22,8 +25,8 @@ public class CursorManager : MonoBehaviour
     [HideInInspector]
     public List<Vector3> moveRoot; // 移動ルートの座標引き渡し用
     [HideInInspector]
-    public NodeMove[,] activeAreaList; // 行動可能エリアを管理する配列
-    public NodeMove[,] attackAreaList;
+    public Struct.NodeMove[,] activeAreaList; // 行動可能エリアを管理する配列
+    public Struct.NodeMove[,] attackAreaList;
 
     // エリア描画用関連
     private GameObject activeArea;
@@ -35,7 +38,7 @@ public class CursorManager : MonoBehaviour
     public Sprite[] makerSprites;
 
     // インスタンス
-    public RouteManager routeManager;
+    private RouteManager routeManager;
     public UIUnitInfo uIUnitInfo;
     public UICellInfo uIcellInfo;
     private CursorManager cursorManager;
@@ -62,6 +65,7 @@ public class CursorManager : MonoBehaviour
         rootArea.transform.parent = transform;
 
         // インスタンスの初期化
+        routeManager = new RouteManager();
         cursorManager = GetComponent<CursorManager>();
     }
 
@@ -252,7 +256,7 @@ public class CursorManager : MonoBehaviour
         focusUnit = GameManager.GetMapUnit(cursorPos);
 
         // アクティブリストの生成と検証
-        activeAreaList = new NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
+        activeAreaList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
 
         // 移動エリアの検証
         routeManager.CheckMoveArea(ref cursorManager);
@@ -285,7 +289,7 @@ public class CursorManager : MonoBehaviour
     private void AddAttackArea()
     {
         // アクティブリストの生成と検証
-        attackAreaList = new NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
+        attackAreaList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
 
         // 攻撃エリアの検証と表示
         routeManager.CheckAttackArea(ref attackAreaList, focusUnit.moveController.getPos(), ref focusUnit);

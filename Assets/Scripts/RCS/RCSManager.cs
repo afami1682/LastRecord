@@ -2,10 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// ユニット詳細画面のレーダーチャート管理用クラス
+/// </summary>
 public class RCSManager : MonoBehaviour
 {
     // ステータスリスト
-    List<NodeStatus> statusList = new List<NodeStatus>();
+    List<Struct.NodeStatus> statusList = new List<Struct.NodeStatus>();
 
     const int VALUE_MAX = 50; // グラフの最大値
     const float RADIUS = 2.8f; // グラフの半径
@@ -32,14 +35,14 @@ public class RCSManager : MonoBehaviour
     private void Start()
     {
         // テストデータ
-        statusList.Add(new NodeStatus("体力", 55, 50));
-        statusList.Add(new NodeStatus("筋力", 19, 40));
-        statusList.Add(new NodeStatus("魔力", 26, 26));
-        statusList.Add(new NodeStatus("技量", 0, 36));
-        statusList.Add(new NodeStatus("速さ", 10, 40));
-        statusList.Add(new NodeStatus("防御", 11, 22));
-        statusList.Add(new NodeStatus("魔防", 22, 26));
-        statusList.Add(new NodeStatus("幸運", 12, 30));
+        statusList.Add(new Struct.NodeStatus("体力", 55, 50));
+        statusList.Add(new Struct.NodeStatus("筋力", 19, 40));
+        statusList.Add(new Struct.NodeStatus("魔力", 26, 26));
+        statusList.Add(new Struct.NodeStatus("技量", 0, 36));
+        statusList.Add(new Struct.NodeStatus("速さ", 10, 40));
+        statusList.Add(new Struct.NodeStatus("防御", 11, 22));
+        statusList.Add(new Struct.NodeStatus("魔防", 22, 26));
+        statusList.Add(new Struct.NodeStatus("幸運", 12, 30));
         ViewUpdate();
     }
 
@@ -47,7 +50,7 @@ public class RCSManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            statusList.Add(new NodeStatus("追加", 10, 30));
+            statusList.Add(new Struct.NodeStatus("追加", 10, 30));
             ViewUpdate();
         }
     }
@@ -95,22 +98,5 @@ public class RCSManager : MonoBehaviour
         rCSLabelVal.statusListCount = statusList.Count;
         rCSLabelVal.statusValMax = VALUE_MAX;
         rCSLabelVal.CreateText();
-    }
-}
-
-/// <summary>
-/// Node status.
-/// </summary>
-public struct NodeStatus
-{
-    public string label; // ラベル
-    public int val; // ステータスの値
-    public int jobValMax; // Job毎のステータスの最大値
-
-    public NodeStatus(string label, int val, int JobValMax)
-    {
-        this.label = label;
-        this.val = val;
-        this.jobValMax = JobValMax;
     }
 }

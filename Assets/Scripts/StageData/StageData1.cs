@@ -8,9 +8,9 @@ public class StageData1
     /// ステージのフィールドデータ（基）を返す
     /// </summary>
     /// <returns>The field data.</returns>
-    public FieldBase getFieldData()
+    public Struct.FieldBase getFieldData()
     {
-        FieldBase fieldBase = new FieldBase();
+        Struct.FieldBase fieldBase;
         fieldBase.name = "マップ1";
         fieldBase.width = 40;
         fieldBase.height = 30;

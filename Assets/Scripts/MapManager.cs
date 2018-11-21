@@ -4,14 +4,17 @@ using UnityEngine;
 using System;
 using System.IO;
 
-public class MapManager : MonoBehaviour
+public class MapManager
 {
-    static Field field;
+    static Struct.Field field;
 
-    // 参照渡しで受け取ったフィールデータを更新
-    public void LoadData(int mapId)
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    /// <param name="mapId">ステージId</param>
+    public MapManager(int mapId)
     {
-        FieldBase fieldBase = new FieldBase();
+        Struct.FieldBase fieldBase = new Struct.FieldBase();
         switch (mapId)
         {
             case 1:
@@ -24,11 +27,11 @@ public class MapManager : MonoBehaviour
         }
 
         // フィールドデータの読み込み
-        field = new Field();
+        field = new Struct.Field();
         field.name = fieldBase.name;
         field.width = fieldBase.width;
         field.height = fieldBase.height;
-        field.cells = new CellInfo[field.height, field.width];
+        field.cells = new Struct.CellInfo[field.height, field.width];
 
         // 各セルデータの追加
         for (int y = 0; y < field.height; y++)
@@ -40,13 +43,13 @@ public class MapManager : MonoBehaviour
                     // name, category, moveCost, defenseBonus, avoidanceBonus, recoveryBonus; 
                     case 0:
                     default:
-                        field.cells[y, x] = new CellInfo("平地", 0, 1, 0, 0, 0);
+                        field.cells[y, x] = new Struct.CellInfo("平地", 0, 1, 0, 0, 0);
                         break;
                     case 1:
-                        field.cells[y, x] = new CellInfo("草むら", 0, 2, 10, 0, 0);
+                        field.cells[y, x] = new Struct.CellInfo("草むら", 0, 2, 10, 0, 0);
                         break;
                     case 2:
-                        field.cells[y, x] = new CellInfo("壁", 1, 1, 5, 1, 0);
+                        field.cells[y, x] = new Struct.CellInfo("壁", 1, 1, 5, 1, 0);
                         break;
                 }
             }
@@ -57,62 +60,8 @@ public class MapManager : MonoBehaviour
     /// 外部からの呼び出し用
     /// </summary>
     /// <returns>The field data.</returns>
-    public static Field GetFieldData()
+    public static Struct.Field GetFieldData()
     {
         return field;
-    }
-}
-
-/// <summary>
-/// ベースのフィールドデータ
-/// </summary>
-public struct FieldBase
-{
-    public string name;
-    public int width;
-    public int height;
-    public int[,] cells;
-}
-
-/// <summary>
-/// フィールドデータ
-/// </summary>
-public struct Field
-{
-    public string name;
-    public int width;
-    public int height;
-    public CellInfo[,] cells;
-}
-
-/// <summary>
-/// セル情報
-/// </summary>
-public struct CellInfo
-{
-    public string name; // 名前
-    public int category; // 種類
-    public int moveCost; // 移動コスト
-    public int avoidanceBonus; // 回避ボーナス
-    public int defenseBonus; // 防御ボーナス
-    public int magicalDefenseBonus; // 魔防御ボーナス
-
-    /// <summary>
-    /// コンストラクター
-    /// </summary>
-    /// <param name="name">Name.</param>
-    /// <param name="category">Category.</param>
-    /// <param name="moveCost">Move cost.</param>
-    /// <param name="avoidanceBonus">Avoidance bonus.</param>
-    /// <param name="defenseBonus">Defense bonus.</param>
-    /// <param name="magicalDefenseBonus">Magical defense bonus.</param>
-    public CellInfo(string name, int category, int moveCost, int avoidanceBonus, int defenseBonus, int magicalDefenseBonus)
-    {
-        this.name = name;
-        this.category = category;
-        this.moveCost = moveCost;
-        this.avoidanceBonus = avoidanceBonus;
-        this.defenseBonus = defenseBonus;
-        this.magicalDefenseBonus = magicalDefenseBonus;
     }
 }

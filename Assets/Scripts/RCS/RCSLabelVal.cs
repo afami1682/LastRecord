@@ -18,7 +18,7 @@ public class RCSLabelVal : MonoBehaviour
     [HideInInspector]
     public int statusListCount; // ステータスの数
     [HideInInspector]
-    public List<NodeStatus> statusList;
+    public List<Struct.NodeStatus> statusList;
     [HideInInspector]
     public int statusValMax; //ステータス値の最大値
     public GameObject textPref;
@@ -64,7 +64,7 @@ public class RCSLabelVal : MonoBehaviour
     private float GetVolume(int idx)
     {
         if (statusListCount - 1 < idx) return 0;
-        NodeStatus v = statusList[idx]; // ステータス値の取得
+        Struct.NodeStatus v = statusList[idx]; // ステータス値の取得
         v.val = v.val > MIN_VAL ? v.val : MIN_VAL; // MIN_VAL未満ならMIN_VALとする
         v.val = v.val > statusValMax ? statusValMax : v.val; // 最大値より大きい値は返さない
         return v.val;

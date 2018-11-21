@@ -12,7 +12,7 @@ public class RCSVal : Graphic
     [HideInInspector]
     public float radius; // 半径
     [HideInInspector]
-    public List<NodeStatus> statusList; // ステータスリスト
+    public List<Struct.NodeStatus> statusList; // ステータスリスト
     [HideInInspector]
     public int statusListCount; // ステータスの数
     [HideInInspector]
@@ -76,7 +76,7 @@ public class RCSVal : Graphic
     private float GetVolume(int idx)
     {
         if (statusListCount - 1 < idx) return 0;
-        NodeStatus v = statusList[idx]; // ステータス値の取得
+        Struct.NodeStatus v = statusList[idx]; // ステータス値の取得
         return v.val > statusValMax ? statusValMax : v.val; // 最大値より大きい値は返さない
     }
 }
