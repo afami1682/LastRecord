@@ -120,6 +120,7 @@ public class CursorManager : MonoBehaviour
                     else
                     {
                         // UI切り替え
+                        if (focusUnit) focusUnit.moveController.NotFocuse(); // アニメーションを元に戻す
                         focusUnit = null;
                         RemoveMarker();
                         RemoveActiveArea();
@@ -171,6 +172,7 @@ public class CursorManager : MonoBehaviour
 
         RemoveActiveArea();
         RemoveMarker();
+        if (focusUnit) focusUnit.moveController.NotFocuse(); // アニメーションを元に戻す
         focusUnit = null;
 
         // UIの切り替え
@@ -185,6 +187,9 @@ public class CursorManager : MonoBehaviour
     /// </summary>
     public void OnCancelActive()
     {
+        // アニメーションを元に戻す
+        if (focusUnit) focusUnit.moveController.NotFocuse();
+
         // ユニットの座標を元に戻す
         focusUnit.moveController.DirectMove(oldFocusUnitPos);
 

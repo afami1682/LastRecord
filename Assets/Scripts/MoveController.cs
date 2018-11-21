@@ -15,6 +15,7 @@ public class MoveController : MonoBehaviour
     private bool moveFlg = false; // 単体の移動中かどうか
     public bool movingFlg = false; // 移動中かどうか
     private Animator animator;
+    private bool isFocuse = false; // フォーカスされてるかどうか
 
     void Start()
     {
@@ -38,10 +39,10 @@ public class MoveController : MonoBehaviour
             moveRoot.RemoveAt(0);
 
             // アニメーションの切り替え
-            if (nextPos == Vector3.up) animator.SetInteger("Walk", (int)Enum.MOVE.UP);
-            else if (nextPos == Vector3.down) animator.SetInteger("Walk", (int)Enum.MOVE.DOWN);
-            else if (nextPos == Vector3.left) animator.SetInteger("Walk", (int)Enum.MOVE.LEFT);
-            else if (nextPos == Vector3.right) animator.SetInteger("Walk", (int)Enum.MOVE.RIGHT);
+            if (nextPos == Vector3.up) playAnim(Enum.MOVE.UP);
+            else if (nextPos == Vector3.down) playAnim(Enum.MOVE.DOWN);
+            else if (nextPos == Vector3.left) playAnim(Enum.MOVE.LEFT);
+            else if (nextPos == Vector3.right) playAnim(Enum.MOVE.RIGHT);
 
             // 移動開始
             moveFlg = true;
@@ -70,6 +71,7 @@ public class MoveController : MonoBehaviour
                 // 移動終了
                 moveFlg = false;
 
+                // 移動が全て終わったら
                 if (moveRoot.Count == 0)
                     movingFlg = false;
             }
@@ -111,5 +113,32 @@ public class MoveController : MonoBehaviour
     public Vector3 getPos()
     {
         return transform.position;
+    }
+
+    /// <summary>
+    /// アニメーションの再生
+    /// </summary>
+    /// <param name="move">Move.</param>
+    private void playAnim(Enum.MOVE move)
+    {
+        animator.SetInteger("Walk", (int)move);
+    }
+
+    /// <summary>
+    /// フォーカスされたら呼び出す処理
+    /// </summary>
+    public void Focused(){
+        isFocuse = true;
+    }
+
+    /// <summary>
+    /// フォーカスが外れたら呼び出す処理
+    /// </summary>
+    public void NotFocuse()
+    {
+        isFocuse = false;
+
+        // アニメーションを元に戻す
+        playAnim(Enum.MOVE.DOWN);
     }
 }
