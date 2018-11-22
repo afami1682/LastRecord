@@ -46,8 +46,6 @@ public class CursorManager : MonoBehaviour
     // 行動ターン
     Enum.TURN turn = Enum.TURN.START;
 
-    public static object TURN { get; private set; }
-
     void Start()
     {
         // UIの非表示
