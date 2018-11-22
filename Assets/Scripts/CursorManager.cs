@@ -108,6 +108,7 @@ public class CursorManager : MonoBehaviour
     private void turnStart()
     {
         turn = Enum.TURN.SELECT;
+        Debug.Log("TURN.SELECT");
     }
 
     /// <summary>
@@ -147,6 +148,7 @@ public class CursorManager : MonoBehaviour
                     focusUnit.moveController.setMoveRoots(moveRoot);
 
                     // ターンとUI切り替え
+                    Debug.Log("TURN.MOVE");
                     turn = Enum.TURN.MOVE;
                     rootArea.SetActive(false);
                     cursorObj.SetActive(false);
@@ -160,6 +162,7 @@ public class CursorManager : MonoBehaviour
                 focusUnit = null;
 
                 // ターンとUI切り替え
+                Debug.Log("TURN.SELECT");
                 turn = Enum.TURN.SELECT;
                 RemoveMarker();
                 RemoveActiveArea();
@@ -182,7 +185,7 @@ public class CursorManager : MonoBehaviour
     private void turnBattle()
     {
         // カーソルの更新
-        CursorUpdate(true);
+        CursorUpdate(false);
 
         // 攻撃範囲の描画
         if (attackAreaList == null)
@@ -211,9 +214,11 @@ public class CursorManager : MonoBehaviour
     public void OnAttackBtn()
     {
         // ターンとUI切り替え
+        Debug.Log("TURN.BATTLE");
         turn = Enum.TURN.BATTLE;
         activeArea.SetActive(false);
         activeUI.SetActive(false);
+        rootArea.SetActive(false);
         standbyUI.SetActive(true);
         cursorObj.SetActive(true);
     }
@@ -234,6 +239,7 @@ public class CursorManager : MonoBehaviour
         focusUnit = null;
 
         // ターンとUIの切り替え
+        Debug.Log("TURN.SELECT");
         turn = Enum.TURN.SELECT;
         activeUI.SetActive(false);
         cursorObj.SetActive(true);
@@ -247,8 +253,10 @@ public class CursorManager : MonoBehaviour
         RemoveAttackArea();
 
         // ターンとUIの切り替え
+        Debug.Log("TURN.MOVE");
         turn = Enum.TURN.MOVE;
         standbyUI.SetActive(false);
+        cursorObj.SetActive(false);
         rootArea.SetActive(true);
         activeArea.SetActive(true);
     }
@@ -270,6 +278,7 @@ public class CursorManager : MonoBehaviour
 
 
         // ターンとUIの切り替え
+        Debug.Log("TURN.SELECT");
         turn = Enum.TURN.SELECT;
         activeUI.SetActive(false);
         cursorObj.SetActive(true);
@@ -343,6 +352,7 @@ public class CursorManager : MonoBehaviour
                     Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = activeArea.transform;
 
         // ターンとUIの切り替え
+        Debug.Log("TURN.FOCUS");
         turn = Enum.TURN.FOCUS;
         activeArea.SetActive(true);
         rootArea.SetActive(true);
