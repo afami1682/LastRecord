@@ -189,7 +189,33 @@ public class CursorManager : MonoBehaviour
 
         // 攻撃範囲の描画
         if (attackAreaList == null)
+        {
             AddAttackArea();
+        }
+        else
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
+                if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.ATTACK)
+                {
+                    // 敵プレイヤーをタップしたら
+                    if (GameManager.GetMapUnit(cursorPos).aRMY == Enum.ARMY.ENEMY)
+                    {
+                        
+                    }else{
+
+
+                    }
+                }
+                else
+                {
+                    OnCancelStandby();
+                }
+            }
+        }
+
+
     }
 
     /// <summary>
@@ -275,7 +301,6 @@ public class CursorManager : MonoBehaviour
         RemoveActiveArea();
         RemoveMarker();
         focusUnit = null;
-
 
         // ターンとUIの切り替え
         Debug.Log("TURN.SELECT");
