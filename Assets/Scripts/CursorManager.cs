@@ -14,9 +14,11 @@ public class CursorManager : MonoBehaviour
     private Vector3 _cursorPos, cursorPos;
 
     // アクティブUI
-    public GameObject activeUI;
+    public GameObject activeMenu;
     // スタンバイUI
-    public GameObject standbyUI;
+    public GameObject battleSelect;
+    // バトルスタンバイUI
+    public GameObject battleStandby;
 
     // フォーカスUnit関連  
     [HideInInspector]
@@ -49,8 +51,9 @@ public class CursorManager : MonoBehaviour
     void Start()
     {
         // UIの非表示
-        activeUI.SetActive(false);
-        standbyUI.SetActive(false);
+        activeMenu.SetActive(false);
+        battleSelect.SetActive(false);
+        battleStandby.SetActive(false);
 
         // カーソルの生成
         cursorObj = Instantiate(cursorObj, Vector3.zero, Quaternion.identity);
@@ -176,7 +179,9 @@ public class CursorManager : MonoBehaviour
     {
         // 移動が終わったらUIを切り替える
         if (!focusUnit.moveController.movingFlg)
-            activeUI.SetActive(true);
+        {
+            activeMenu.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -194,28 +199,38 @@ public class CursorManager : MonoBehaviour
         }
         else
         {
+            if (GameManager.GetMapUnit(cursorPos) && 
+                GameManager.GetMapUnit(cursorPos).aRMY == Enum.ARMY.ENEMY)
+            {
+                // UIの切り替え
+                battleStandby.SetActive(true);
+            }
+            else
+            {
+                // UIの切り替え
+                battleStandby.SetActive(false);
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
-                if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.ATTACK)
+                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.ATTACK)
                 {
                     // 敵プレイヤーをタップしたら
-                    if (GameManager.GetMapUnit(cursorPos).aRMY == Enum.ARMY.ENEMY)
+                    if (GameManager.GetMapUnit(cursorPos) &&
+                        GameManager.GetMapUnit(cursorPos).aRMY == Enum.ARMY.ENEMY)
                     {
-                        
-                    }else{
-
+                        // 戦闘処理
 
                     }
                 }
                 else
                 {
-                    OnCancelStandby();
+                    // UIの切り替え
+                    OnCancelBattleStandby();
                 }
             }
         }
-
-
     }
 
     /// <summary>
@@ -243,16 +258,16 @@ public class CursorManager : MonoBehaviour
         Debug.Log("TURN.BATTLE");
         turn = Enum.TURN.BATTLE;
         activeArea.SetActive(false);
-        activeUI.SetActive(false);
+        activeMenu.SetActive(false);
         rootArea.SetActive(false);
-        standbyUI.SetActive(true);
+        battleSelect.SetActive(true);
         cursorObj.SetActive(true);
     }
 
     /// <summary>
     /// 行動画面からのキャンセルボタン処理（画面外のクリック）
     /// </summary>
-    public void OnCancelActive()
+    public void OnCancelActiveMenu()
     {
         // アニメーションを元に戻す
         if (focusUnit) focusUnit.moveController.NotFocuse();
@@ -267,21 +282,22 @@ public class CursorManager : MonoBehaviour
         // ターンとUIの切り替え
         Debug.Log("TURN.SELECT");
         turn = Enum.TURN.SELECT;
-        activeUI.SetActive(false);
+        activeMenu.SetActive(false);
         cursorObj.SetActive(true);
     }
 
     /// <summary>
     /// 攻撃選択画面からのキャンセルボタン処理（画面外のクリック）
     /// </summary>
-    public void OnCancelStandby()
+    public void OnCancelBattleStandby()
     {
         RemoveAttackArea();
 
         // ターンとUIの切り替え
         Debug.Log("TURN.MOVE");
         turn = Enum.TURN.MOVE;
-        standbyUI.SetActive(false);
+        battleStandby.SetActive(false);
+        battleSelect.SetActive(false);
         cursorObj.SetActive(false);
         rootArea.SetActive(true);
         activeArea.SetActive(true);
@@ -305,7 +321,7 @@ public class CursorManager : MonoBehaviour
         // ターンとUIの切り替え
         Debug.Log("TURN.SELECT");
         turn = Enum.TURN.SELECT;
-        activeUI.SetActive(false);
+        activeMenu.SetActive(false);
         cursorObj.SetActive(true);
     }
 
@@ -325,7 +341,7 @@ public class CursorManager : MonoBehaviour
             cursorPos = _cursorPos;
 
         // カーソル座標が更新されてないなら更新する
-        if (cursorObj.transform.position != cursorPos && !activeUI.activeSelf)
+        if (cursorObj.transform.position != cursorPos && !activeMenu.activeSelf)
         {
             // カーソルの座標を更新
             cursorObj.transform.position = cursorPos;
