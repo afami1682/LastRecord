@@ -199,7 +199,7 @@ public class CursorManager : MonoBehaviour
         }
         else
         {
-            if (GameManager.GetMapUnit(cursorPos) && 
+            if (GameManager.GetMapUnit(cursorPos) &&
                 GameManager.GetMapUnit(cursorPos).aRMY == Enum.ARMY.ENEMY)
             {
                 // UIの切り替え
@@ -353,10 +353,16 @@ public class CursorManager : MonoBehaviour
             if (showMarker) AddMarker();
 
             // ユニット情報の更新
+
             if (GameManager.GetMapUnit(cursorPos))
-                uIUnitInfo.ShowUnitInfo(GameManager.GetMapUnit(cursorPos));
+            {
+                if (turn == Enum.TURN.SELECT)
+                    uIUnitInfo.ShowUnitInfo(GameManager.GetMapUnit(cursorPos));
+            }
             else
+            {
                 uIUnitInfo.CloseUnitInfo();
+            }
         }
     }
 
