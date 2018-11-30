@@ -2219,10 +2219,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cursorObj: {fileID: 1359748850485236, guid: c38140521bb1b49e79c3d2e2e9ce3c57, type: 2}
-  activeMenu: {fileID: 1692388449}
-  battleStandby: {fileID: 527170421}
+  cursorPos: {x: 0, y: 0, z: 0}
   focusUnit: {fileID: 0}
+  oldFocusUnitPos: {x: 0, y: 0, z: 0}
   moveRoot: []
+  attackArea: {fileID: 0}
+  activeArea: {fileID: 0}
+  rootArea: {fileID: 0}
   areaBlue: {fileID: 1318635036286588, guid: 2a737f3c919124f10a7ccdf42979483c, type: 2}
   areaRed: {fileID: 1356426005745628, guid: cd19a9393d59c44f084c4dc1786ca6d3, type: 2}
   markerObj: {fileID: 1355178946539778, guid: 1e915756703584ea6822ff26895ec704, type: 2}
@@ -2233,6 +2236,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 81aa2677ce684fd4cbd4d45e29c3efea, type: 3}
   uIUnitInfo: {fileID: 2095369355}
   uIcellInfo: {fileID: 1046992561}
+  phaseManager: {fileID: 801212190}
 --- !u!4 &710814534
 Transform:
   m_ObjectHideFlags: 0
@@ -2445,7 +2449,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 710814533}
+        - m_Target: {fileID: 801212190}
           m_MethodName: OnEndBtn
           m_Mode: 1
           m_Arguments:
@@ -2808,6 +2812,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9418c0aec049448f8954c8603931abd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  phase: 0
+  activeMenu: {fileID: 1692388449}
+  battleStandby: {fileID: 527170421}
+  cursorManager: {fileID: 710814533}
 --- !u!4 &813017114 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4421982196858784, guid: d474c5f075d234c598f81bdea718cd5b,
@@ -2935,7 +2943,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1103764581}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &873627825
 MeshRenderer:
@@ -4113,8 +4121,8 @@ Transform:
   m_LocalPosition: {x: 485, y: 313, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 2076713839}
   - {fileID: 873627824}
+  - {fileID: 2076713839}
   - {fileID: 710814534}
   - {fileID: 801212189}
   m_Father: {fileID: 0}
@@ -4367,7 +4375,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 710814533}
+        - m_Target: {fileID: 801212190}
           m_MethodName: OnAttackBtn
           m_Mode: 1
           m_Arguments:
@@ -5944,7 +5952,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 710814533}
+        - m_Target: {fileID: 801212190}
           m_MethodName: OnCancelActiveMenu
           m_Mode: 1
           m_Arguments:
@@ -18050,7 +18058,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1103764581}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2094809019
 GameObject:
