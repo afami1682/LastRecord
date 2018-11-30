@@ -15,12 +15,10 @@ public class CursorManager : MonoBehaviour
 
     // アクティブUI
     public GameObject activeMenu;
-    // スタンバイUI
-    public GameObject battleSelect;
     // バトルスタンバイUI
     public GameObject battleStandby;
 
-    // フォーカスUnit関連  
+    // フォーカスUnit関連
     [HideInInspector]
     public UnitInfo focusUnit;
     private Vector3 oldFocusUnitPos;
@@ -46,13 +44,12 @@ public class CursorManager : MonoBehaviour
     private CursorManager cursorManager;
 
     // 行動ターン
-    Enum.TURN turn = Enum.TURN.START;
+    Enum.PHASE phase = Enum.PHASE.START;
 
     void Start()
     {
         // UIの非表示
         activeMenu.SetActive(false);
-        battleSelect.SetActive(false);
         battleStandby.SetActive(false);
 
         // カーソルの生成
@@ -73,34 +70,38 @@ public class CursorManager : MonoBehaviour
 
     public void Update()
     {
-        switch (turn)
+        switch (phase)
         {
-            case Enum.TURN.START:
-                turnStart();
+            case Enum.PHASE.START:
+                StartPhase();
                 break;
 
-            case Enum.TURN.SELECT:
-                trunSelect();
+            case Enum.PHASE.SELECT:
+                StandbyPhase();
                 break;
 
-            case Enum.TURN.FOCUS:
-                turnFoucus();
+            case Enum.PHASE.FOCUS:
+                FoucusPhase();
                 break;
 
-            case Enum.TURN.MOVE:
-                turnMove();
+            case Enum.PHASE.MOVE:
+                MovePhase();
                 break;
 
-            case Enum.TURN.BATTLE:
-                turnBattle();
+            case Enum.PHASE.BATTLE_STANDBY:
+                BattleStandbyPhase();
                 break;
 
-            case Enum.TURN.RESULT:
-                turnResult();
+            case Enum.PHASE.BATTLE:
+                BattlePhase(true);
                 break;
 
-            case Enum.TURN.END:
-                turnEnd();
+            case Enum.PHASE.RESULT:
+                ResultPhase();
+                break;
+
+            case Enum.PHASE.END:
+                EndPhase();
                 break;
         }
     }
@@ -108,16 +109,16 @@ public class CursorManager : MonoBehaviour
     /// <summary>
     /// ターン開始時
     /// </summary>
-    private void turnStart()
+    private void StartPhase()
     {
-        turn = Enum.TURN.SELECT;
-        Debug.Log("TURN.SELECT");
+        phase = Enum.PHASE.SELECT;
+        Debug.Log("phase.SELECT");
     }
 
     /// <summary>
     /// ユニット選択前
     /// </summary>
-    private void trunSelect()
+    private void StandbyPhase()
     {
         // カーソルの更新
         CursorUpdate(false);
@@ -132,7 +133,7 @@ public class CursorManager : MonoBehaviour
     /// <summary>
     /// ユニット選択後
     /// </summary>
-    private void turnFoucus()
+    private void FoucusPhase()
     {
         // カーソルの更新
         CursorUpdate(true);
@@ -151,8 +152,8 @@ public class CursorManager : MonoBehaviour
                     focusUnit.moveController.setMoveRoots(moveRoot);
 
                     // ターンとUI切り替え
-                    Debug.Log("TURN.MOVE");
-                    turn = Enum.TURN.MOVE;
+                    Debug.Log("phase.MOVE");
+                    phase = Enum.PHASE.MOVE;
                     rootArea.SetActive(false);
                     cursorObj.SetActive(false);
                     activeArea.SetActive(false);
@@ -165,8 +166,8 @@ public class CursorManager : MonoBehaviour
                 focusUnit = null;
 
                 // ターンとUI切り替え
-                Debug.Log("TURN.SELECT");
-                turn = Enum.TURN.SELECT;
+                Debug.Log("phase.SELECT");
+                phase = Enum.PHASE.SELECT;
                 RemoveMarker();
                 RemoveActiveArea();
             }
@@ -175,7 +176,7 @@ public class CursorManager : MonoBehaviour
     /// <summary>
     /// ユニットの移動
     /// </summary>
-    private void turnMove()
+    private void MovePhase()
     {
         // 移動が終わったらUIを切り替える
         if (!focusUnit.moveController.movingFlg)
@@ -185,9 +186,9 @@ public class CursorManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ユニット同士の戦闘
+    /// 戦闘するユニットの選択
     /// </summary>
-    private void turnBattle()
+    private void BattleStandbyPhase()
     {
         // カーソルの更新
         CursorUpdate(false);
@@ -199,11 +200,15 @@ public class CursorManager : MonoBehaviour
         }
         else
         {
+            // カーソルを敵ユニットに合わせた時の処理
             if (GameManager.GetMapUnit(cursorPos) &&
                 GameManager.GetMapUnit(cursorPos).aRMY == Enum.ARMY.ENEMY)
             {
-                // UIの切り替え
-                battleStandby.SetActive(true);
+                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.ATTACK)
+                {
+                    // UIの切り替え
+                    battleStandby.SetActive(true);
+                }
             }
             else
             {
@@ -211,6 +216,7 @@ public class CursorManager : MonoBehaviour
                 battleStandby.SetActive(false);
             }
 
+            // クリック処理
             if (Input.GetMouseButtonDown(0))
             {
                 // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
@@ -220,8 +226,12 @@ public class CursorManager : MonoBehaviour
                     if (GameManager.GetMapUnit(cursorPos) &&
                         GameManager.GetMapUnit(cursorPos).aRMY == Enum.ARMY.ENEMY)
                     {
-                        // 戦闘処理
-
+                        // 戦闘開始
+                        // ターンとUIの切り替え
+                        cursorObj.SetActive(false);
+                        battleStandby.SetActive(false);
+                        attackArea.SetActive(false);
+                        phase = Enum.PHASE.BATTLE;
                     }
                 }
                 else
@@ -234,9 +244,26 @@ public class CursorManager : MonoBehaviour
     }
 
     /// <summary>
+    /// ユニットとの戦闘
+    /// </summary>
+    private void BattlePhase(bool playerPhase)
+    {
+        // プレイヤーターンのバトル処理
+        if (playerPhase)
+        {
+
+
+
+
+
+
+        }
+    }
+
+    /// <summary>
     /// ユニット同士の戦闘終了後
     /// </summary>
-    private void turnResult()
+    private void ResultPhase()
     {
 
     }
@@ -244,7 +271,7 @@ public class CursorManager : MonoBehaviour
     /// <summary>
     /// ターン終了時
     /// </summary>
-    private void turnEnd()
+    private void EndPhase()
     {
 
     }
@@ -255,12 +282,11 @@ public class CursorManager : MonoBehaviour
     public void OnAttackBtn()
     {
         // ターンとUI切り替え
-        Debug.Log("TURN.BATTLE");
-        turn = Enum.TURN.BATTLE;
+        Debug.Log("phase.BATTLE_STANDBY");
+        phase = Enum.PHASE.BATTLE_STANDBY;
         activeArea.SetActive(false);
         activeMenu.SetActive(false);
         rootArea.SetActive(false);
-        battleSelect.SetActive(true);
         cursorObj.SetActive(true);
     }
 
@@ -280,8 +306,8 @@ public class CursorManager : MonoBehaviour
         focusUnit = null;
 
         // ターンとUIの切り替え
-        Debug.Log("TURN.SELECT");
-        turn = Enum.TURN.SELECT;
+        Debug.Log("phase.SELECT");
+        phase = Enum.PHASE.SELECT;
         activeMenu.SetActive(false);
         cursorObj.SetActive(true);
     }
@@ -294,10 +320,9 @@ public class CursorManager : MonoBehaviour
         RemoveAttackArea();
 
         // ターンとUIの切り替え
-        Debug.Log("TURN.MOVE");
-        turn = Enum.TURN.MOVE;
+        Debug.Log("phase.MOVE");
+        phase = Enum.PHASE.MOVE;
         battleStandby.SetActive(false);
-        battleSelect.SetActive(false);
         cursorObj.SetActive(false);
         rootArea.SetActive(true);
         activeArea.SetActive(true);
@@ -319,8 +344,8 @@ public class CursorManager : MonoBehaviour
         focusUnit = null;
 
         // ターンとUIの切り替え
-        Debug.Log("TURN.SELECT");
-        turn = Enum.TURN.SELECT;
+        Debug.Log("phase.SELECT");
+        phase = Enum.PHASE.SELECT;
         activeMenu.SetActive(false);
         cursorObj.SetActive(true);
     }
@@ -356,7 +381,7 @@ public class CursorManager : MonoBehaviour
 
             if (GameManager.GetMapUnit(cursorPos))
             {
-                if (turn == Enum.TURN.SELECT)
+                if (phase == Enum.PHASE.SELECT)
                     uIUnitInfo.ShowUnitInfo(GameManager.GetMapUnit(cursorPos));
             }
             else
@@ -399,8 +424,8 @@ public class CursorManager : MonoBehaviour
                     Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = activeArea.transform;
 
         // ターンとUIの切り替え
-        Debug.Log("TURN.FOCUS");
-        turn = Enum.TURN.FOCUS;
+        Debug.Log("phase.FOCUS");
+        phase = Enum.PHASE.FOCUS;
         activeArea.SetActive(true);
         rootArea.SetActive(true);
     }
@@ -590,7 +615,7 @@ public class CursorManager : MonoBehaviour
     /// </summary>
     /// <param name="value">入力値</param>
     /// <param name="multiple">倍数</param>
-    /// <returns>倍数の中間の値で、切り捨て・切り上げした値</returns>
+    /// <return>倍数の中間の値で、切り捨て・切り上げした値</return>
     private static float MultipleRound(float value, float multiple)
     {
         return MultipleFloor(value + multiple * 0.5f, multiple);
@@ -602,7 +627,7 @@ public class CursorManager : MonoBehaviour
     /// </summary>
     /// <param name="value">入力値</param>
     /// <param name="multiple">倍数</param>
-    /// <returns>倍数で切り捨てた値</returns>
+    /// <return>倍数で切り捨てた値</return>
     private static float MultipleFloor(float value, float multiple)
     {
         return Mathf.Floor(value / multiple) * multiple;
