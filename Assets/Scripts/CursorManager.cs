@@ -137,6 +137,8 @@ public class CursorManager : MonoBehaviour
 
         // ターンとUIの切り替え
         phaseManager.ChangePhase(Enum.PHASE.FOCUS);
+        phaseManager.selectUnitInfo.SetActive(false);
+        phaseManager.cellInfo.SetActive(false);
         activeArea.SetActive(true);
         rootArea.SetActive(true);
     }

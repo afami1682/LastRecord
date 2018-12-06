@@ -32,8 +32,6 @@ public class Enum
         END // プレイヤーのターン終了時
     };
 
-
-
     /// <summary>
     /// 勢力
     /// </summary>

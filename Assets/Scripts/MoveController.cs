@@ -12,8 +12,8 @@ public class MoveController : MonoBehaviour
     // 移動ルート管理用の2次元配列
     private List<Vector3> moveRoot = new List<Vector3>(); // 自動行動用、移動ルート
     private Vector3 pos, movePos, nextPos; // 各移動状態管理用変数
-    private bool moveFlg = false; // 単体の移動中かどうか
-    public bool movingFlg = false; // 移動中かどうか
+    private bool moveFlg = false; // 単体での移動中かどうか
+    public bool movingFlg = false; // 全体での移動中かどうか
     private Animator animator;
     private bool isFocuse = false; // フォーカスされてるかどうか
 

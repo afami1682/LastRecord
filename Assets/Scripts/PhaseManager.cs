@@ -9,21 +9,39 @@ using System;
 /// </summary>
 public class PhaseManager : MonoBehaviour
 {
-    // 行動ターン
-    public Enum.PHASE phase = Enum.PHASE.START;
-
     // UI
     public GameObject activeMenu;
     public GameObject battleStandby;
+    public GameObject selectUnitInfo;
+    public GameObject cellInfo;
 
     // インスタンス
     public CursorManager cursorManager;
+    public BattleManager battleManager;
+
+
+    // 行動ターン
+    Enum.PHASE phase = Enum.PHASE.START;
+
+    // 戦闘関係のメンバー変数
+    bool isBattle = false;
+    int playerHP; // プレイヤーUnitのHP
+    int playerAttackPower; // プレイヤーUnitの攻撃力
+    int playerAvoidance; // プレイヤーUnitの回避率
+    int playerDeathblow; // プレイヤーUnitの必殺率
+    int enemyHP; // 敵UnitのHP
+    int enemyAttackPower; // 敵Unitの攻撃力
+    int enemyAvoidance;  // 敵Unitの回避率
+    int enemyDeathblow; // 敵Unitの必殺率
+
 
     void Start()
     {
         // UIの非表示
         activeMenu.SetActive(false);
         battleStandby.SetActive(false);
+        selectUnitInfo.SetActive(false);
+        cellInfo.SetActive(false);
     }
 
     public void Update()
@@ -51,7 +69,7 @@ public class PhaseManager : MonoBehaviour
                 break;
 
             case Enum.PHASE.BATTLE:
-                BattlePhase(true);
+                BattlePhase();
                 break;
 
             case Enum.PHASE.RESULT:
@@ -78,7 +96,10 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void StartPhase()
     {
+        // ターンとUI切り替え
         phase = Enum.PHASE.SELECT;
+        selectUnitInfo.SetActive(true);
+        cellInfo.SetActive(true);
     }
 
     /// <summary>
@@ -210,17 +231,58 @@ public class PhaseManager : MonoBehaviour
     /// <summary>
     /// ユニットとの戦闘
     /// </summary>
-    void BattlePhase(bool playerPhase)
+    void BattlePhase()
     {
-        // プレイヤーターンのバトル処理
-        if (playerPhase)
+        if (!isBattle)
         {
+            // 戦闘前に戦闘結果を演算しイベントを登録する
+
+            // プレイヤーターンのバトル処理
+            UnitInfo enemyUnit = GameManager.GetMapUnit(cursorManager.cursorPos);
+
+            // イベントの発生チェックと登録
+
+            // 必殺の検証
+            bool deathblowFlg = RandomCheck(playerDeathblow);
+            if (deathblowFlg || RandomCheck(playerAvoidance))
+            {
+                // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
+                battleManager.AddEvent(new AttackEvent(cursorManager.focusUnit, enemyUnit, playerAttackPower, deathblowFlg));
+            }
+            else
+            {
+                // 攻撃失敗
+
+            }
 
 
+            //eventFunc = new AvoidanceEvent("ccc");
+            //events.Add(eventFunc);
+            //eventFunc = new ConversationEvent("eee");
+            //events.Add(eventFunc);
+            //eventFunc = new DeathblowEvent("fff");
+            //events.Add(eventFunc);
+            //eventFunc = new LevelUpEvent("fff");
+            //events.Add(eventFunc);
+            //eventFunc = new ExpUpEvent("fff");
+            //events.Add(eventFunc);
+            //eventFunc = new PlayerWinEvent("fff");
+            //events.Add(eventFunc);
+            //eventFunc = new PlayerLoseEvent("fff");
+            //events.Add(eventFunc);
 
-
-
-
+            // バトルの実行
+            battleManager.StartEvent();
+            isBattle = true;
+        }
+        else
+        {
+            // 全てのイベントが終了したらフェーズを変える
+            if (!battleManager.isBattle())
+            {
+                isBattle = false;
+                phase = Enum.PHASE.RESULT; // 攻撃終了
+            }
         }
     }
 
@@ -229,7 +291,8 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void ResultPhase()
     {
-
+        //if 
+        phase = Enum.PHASE.SELECT;
     }
 
     /// <summary>
@@ -308,5 +371,15 @@ public class PhaseManager : MonoBehaviour
         phase = Enum.PHASE.SELECT;
         activeMenu.SetActive(false);
         cursorManager.cursorObj.SetActive(true);
+    }
+
+    /// <summary>
+    /// 引数の確率の検証
+    /// </summary>
+    /// <returns><c>true</c>, if check was randomed, <c>false</c> otherwise.</returns>
+    /// <param name="probability">Probability.</param>
+    bool RandomCheck(int probability)
+    {
+        return probability <= UnityEngine.Random.Range(1, 101) ? true : false;
     }
 }

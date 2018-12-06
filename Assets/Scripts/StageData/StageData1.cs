@@ -48,28 +48,4 @@ public class StageData1
     };
         return fieldBase;
     }
-
-    public List<UnitInfo> getUnitData()
-    {
-        int unitId = -1;
-        UnitInfo unit;
-        List<UnitInfo> unitList = new List<UnitInfo>();
-
-
-        unit = new UnitInfo();
-        unit.id = unitId++;
-       // unit.hp
-
-
-
-        unitList.Add(unit);
-
-
-
-
-
-
-
-        return unitList;
-    }
 }
