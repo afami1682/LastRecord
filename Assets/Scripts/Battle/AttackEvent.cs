@@ -13,7 +13,7 @@ public class AttackEvent : BattleFunc
     bool deathBlow;
     int enemyResidualHP;
 
-    float ATTACK_SPEED = 0.3f;
+    const float ATTACK_SPEED = 0.3f;
 
     Animation animation;
     AnimationClip clip;
@@ -46,8 +46,15 @@ public class AttackEvent : BattleFunc
         Keyframe[] keysY = new Keyframe[3];
         keysX[0] = new Keyframe(ATTACK_SPEED * 0, pos.x);
         keysY[0] = new Keyframe(ATTACK_SPEED * 0, pos.y);
-        keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x + 0.5f);
-        keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y);
+
+        if (Mathf.Abs(pos.x - enemyUnitObj.transform.position.x) <= 0f) keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x);
+        else if (pos.x < enemyUnitObj.transform.position.x) keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x + 0.5f);
+        else keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x - 0.5f);
+
+        if (Mathf.Abs(pos.y - enemyUnitObj.transform.position.y) <= 0f) keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y);
+        else if (pos.y < enemyUnitObj.transform.position.y) keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y + 0.5f);
+        else keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y - 0.5f);
+
         keysX[2] = new Keyframe(ATTACK_SPEED * 2, pos.x);
         keysY[2] = new Keyframe(ATTACK_SPEED * 2, pos.y);
         curveX = new AnimationCurve(keysX);
@@ -72,15 +79,18 @@ public class AttackEvent : BattleFunc
     /// <returns>イベントが実行中かどうか</returns>
     protected override bool Event()
     {
-
-
         // アニメーションの終了検知
         if (!animation.IsPlaying(clip.name))
+        {
+            // 実行終了
+            Main.GameManager.GetMapUnitInfo(enemyUnitObj.transform.position).hp = enemyResidualHP;
             return false;
+        }
         else
+        {
             // 実行中
             return true;
-
+        }
 
 
         /// Debug.Log("再生おわり");
