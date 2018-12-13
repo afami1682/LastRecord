@@ -22,9 +22,9 @@ public class RouteManager
 
         // 開始地点から終了地点までたどり着けるか
         bool isEnd = false;
-        Vector3 pos = phaseManager.focusUnitObj.GetComponent<MoveController>().getPos();
+        Vector3 pos = phaseManager.focusUnitObj.transform.position;
         Struct.NodeMove[,] nodeList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
-        nodeList[-(int)pos.y, (int)pos.x].aREA = Enum.AREA.UNIT;
+        nodeList[-(int)pos.y, (int)pos.x].aREA = Enums.AREA.UNIT;
 
         // スタート地点からエンドまで再帰的に移動コストをチェックする
         CheckRootAreaRecursive(ref nodeList, ref phaseManager.activeAreaList, pos, ref endPos, 0, ref isEnd);
@@ -52,8 +52,8 @@ public class RouteManager
             return;
 
         // アクティブエリアでなければ何もしない
-        if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enum.AREA.MOVE &&
-            activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enum.AREA.UNIT)
+        if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.MOVE &&
+            activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
             return;
 
         // 省コストで上書きできない場合は終了
@@ -63,7 +63,7 @@ public class RouteManager
             return;
 
         // 移動前のコストと今回のコストを合計して設定する（開始地点を除く）
-        if (nodeList[-(int)checkPos.y, (int)checkPos.x].aREA != Enum.AREA.UNIT)
+        if (nodeList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
             nodeList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + MapManager.GetFieldData().cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
 
         // ゴールまで辿り着ける事を確認した
@@ -86,39 +86,39 @@ public class RouteManager
     private List<Vector3> CheckShootRootRecursive(ref PhaseManager phaseManager, ref Struct.NodeMove[,] nodeList, Vector3 checkPos)
     {
         // 目的地からスタート位置（ユニット）まで辿り着いたら移動ルートを返す
-        if (checkPos == phaseManager.focusUnitObj.GetComponent<MoveController>().getPos()) return phaseManager.moveRoot;
+        if (checkPos == phaseManager.focusUnitObj.transform.position) return phaseManager.moveRoot;
 
         // 上下左右のコストをチェクし昇順に並び替える
         List<Struct.NodeRoot> list = new List<Struct.NodeRoot>();
         int valUp = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.up);
-        if (-1 < valUp) list.Insert(list.Count, new Struct.NodeRoot(Enum.MOVE.UP, valUp));
+        if (-1 < valUp) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.UP, valUp));
         int valDown = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.down);
-        if (-1 < valDown) list.Insert(list.Count, new Struct.NodeRoot(Enum.MOVE.DOWN, valDown));
+        if (-1 < valDown) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.DOWN, valDown));
         int valLeft = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.left);
-        if (-1 < valLeft) list.Insert(list.Count, new Struct.NodeRoot(Enum.MOVE.LEFT, valLeft));
+        if (-1 < valLeft) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.LEFT, valLeft));
         int valRight = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.right);
-        if (-1 < valRight) list.Insert(list.Count, new Struct.NodeRoot(Enum.MOVE.RIGHT, valRight));
+        if (-1 < valRight) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.RIGHT, valRight));
         list.Sort((a, b) => a.cost.CompareTo(b.cost));
 
         // もっともコストの低いマスを次のチェック対象とする
         switch (list[0].move)
         {
-            case Enum.MOVE.UP:
+            case Enums.MOVE.UP:
                 phaseManager.moveRoot.Insert(0, Vector3.down);
                 CheckShootRootRecursive(ref phaseManager, ref nodeList, checkPos + Vector3.up);
                 break;
 
-            case Enum.MOVE.DOWN:
+            case Enums.MOVE.DOWN:
                 phaseManager.moveRoot.Insert(0, Vector3.up);
                 CheckShootRootRecursive(ref phaseManager, ref nodeList, checkPos + Vector3.down);
                 break;
 
-            case Enum.MOVE.LEFT:
+            case Enums.MOVE.LEFT:
                 phaseManager.moveRoot.Insert(0, Vector3.right);
                 CheckShootRootRecursive(ref phaseManager, ref nodeList, checkPos + Vector3.left);
                 break;
 
-            case Enum.MOVE.RIGHT:
+            case Enums.MOVE.RIGHT:
                 phaseManager.moveRoot.Insert(0, Vector3.left);
                 CheckShootRootRecursive(ref phaseManager, ref nodeList, checkPos + Vector3.right);
                 break;
@@ -143,8 +143,8 @@ public class RouteManager
             return -1;
 
         // アクティブエリアでなければ-1を返す
-        if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enum.AREA.MOVE &&
-            activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enum.AREA.UNIT)
+        if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.MOVE &&
+            activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
             return -1;
 
         // 移動コストを返す
@@ -158,9 +158,9 @@ public class RouteManager
     public void CheckMoveArea(ref PhaseManager phaseManager)
     {
         // スタート地点からエンドまで再帰的に移動コストをチェックする
-        Vector3 pos = phaseManager.focusUnitObj.GetComponent<MoveController>().getPos();
+        Vector3 pos = phaseManager.focusUnitObj.transform.position;
         phaseManager.activeAreaList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
-        phaseManager.activeAreaList[-(int)pos.y, (int)pos.x].aREA = Enum.AREA.UNIT;
+        phaseManager.activeAreaList[-(int)pos.y, (int)pos.x].aREA = Enums.AREA.UNIT;
         CheckMoveAreaRecursive(ref phaseManager, pos, 0);
     }
 
@@ -184,21 +184,21 @@ public class RouteManager
             return;
 
         // 移動先にユニットがいた場合のすり抜けチェック
-        if (GameManager.GetMapUnitInfo(checkPos))
+        if (Main.GameManager.GetMapUnitInfo(checkPos))
         {
-            switch (GameManager.GetMapUnitInfo(checkPos).aRMY)
+            switch (Main.GameManager.GetMapUnitInfo(checkPos).aRMY)
             {
-                case Enum.ARMY.ALLY:
-                    if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enum.ARMY.ENEMY)
+                case Enums.ARMY.ALLY:
+                    if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.ENEMY)
                         return;
                     break;
-                case Enum.ARMY.ENEMY:
-                    if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enum.ARMY.ALLY ||
-                        phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enum.ARMY.NEUTRAL)
+                case Enums.ARMY.ENEMY:
+                    if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.ALLY ||
+                        phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.NEUTRAL)
                         return;
                     break;
-                case Enum.ARMY.NEUTRAL:
-                    if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enum.ARMY.ENEMY)
+                case Enums.ARMY.NEUTRAL:
+                    if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.ENEMY)
                         return;
                     break;
             }
@@ -211,10 +211,10 @@ public class RouteManager
             return;
 
         // 移動前のコストと今回のコストを合計して設定する（開始地点を除く）
-        if (phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enum.AREA.UNIT)
+        if (phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
         {
             phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + MapManager.GetFieldData().cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
-            phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA = Enum.AREA.MOVE;
+            phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA = Enums.AREA.MOVE;
         }
 
         // 移動コストを超えた場合は終了
@@ -264,14 +264,14 @@ public class RouteManager
             MapManager.GetFieldData().width <= checkPos.x)
             return;
 
-        if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enum.AREA.NONE)
+        if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.NONE)
         {
             // 移動エリアでなければ攻撃範囲として登録
             previousCost--;
             activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost;
-            activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA = Enum.AREA.ATTACK;
+            activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA = Enums.AREA.ATTACK;
         }
-        else if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enum.AREA.ATTACK &&
+        else if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.ATTACK &&
                  activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost < previousCost - 1)
         {
             // 既に攻撃範囲として登録されていても、少ないコストで上書き出来るならば上書きする
@@ -294,17 +294,17 @@ public class RouteManager
     /// <returns><c>true</c>, if moveing was ised, <c>false</c> otherwise.</returns>
     /// <param name="cellCategory">Cell category.</param>
     /// <param name="moveType">Move type.</param>
-    public static bool isMoveing(int cellCategory, Enum.MOVE_TYPE moveType)
+    public static bool isMoveing(int cellCategory, Enums.MOVE_TYPE moveType)
     {
         // キャラ毎の移動可能かどうかのチェック
         switch (moveType)
         {
-            case Enum.MOVE_TYPE.WALKING:
+            case Enums.MOVE_TYPE.WALKING:
                 if (cellCategory == 1) return false;
                 break;
-            case Enum.MOVE_TYPE.ATHLETE: break;
-            case Enum.MOVE_TYPE.HORSE: break;
-            case Enum.MOVE_TYPE.FLYING: break;
+            case Enums.MOVE_TYPE.ATHLETE: break;
+            case Enums.MOVE_TYPE.HORSE: break;
+            case Enums.MOVE_TYPE.FLYING: break;
         }
         return true;
     }

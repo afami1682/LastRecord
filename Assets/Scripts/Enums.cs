@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 列挙型定数一覧
 /// </summary>
-public class Enum
+public class Enums
 {
     /// <summary>
     /// アクティブエリアの識別

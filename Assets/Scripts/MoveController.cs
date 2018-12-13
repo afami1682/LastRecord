@@ -13,7 +13,6 @@ public class MoveController : MonoBehaviour
     List<Vector3> moveRoot = new List<Vector3>(); // 自動行動用、移動ルート
     Vector3 pos, movePos, nextPos, nextAttackPos; // 各移動状態管理用変数
     Animator animator;
-    bool isFocuse = false; // フォーカスされてるかどうか
 
     bool moveFlg = false; // 単体での移動中かどうか
     public bool movingFlg = false; // 全体での移動中かどうか
@@ -26,7 +25,7 @@ public class MoveController : MonoBehaviour
         animator = GetComponent<Animator>();
 
         // GameManagerにユニット情報を登録する
-        GameManager.AddMapUnitData(pos, gameObject);
+        Main.GameManager.AddMapUnitObj(pos, gameObject);
     }
 
     private void Update()
@@ -40,10 +39,10 @@ public class MoveController : MonoBehaviour
             moveRoot.RemoveAt(0);
 
             // アニメーションの切り替え
-            if (nextPos == Vector3.up) playAnim(Enum.MOVE.UP);
-            else if (nextPos == Vector3.down) playAnim(Enum.MOVE.DOWN);
-            else if (nextPos == Vector3.left) playAnim(Enum.MOVE.LEFT);
-            else if (nextPos == Vector3.right) playAnim(Enum.MOVE.RIGHT);
+            if (nextPos == Vector3.up) playAnim(Enums.MOVE.UP);
+            else if (nextPos == Vector3.down) playAnim(Enums.MOVE.DOWN);
+            else if (nextPos == Vector3.left) playAnim(Enums.MOVE.LEFT);
+            else if (nextPos == Vector3.right) playAnim(Enums.MOVE.RIGHT);
 
             // 移動開始
             moveFlg = true;
@@ -122,19 +121,10 @@ public class MoveController : MonoBehaviour
     }
 
     /// <summary>
-    /// 座標取得用
-    /// </summary>
-    /// <returns>The position.</returns>
-    public Vector3 getPos()
-    {
-        return transform.position;
-    }
-
-    /// <summary>
     /// アニメーションの再生
     /// </summary>
     /// <param name="move">Move.</param>
-    private void playAnim(Enum.MOVE move)
+    private void playAnim(Enums.MOVE move)
     {
         animator.SetInteger("Walk", (int)move);
     }
@@ -142,20 +132,18 @@ public class MoveController : MonoBehaviour
     /// <summary>
     /// フォーカスされたら呼び出す処理
     /// </summary>
-    public void Focused()
-    {
-        isFocuse = true;
-    }
+    //public void Focused()
+    //{
+    //    isFocuse = true;
+    //}
 
     /// <summary>
     /// フォーカスが外れたら呼び出す処理
     /// </summary>
     public void FocuseEnd()
     {
-        isFocuse = false;
-
         // アニメーションを元に戻す
-        playAnim(Enum.MOVE.DOWN);
+        playAnim(Enums.MOVE.DOWN);
     }
 
     /// <summary>

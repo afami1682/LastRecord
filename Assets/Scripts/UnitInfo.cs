@@ -13,15 +13,15 @@ public class UnitInfo : MonoBehaviour
     [Header("基本パラメータ")]
     public int id;
     public string name;
-    public Enum.CLASS_TYPE classType;
+    public Enums.CLASS_TYPE classType;
     public int level;
     public int hp;
     public int movementRange; // 移動範囲
     public int attackRange; // 攻撃範囲
-    public Enum.MOVE_TYPE moveType; // 移動タイプ
+    public Enums.MOVE_TYPE moveType; // 移動タイプ
     [HideInInspector]
     public bool isMoving; // 移動中かどうか
-    public Enum.ARMY aRMY; // 勢力
+    public Enums.ARMY aRMY; // 勢力
 
     [Header("成長パラメータ")]
     public int vitality; // 体力
@@ -36,5 +36,5 @@ public class UnitInfo : MonoBehaviour
     [Header("サブパラメータ")]
     public int physique; // 体格（自分の体格未満のUnitを救出できる）
     public int accompanyId; // 同行UnitのId
-    public Enum.STATUS status; // 状態
+    public Enums.STATUS status; // 状態
 }
