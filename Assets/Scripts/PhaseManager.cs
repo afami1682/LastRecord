@@ -3,22 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-
 /// <summary>
 /// Phaseの管理
 /// </summary>
 public class PhaseManager : MonoBehaviour
 {
     // UI
-    public GameObject activeMenu;
-    public GameObject battleStandby;
-    public GameObject selectUnitInfo;
-    public GameObject cellInfo;
+    public GameObject activeMenuUI;
+    public GameObject battleStandbyUI;
+    public GameObject selectUnitInfoUI;
+    public GameObject cellInfoUI;
 
-    // インスタンス
+    // マネージャースクリプト
     public CursorManager cursorManager;
     public BattleManager battleManager;
+    PhaseManager phaseManager;
+    RouteManager routeManager;
 
+    [HideInInspector]
+    public Vector3 cursorPos, oldCursorPos;
+
+    // フォーカス（選択中）Unit関
+    [HideInInspector]
+    public GameObject focusUnitObj;
+    [HideInInspector]
+    public Vector3 oldFocusUnitPos;
+    [HideInInspector]
+    public List<Vector3> moveRoot; // 移動ルートの座標引き渡し用
+    [HideInInspector]
+    public Struct.NodeMove[,] activeAreaList; // 行動可能エリアを管理する配列
+    [HideInInspector]
+    public Struct.NodeMove[,] attackAreaList;
+
+    // エリア描画用関連
+    [HideInInspector]
+    public GameObject attackArea;
+    [HideInInspector]
+    public GameObject activeArea;
+    [HideInInspector]
+    public GameObject rootArea;
+    public GameObject areaBlue;
+    public GameObject areaRed;
+    public GameObject markerObj;
+    public Sprite[] makerSprites;
 
     // 行動ターン
     Enum.PHASE phase = Enum.PHASE.START;
@@ -34,14 +61,25 @@ public class PhaseManager : MonoBehaviour
     int enemyAvoidance;  // 敵Unitの回避率
     int enemyDeathblow; // 敵Unitの必殺率
 
-
     void Start()
     {
         // UIの非表示
-        activeMenu.SetActive(false);
-        battleStandby.SetActive(false);
-        selectUnitInfo.SetActive(false);
-        cellInfo.SetActive(false);
+        activeMenuUI.SetActive(false);
+        battleStandbyUI.SetActive(false);
+        selectUnitInfoUI.SetActive(false);
+        cellInfoUI.SetActive(false);
+
+        // インスタンスの初期化
+        routeManager = new RouteManager();
+        phaseManager = this;
+
+        // エリア描画用関連の読み込み
+        attackArea = new GameObject("AttackArea");
+        activeArea = new GameObject("ActiveArea");
+        rootArea = new GameObject("rootArea");
+        attackArea.transform.parent = transform;
+        activeArea.transform.parent = transform;
+        rootArea.transform.parent = transform;
     }
 
     public void Update()
@@ -98,8 +136,8 @@ public class PhaseManager : MonoBehaviour
     {
         // ターンとUI切り替え
         phase = Enum.PHASE.SELECT;
-        selectUnitInfo.SetActive(true);
-        cellInfo.SetActive(true);
+        selectUnitInfoUI.SetActive(true);
+        cellInfoUI.SetActive(true);
     }
 
     /// <summary>
@@ -107,14 +145,32 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void StandbyPhase()
     {
-        // カーソルの更新
-        cursorManager.CursorUpdate(false);
+        // カーソルが更新されたら
+        if (cursorPos != oldCursorPos)
+        {
+            // カーソルの更新
+            oldCursorPos = cursorPos;
+
+            // セル情報の更新
+            cellInfoUI.GetComponent<CellInfo>().SetData(MapManager.GetFieldData().cells[-(int)cursorPos.y, (int)cursorPos.x]);
+
+            // ユニット情報の更新
+            if (GameManager.GetMapUnitInfo(cursorPos))
+            {
+                selectUnitInfoUI.GetComponent<SelectUnitInfo>().ShowUnitInfo(GameManager.GetMapUnitInfo(cursorPos));
+            }
+            else
+            {
+                selectUnitInfoUI.GetComponent<SelectUnitInfo>().CloseUnitInfo();
+            }
+        }
 
         // クリック処理
-        if (Input.GetMouseButtonDown(0))
-            if (GameManager.GetMapUnit(cursorManager.cursorPos) != null && cursorManager.activeAreaList == null)
-                if (!GameManager.GetMapUnit(cursorManager.cursorPos).isMoving)
-                    cursorManager.AddActiveArea(); // 未行動のユニットであればフォーカスする
+        if (Input.GetMouseButtonDown(0)){
+            if (GameManager.GetMapUnitInfo(cursorPos) != null && activeAreaList == null)
+                if (!GameManager.GetMapUnitInfo(cursorPos).isMoving)
+                    AddActiveArea(); // 未行動のユニットであればフォーカスする
+        }
     }
 
     /// <summary>
@@ -122,39 +178,39 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void FoucusPhase()
     {
-        // カーソルの更新
-        cursorManager.CursorUpdate(true);
+        // 移動マーカの更新
+        AddMarker();
 
         if (Input.GetMouseButtonDown(0))
             // アクティブエリア（移動可能マス）を選択されたら移動する
-            if (cursorManager.activeAreaList[-(int)cursorManager.cursorPos.y, (int)cursorManager.cursorPos.x].aREA == Enum.AREA.MOVE)
+            if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.MOVE)
             {
                 // 他ユニットがいなければ
-                if (!GameManager.GetMapUnit(cursorManager.cursorPos))
+                if (!GameManager.GetMapUnitInfo(cursorPos))
                 {
                     // ユニットの移動前の座標を保存
-                    cursorManager.oldFocusUnitPos = cursorManager.focusUnit.moveController.getPos();
+                    oldFocusUnitPos = focusUnitObj.GetComponent<MoveController>().getPos();
 
                     // 移動可能エリアがクリックされたら移動する
-                    cursorManager.focusUnit.moveController.setMoveRoots(cursorManager.moveRoot);
+                    focusUnitObj.GetComponent<MoveController>().setMoveRoots(moveRoot);
 
                     // ターンとUI切り替え
                     phase = Enum.PHASE.MOVE;
-                    cursorManager.rootArea.SetActive(false);
-                    cursorManager.cursorObj.SetActive(false);
-                    cursorManager.activeArea.SetActive(false);
+                    rootArea.SetActive(false);
+                    //cursorObj.SetActive(false);
+                    activeArea.SetActive(false);
                 }
             }
             else // アクティブエリア外をクリックされたらフォーカスを外す
             {
                 // アニメーションを元に戻す
-                cursorManager.focusUnit.moveController.NotFocuse();
-                cursorManager.focusUnit = null;
+                focusUnitObj.GetComponent<MoveController>().FocuseEnd();
+                focusUnitObj = null;
 
                 // ターンとUI切り替え
                 phase = Enum.PHASE.SELECT;
-                cursorManager.RemoveMarker();
-                cursorManager.RemoveActiveArea();
+                RemoveMarker();
+                RemoveActiveArea();
             }
     }
 
@@ -164,10 +220,9 @@ public class PhaseManager : MonoBehaviour
     void MovePhase()
     {
         // 移動が終わったらUIを切り替える
-        if (!cursorManager.focusUnit.moveController.movingFlg)
-        {
-            activeMenu.SetActive(true);
-        }
+        if (!focusUnitObj.GetComponent<MoveController>().movingFlg)
+            activeMenuUI.SetActive(true);
+
     }
 
     /// <summary>
@@ -175,47 +230,43 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void BattleStandbyPhase()
     {
-        // カーソルの更新
-        cursorManager.CursorUpdate(false);
-
         // 攻撃範囲の描画
-        if (cursorManager.attackAreaList == null)
+        if (attackAreaList == null)
         {
-            cursorManager.AddAttackArea();
+            AddAttackArea();
         }
         else
         {
             // カーソルを敵ユニットに合わせた時の処理
-            if (GameManager.GetMapUnit(cursorManager.cursorPos) &&
-                GameManager.GetMapUnit(cursorManager.cursorPos).aRMY == Enum.ARMY.ENEMY)
-            {
-                if (cursorManager.attackAreaList[-(int)cursorManager.cursorPos.y, (int)cursorManager.cursorPos.x].aREA == Enum.AREA.ATTACK)
+            if (GameManager.GetMapUnitInfo(cursorPos) &&
+                GameManager.GetMapUnitInfo(cursorPos).aRMY == Enum.ARMY.ENEMY)
+                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.ATTACK)
                 {
-                    // UIの切り替え
-                    battleStandby.SetActive(true);
+                    battleStandbyUI.SetActive(true); // UIの切り替え
+
+                    // TODO
+                    playerAttackPower = 10;
+
+
                 }
-            }
-            else
-            {
-                // UIの切り替え
-                battleStandby.SetActive(false);
-            }
+                else
+                    battleStandbyUI.SetActive(false); // UIの切り替え
 
             // クリック処理
             if (Input.GetMouseButtonDown(0))
             {
                 // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
-                if (cursorManager.attackAreaList[-(int)cursorManager.cursorPos.y, (int)cursorManager.cursorPos.x].aREA == Enum.AREA.ATTACK)
+                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.ATTACK)
                 {
                     // 敵プレイヤーをタップしたら
-                    if (GameManager.GetMapUnit(cursorManager.cursorPos) &&
-                        GameManager.GetMapUnit(cursorManager.cursorPos).aRMY == Enum.ARMY.ENEMY)
+                    if (GameManager.GetMapUnitInfo(cursorPos) &&
+                        GameManager.GetMapUnitInfo(cursorPos).aRMY == Enum.ARMY.ENEMY)
                     {
                         // 戦闘開始
                         // ターンとUIの切り替え
                         cursorManager.cursorObj.SetActive(false);
-                        battleStandby.SetActive(false);
-                        cursorManager.attackArea.SetActive(false);
+                        battleStandbyUI.SetActive(false);
+                        attackArea.SetActive(false);
                         phase = Enum.PHASE.BATTLE;
                     }
                 }
@@ -238,7 +289,7 @@ public class PhaseManager : MonoBehaviour
             // 戦闘前に戦闘結果を演算しイベントを登録する
 
             // プレイヤーターンのバトル処理
-            UnitInfo enemyUnit = GameManager.GetMapUnit(cursorManager.cursorPos);
+            GameObject enemyUnitObj = GameManager.GetMapUnitObj(cursorPos);
 
             // イベントの発生チェックと登録
 
@@ -246,8 +297,11 @@ public class PhaseManager : MonoBehaviour
             bool deathblowFlg = RandomCheck(playerDeathblow);
             if (deathblowFlg || RandomCheck(playerAvoidance))
             {
+
+
+
                 // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                battleManager.AddEvent(new AttackEvent(cursorManager.focusUnit, enemyUnit, playerAttackPower, deathblowFlg));
+                battleManager.AddEvent(new AttackEvent(ref focusUnitObj, ref enemyUnitObj, playerAttackPower, deathblowFlg));
             }
             else
             {
@@ -281,6 +335,10 @@ public class PhaseManager : MonoBehaviour
             if (!battleManager.isBattle())
             {
                 isBattle = false;
+                focusUnitObj.GetComponent<MoveController>().FocuseEnd();
+                focusUnitObj = null;
+                activeArea = null;
+                attackArea = null;
                 phase = Enum.PHASE.RESULT; // 攻撃終了
             }
         }
@@ -310,9 +368,9 @@ public class PhaseManager : MonoBehaviour
     {
         // ターンとUI切り替え
         phase = Enum.PHASE.BATTLE_STANDBY;
-        cursorManager.activeArea.SetActive(false);
-        activeMenu.SetActive(false);
-        cursorManager.rootArea.SetActive(false);
+        activeArea.SetActive(false);
+        activeMenuUI.SetActive(false);
+        rootArea.SetActive(false);
         cursorManager.cursorObj.SetActive(true);
     }
 
@@ -322,18 +380,18 @@ public class PhaseManager : MonoBehaviour
     public void OnCancelActiveMenu()
     {
         // アニメーションを元に戻す
-        if (cursorManager.focusUnit) cursorManager.focusUnit.moveController.NotFocuse();
+        if (focusUnitObj) focusUnitObj.GetComponent<MoveController>().FocuseEnd();
 
         // ユニットの座標を元に戻す
-        cursorManager.focusUnit.moveController.DirectMove(cursorManager.oldFocusUnitPos);
+        focusUnitObj.GetComponent<MoveController>().DirectMove(oldFocusUnitPos);
 
-        cursorManager.RemoveActiveArea();
-        cursorManager.RemoveMarker();
-        cursorManager.focusUnit = null;
+        RemoveActiveArea();
+        RemoveMarker();
+        focusUnitObj = null;
 
         // ターンとUIの切り替え
         phase = Enum.PHASE.SELECT;
-        activeMenu.SetActive(false);
+        activeMenuUI.SetActive(false);
         cursorManager.cursorObj.SetActive(true);
     }
 
@@ -342,14 +400,14 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     public void OnCancelBattleStandby()
     {
-        cursorManager.RemoveAttackArea();
+        RemoveAttackArea();
 
         // ターンとUIの切り替え
         phase = Enum.PHASE.MOVE;
-        battleStandby.SetActive(false);
+        battleStandbyUI.SetActive(false);
         cursorManager.cursorObj.SetActive(false);
-        cursorManager.rootArea.SetActive(true);
-        cursorManager.activeArea.SetActive(true);
+        rootArea.SetActive(true);
+        activeArea.SetActive(true);
     }
 
     /// <summary>
@@ -358,18 +416,18 @@ public class PhaseManager : MonoBehaviour
     public void OnEndBtn()
     {
         // アニメーションを元に戻す
-        if (cursorManager.focusUnit) cursorManager.focusUnit.moveController.NotFocuse();
+        if (focusUnitObj) focusUnitObj.GetComponent<MoveController>().FocuseEnd();
 
         // ユニット管理リストの更新
-        GameManager.MoveMapUnitData(cursorManager.oldFocusUnitPos, cursorManager.focusUnit.moveController.getPos());
+        GameManager.MoveMapUnitData(oldFocusUnitPos, focusUnitObj.GetComponent<MoveController>().getPos());
 
-        cursorManager.RemoveActiveArea();
-        cursorManager.RemoveMarker();
-        cursorManager.focusUnit = null;
+        RemoveActiveArea();
+        RemoveMarker();
+        focusUnitObj = null;
 
         // ターンとUIの切り替え
         phase = Enum.PHASE.SELECT;
-        activeMenu.SetActive(false);
+        activeMenuUI.SetActive(false);
         cursorManager.cursorObj.SetActive(true);
     }
 
@@ -382,4 +440,234 @@ public class PhaseManager : MonoBehaviour
     {
         return probability <= UnityEngine.Random.Range(1, 101) ? true : false;
     }
+
+
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    /// <summary>
+    /// アクティブエリアの表示
+    /// </summary>
+    public void AddActiveArea()
+    {
+        // フォーカスユニットの取得
+        focusUnitObj = GameManager.GetMapUnitObj(cursorPos);
+
+        // アクティブリストの生成と検証
+        activeAreaList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
+
+        // 移動エリアの検証
+        routeManager.CheckMoveArea(ref phaseManager);
+
+        // エリアパネルの表示
+        for (int y = 0; y < MapManager.GetFieldData().height; y++)
+            for (int x = 0; x < MapManager.GetFieldData().width; x++)
+                if (activeAreaList[y, x].aREA == Enum.AREA.MOVE || activeAreaList[y, x].aREA == Enum.AREA.UNIT)
+                {
+                    // 移動エリアの表示
+                    Instantiate(areaBlue, new Vector3(x, -y, 0), Quaternion.identity).transform.parent = activeArea.transform;
+                    UnitInfo a = focusUnitObj.GetComponent<UnitInfo>();
+                    // 攻撃エリアの検証
+                    routeManager.CheckAttackArea(ref activeAreaList, new Vector3(x, -y, 0), focusUnitObj.GetComponent<UnitInfo>().attackRange);
+                }
+
+        // 攻撃エリアの表示
+        for (int ay = 0; ay < MapManager.GetFieldData().height; ay++)
+            for (int ax = 0; ax < MapManager.GetFieldData().width; ax++)
+                if (activeAreaList[ay, ax].aREA == Enum.AREA.ATTACK)
+                    Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = activeArea.transform;
+
+        // ターンとUIの切り替え
+        phase = Enum.PHASE.FOCUS;
+        selectUnitInfoUI.SetActive(false);
+        cellInfoUI.SetActive(false);
+        activeArea.SetActive(true);
+        rootArea.SetActive(true);
+    }
+
+
+    /// <summary>
+    /// 攻撃エリアの表示
+    /// </summary>
+    public void AddAttackArea()
+    {
+        // アクティブリストの生成と検証
+        attackAreaList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
+
+        // 攻撃エリアの検証と表示
+        routeManager.CheckAttackArea(ref attackAreaList, focusUnitObj.GetComponent<MoveController>().getPos(), focusUnitObj.GetComponent<UnitInfo>().attackRange);
+        for (int ay = 0; ay < MapManager.GetFieldData().height; ay++)
+            for (int ax = 0; ax < MapManager.GetFieldData().width; ax++)
+                if (attackAreaList[ay, ax].aREA == Enum.AREA.ATTACK)
+                    Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = attackArea.transform;
+    }
+
+    /// <summary>
+    /// markerの表示
+    /// </summary>
+    public void AddMarker()
+    {
+        // アクティブエリアがあるなら、マーカを表示する
+        if (activeAreaList != null)
+            // 移動エリア内ならマーカを表示する
+            if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.MOVE)
+            {
+                // マーカの削除
+                RemoveMarker();
+
+                // 目標までのルートを取得
+                routeManager.CheckShortestRoute(ref phaseManager, cursorPos);
+
+                // マーカの生成とスプライト変更
+                Vector3 nextPos = focusUnitObj.GetComponent<MoveController>().getPos();
+                int spriteId = 0;
+                Quaternion angle = Quaternion.identity;
+                int moveRootCount = moveRoot.Count;
+                if (moveRootCount != 0)
+                {
+                    if (moveRoot[0] == Vector3.down) angle.eulerAngles = new Vector3(180, 0, 0);
+                    else if (moveRoot[0] == Vector3.left) angle.eulerAngles = new Vector3(0, 0, 90);
+                    else if (moveRoot[0] == Vector3.right) angle.eulerAngles = new Vector3(0, 0, -90);
+                    markerObj.GetComponent<SpriteRenderer>().sprite = makerSprites[spriteId];
+                    Instantiate(markerObj, nextPos, angle).transform.parent = rootArea.transform;
+                }
+                for (int i = 0; i < moveRootCount; i++)
+                {
+                    if (moveRoot[i] == Vector3.up)
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 3;
+                            angle = Quaternion.identity;
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.up)
+                            {
+                                if (moveRoot[i + 1] == Vector3.left)
+                                    angle.eulerAngles = new Vector3(0, 180, 0);
+                                else
+                                    angle = Quaternion.identity;
+                                spriteId = 2;
+                            }
+                            else
+                            {
+                                spriteId = 1;
+                                angle = Quaternion.identity;
+                            }
+                        }
+                    }
+                    else if (moveRoot[i] == Vector3.down)
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 3;
+                            angle.eulerAngles = new Vector3(0, 0, 180);
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.down)
+                            {
+                                if (moveRoot[i + 1] == Vector3.left)
+                                    angle.eulerAngles = new Vector3(0, 0, 180);
+                                else
+                                    angle.eulerAngles = new Vector3(180, 0, 0);
+                                spriteId = 2;
+                            }
+                            else
+                            {
+                                spriteId = 1;
+                                angle.eulerAngles = new Vector3(0, 0, 180);
+                            }
+                        }
+
+                    }
+                    else if (moveRoot[i] == Vector3.right)
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 3;
+                            angle.eulerAngles = new Vector3(0, 0, -90);
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.right)
+                            {
+                                if (moveRoot[i + 1] == Vector3.up)
+                                    angle.eulerAngles = new Vector3(0, 180, 90);
+                                else
+                                    angle.eulerAngles = new Vector3(0, 0, -90);
+                                spriteId = 2;
+                            }
+                            else
+                            {
+                                spriteId = 1;
+                                angle.eulerAngles = new Vector3(0, 0, -90);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (i + 1 == moveRootCount)
+                        {
+                            spriteId = 3;
+                            angle.eulerAngles = new Vector3(0, 0, 90);
+                        }
+                        else
+                        {
+                            if (moveRoot[i + 1] != Vector3.left)
+                            {
+                                if (moveRoot[i + 1] == Vector3.up)
+                                    angle.eulerAngles = new Vector3(0, 0, 90);
+                                else
+                                    angle.eulerAngles = new Vector3(0, 180, -90);
+                                spriteId = 2;
+                            }
+                            else
+                            {
+                                spriteId = 1;
+                                angle.eulerAngles = new Vector3(0, 0, 90);
+                            }
+                        }
+                    }
+                    markerObj.GetComponent<SpriteRenderer>().sprite = makerSprites[spriteId];
+                    Instantiate(markerObj, nextPos += moveRoot[i], angle).transform.parent = rootArea.transform;
+                }
+            }
+            else if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enum.AREA.UNIT)
+                RemoveMarker(); // カーソルがユニット上なら表示しない
+    }
+
+    /// <summary>
+    /// 行動エリアの初期化と削除
+    /// </summary>
+    public void RemoveActiveArea()
+    {
+        activeAreaList = null;
+        foreach (Transform a in activeArea.transform) Destroy(a.gameObject);
+    }
+
+    /// <summary>
+    /// 攻撃エリアの初期化と削除
+    /// </summary>
+    public void RemoveAttackArea()
+    {
+        attackAreaList = null;
+        foreach (Transform a in attackArea.transform) Destroy(a.gameObject);
+    }
+
+    /// <summary>
+    /// マーカの削除
+    /// </summary>
+    public void RemoveMarker()
+    {
+        foreach (Transform r in rootArea.transform) Destroy(r.gameObject);
+    }
+
+    /// <summary>
+    /// カーソルの更新時に呼ばれる
+    /// </summary>
+    /// <param name="newPos">New position.</param>
+    public void cursorUpdate(Vector3 newPos) { cursorPos = newPos; }
 }

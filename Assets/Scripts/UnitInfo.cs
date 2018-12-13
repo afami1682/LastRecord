@@ -37,7 +37,4 @@ public class UnitInfo : MonoBehaviour
     public int physique; // 体格（自分の体格未満のUnitを救出できる）
     public int accompanyId; // 同行UnitのId
     public Enum.STATUS status; // 状態
-
-    [HideInInspector]
-    public MoveController moveController; // 移動管理クラス
 }

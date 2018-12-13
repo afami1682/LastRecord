@@ -10,12 +10,14 @@ public class MoveController : MonoBehaviour
     const float NEXT_MOVE_ERROR = 0.1F; // 移動の誤差補完値
 
     // 移動ルート管理用の2次元配列
-    private List<Vector3> moveRoot = new List<Vector3>(); // 自動行動用、移動ルート
-    private Vector3 pos, movePos, nextPos; // 各移動状態管理用変数
-    private bool moveFlg = false; // 単体での移動中かどうか
+    List<Vector3> moveRoot = new List<Vector3>(); // 自動行動用、移動ルート
+    Vector3 pos, movePos, nextPos, nextAttackPos; // 各移動状態管理用変数
+    Animator animator;
+    bool isFocuse = false; // フォーカスされてるかどうか
+
+    bool moveFlg = false; // 単体での移動中かどうか
     public bool movingFlg = false; // 全体での移動中かどうか
-    private Animator animator;
-    private bool isFocuse = false; // フォーカスされてるかどうか
+    bool attackAnimFlg = false; // 攻撃アニメーションフラグ
 
     void Start()
     {
@@ -24,16 +26,15 @@ public class MoveController : MonoBehaviour
         animator = GetComponent<Animator>();
 
         // GameManagerにユニット情報を登録する
-        UnitInfo unitInfo = GetComponent<UnitInfo>();
-        unitInfo.moveController = GetComponent<MoveController>();
-        GameManager.AddMapUnitData(pos, unitInfo);
+        GameManager.AddMapUnitData(pos, gameObject);
     }
 
     private void Update()
     {
-        // ルートデータがあるなら移動する
         if (!moveFlg & 0 < moveRoot.Count)
         {
+            // ルートデータがあるなら移動する
+
             // リストの先頭を取得&削除
             nextPos = moveRoot[0];
             moveRoot.RemoveAt(0);
@@ -52,9 +53,23 @@ public class MoveController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 移動処理
-        if (moveFlg)
+        // アニメーション管理
+        if (attackAnimFlg)
         {
+            // 攻撃移動処理
+            // 移動
+            transform.position += nextAttackPos * Time.fixedDeltaTime;
+
+            if ((Mathf.Abs(pos.x + nextAttackPos.x - transform.position.x) < NEXT_MOVE_ERROR) &
+                (Mathf.Abs(pos.y + nextAttackPos.y - transform.position.y) < NEXT_MOVE_ERROR))
+            {
+                nextAttackPos *= -1; // 移動向きの反転
+            }
+        }
+        else if (moveFlg)
+        {
+            // 移動処理
+
             // 移動
             transform.position += nextPos * Time.fixedDeltaTime * MOVE_SPEED;
 
@@ -127,18 +142,28 @@ public class MoveController : MonoBehaviour
     /// <summary>
     /// フォーカスされたら呼び出す処理
     /// </summary>
-    public void Focused(){
+    public void Focused()
+    {
         isFocuse = true;
     }
 
     /// <summary>
     /// フォーカスが外れたら呼び出す処理
     /// </summary>
-    public void NotFocuse()
+    public void FocuseEnd()
     {
         isFocuse = false;
 
         // アニメーションを元に戻す
         playAnim(Enum.MOVE.DOWN);
+    }
+
+    /// <summary>
+    /// 外部からの呼び出し用
+    /// </summary>
+    public void AttackAnim()
+    {
+        nextAttackPos = new Vector3(0, 0.5f, 0);
+        attackAnimFlg = true;
     }
 }

@@ -5,48 +5,58 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public int mapId = 0; // マップID
-    public MapManager mapManager;
+    public MapManager mapData;
 
-    // マップ上のユニット配置リスト
-    static UnitInfo[,] mapUnitData;
+    // マップに配置してるUnitオブジェクト
+    static GameObject[,] mapUnitObj;
 
     private void Awake()
     {
         // マップデータの読み込み
-        mapManager = new MapManager(mapId);
+        mapData = new MapManager(mapId);
 
         // ユニットの配置リストの初期化
-        mapUnitData = new UnitInfo[MapManager.GetFieldData().height,
+        mapUnitObj = new GameObject[MapManager.GetFieldData().height,
                                                MapManager.GetFieldData().width];
     }
 
     /// <summary>
     /// 配置リスト上の特定の座標のユニット情報を返す
     /// </summary>
-    /// <returns>The map unit.</returns>
+    /// <returns>The map unit info.</returns>
     /// <param name="pos">Position.</param>
-    public static UnitInfo GetMapUnit(Vector3 pos)
+    public static UnitInfo GetMapUnitInfo(Vector3 pos)
     {
-        return mapUnitData[-(int)pos.y, (int)pos.x];
+        return mapUnitObj[-(int)pos.y, (int)pos.x] != null ? mapUnitObj[-(int)pos.y, (int)pos.x].GetComponent<UnitInfo>() : null;
+    }
+
+    /// <summary>
+    /// 配置リスト上の特定の座標のユニットオブジェクトを返す
+    /// </summary>
+    /// <returns>The map unit object.</returns>
+    /// <param name="pos">Position.</param>
+    public static GameObject GetMapUnitObj(Vector3 pos)
+    {
+        return mapUnitObj[-(int)pos.y, (int)pos.x];
     }
 
     /// <summary>
     /// ユニットの配置リストを返す
     /// </summary>
     /// <returns>The map unit data.</returns>
-    public static UnitInfo[,] GetMapUnitData()
+    public static GameObject[,] GetMapUnitObj()
     {
-        return mapUnitData;
+        return mapUnitObj;
     }
 
     /// <summary>
     /// 配置リストにユニット情報を登録する
     /// </summary>
     /// <param name="pos">Position.</param>
-    /// <param name="unitInfo">Unit info.</param>
-    public static void AddMapUnitData(Vector3 pos, UnitInfo unitInfo)
+    /// <param name="gameObject">Game object.</param>
+    public static void AddMapUnitData(Vector3 pos, GameObject gameObject)
     {
-        mapUnitData[-(int)pos.y, (int)pos.x] = unitInfo;
+        mapUnitObj[-(int)pos.y, (int)pos.x] = gameObject;
     }
 
     /// <summary>
@@ -56,8 +66,8 @@ public class GameManager : MonoBehaviour
     /// <param name="newPos">New position.</param>
     public static void MoveMapUnitData(Vector3 oldPos, Vector3 newPos)
     {
-        mapUnitData[-(int)newPos.y, (int)newPos.x] = mapUnitData[-(int)oldPos.y, (int)oldPos.x];
-        mapUnitData[-(int)oldPos.y, (int)oldPos.x] = null;
+        mapUnitObj[-(int)newPos.y, (int)newPos.x] = mapUnitObj[-(int)oldPos.y, (int)oldPos.x];
+        mapUnitObj[-(int)oldPos.y, (int)oldPos.x] = null;
     }
 
     /// <summary>
@@ -66,6 +76,6 @@ public class GameManager : MonoBehaviour
     /// <param name="pos">Position.</param>
     public static void RemoveMapUnitData(Vector3 pos)
     {
-        mapUnitData[-(int)pos.y, (int)pos.x] = null;
+        mapUnitObj[-(int)pos.y, (int)pos.x] = null;
     }
 }

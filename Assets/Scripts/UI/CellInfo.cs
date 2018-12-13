@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UICellInfo : MonoBehaviour {
+public class CellInfo : MonoBehaviour {
 
     // セル情報描画関連
     public Text nameText, abText, dbText, mabText;
@@ -20,3 +20,4 @@ public class UICellInfo : MonoBehaviour {
         mabText.text = string.Format("MAB:{0}", cellInfo.magicalDefenseBonus.ToString());
     }
 }
+// こだて

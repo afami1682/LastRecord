@@ -27,12 +27,8 @@ public class BattleManager : MonoBehaviour
         // 一つずつのイベントの実行
         if (oneEventFlg)
         {
-
-
-
-
-
-            //// イベントが終了したら次のイベントを実行する
+           
+            // イベントが終了したら次のイベントを実行する
             if (!eventFunc.Run())
             {
                 // 移動終了

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 /// <summary>
 /// マップ上でUnitにカーソルが当たった時に表示されるUI（Unit情報）の管理クラス
 /// </summary>
-public class UIUnitInfo : MonoBehaviour
+public class SelectUnitInfo : MonoBehaviour
 {
     public GameObject selectUnitInfo;
     public Image faceImage;
