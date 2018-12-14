@@ -12,7 +12,7 @@ public class UnitInfo : MonoBehaviour
     /// </summary>
     [Header("基本パラメータ")]
     public int id;
-    public string Name;
+    public string unitName;
     public Enums.CLASS_TYPE classType;
     public int level;
     public int hp;
@@ -56,8 +56,6 @@ public class UnitInfo : MonoBehaviour
 #endif
         }
     }
-
-
 
     /// <summary>
     /// 外部取得用

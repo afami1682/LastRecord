@@ -1,41 +1,54 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Linq;
 
 /// <summary>
 /// 攻撃イベント
 /// </summary>
 public class AttackEvent : BattleFunc
 {
-
-    GameObject playerUnitObj, enemyUnitObj;
-    int damage;
-    bool deathBlow;
-    int enemyResidualHP;
-
+    // 攻撃速度
     const float ATTACK_SPEED = 0.3f;
+
+    GameObject myUnitObj, enemyUnitObj;
+    Text textEnemyHP;
+    int damage; // 与えるダメージ
+    bool deathblowFlg; // 必殺発生フラグ
+    bool accuracyFlg; // 攻撃命中フラグ
+    int enemyHP;
+    int enemyResidualHP; // ダーメージを受けた後の残りHP
 
     Animation animation;
     AnimationClip clip;
 
+    // 各小イベントの実行中かどうか
+    bool[] runninge = new bool[] {
+        true, // ライフの減算
+        true // 攻撃アニメーション
+    };
+
     /// <summary>
     /// コンストラクター
     /// </summary>
-    /// <param name="playerUnitObj">Player unit object.</param>
+    /// <param name="myUnitObj">My unit object.</param>
     /// <param name="enemyUnitObj">Enemy unit object.</param>
+    /// <param name="textEnemyHP">Text enemy hp.</param>
     /// <param name="damage">Damage.</param>
-    /// <param name="deathBlow">If set to <c>true</c> death blow.</param>
-    public AttackEvent(ref GameObject playerUnitObj, ref GameObject enemyUnitObj, int damage, bool deathBlow)
+    /// <param name="deathblowFlg">If set to <c>true</c> deathblow flg.</param>
+    /// <param name="accuracyFlg">If set to <c>true</c> accuracy flg.</param>
+    public AttackEvent(ref GameObject myUnitObj, ref GameObject enemyUnitObj, Text textEnemyHP, int damage, bool deathblowFlg, bool accuracyFlg)
     {
-        this.playerUnitObj = playerUnitObj;
+        this.myUnitObj = myUnitObj;
         this.enemyUnitObj = enemyUnitObj;
         this.damage = damage;
-        this.deathBlow = deathBlow;
+        this.deathblowFlg = deathblowFlg;
+        this.accuracyFlg = accuracyFlg;
+        this.textEnemyHP = textEnemyHP;
 
-        // ダメージを与える
-        enemyResidualHP = enemyUnitObj.GetComponent<UnitInfo>().hp - damage;
-
-        Vector3 pos = playerUnitObj.transform.position;
+        // 攻撃アニメーションの設定
+        Vector3 pos = myUnitObj.transform.position;
 
         // アニメーションカーブ（曲線）の宣言
         AnimationCurve curveX = new AnimationCurve();
@@ -68,46 +81,59 @@ public class AttackEvent : BattleFunc
         clip.legacy = true;
 
         // 作成したアニメーションのアタッチ
-        animation = playerUnitObj.GetComponent<Animation>();
+        animation = myUnitObj.GetComponent<Animation>();
         animation.AddClip(clip, clip.name); // アタッチ
-        animation.Play(clip.name); // 再生
+    }
+
+    protected override void Start()
+    {
+        // ダメージ処理
+        enemyHP = enemyUnitObj.GetComponent<UnitInfo>().hp; // 現在のHP
+        if (deathblowFlg)
+        {
+            // 必殺発動
+            enemyResidualHP = enemyHP - damage * 3;
+        }
+        else if (accuracyFlg)
+        {
+            // 通常攻撃命中
+            enemyResidualHP = enemyHP - damage;
+        }
+        else
+        {
+            // 攻撃失敗
+            enemyResidualHP = enemyHP;
+        }
+
+        // アニンメーションの再生
+        animation.Play(clip.name);
     }
 
     /// <summary>
     /// 毎フレーム実行されるイベント
     /// </summary>
     /// <returns>イベントが実行中かどうか</returns>
-    protected override bool Event()
+    protected override bool Update()
     {
+        // ライフの減算
+        if (enemyHP > enemyResidualHP)
+        {
+            // 実行中
+            enemyHP--;
+            textEnemyHP.text = enemyHP.ToString();
+        }
+        else
+            runninge[0] = false;
+
         // アニメーションの終了検知
         if (!animation.IsPlaying(clip.name))
         {
             // 実行終了
             Main.GameManager.GetMapUnitInfo(enemyUnitObj.transform.position).hp = enemyResidualHP;
-            return false;
-        }
-        else
-        {
-            // 実行中
-            return true;
+            runninge[1] = false;
         }
 
-
-        /// Debug.Log("再生おわり");
-        //GameManager.GetMapUnitInfo(enemyObj.GetComponent<MoveController>().getPos()).hp = enemyResidualHP;
-        //return false;
-
-        //// 与えたダメージ分まで減算
-        //if (enemyResidualHP < enemyUnit.hp)
-        //{
-        //    enemyUnit.hp--;
-        //    Debug.Log(enemyUnit.hp);
-        //}
-        //else
-        //{
-        // Uniyt管理配列の更新
-        // 終了
-        // }
-        // return true; // 続行
+        // 全ての小イベントが終了（false)になったらfalseを返す
+        return !runninge.All(value => value == false);
     }
 }

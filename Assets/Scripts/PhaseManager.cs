@@ -53,13 +53,13 @@ public class PhaseManager : MonoBehaviour
     // 戦闘関係のメンバー変数
     bool isBattle = false;
     GameObject enemyUnitObj;
-    int playerHP; // プレイヤーUnitのHP
-    int playerAttackPower; // プレイヤーUnitの攻撃力
-    int playerAvoidance; // プレイヤーUnitの回避率
-    int playerDeathblow; // プレイヤーUnitの必殺率
-    int enemyHP; // 敵UnitのHP
+    int myAttackPower; // プレイヤーUnitの攻撃力
+    int myAttackCount; // プレイヤーUnitの攻撃回数
+    int myAccuracy; // プレイヤーUnitの命中率
+    int myDeathblow; // プレイヤーUnitの必殺率
     int enemyAttackPower; // 敵Unitの攻撃力
-    int enemyAvoidance;  // 敵Unitの回避率
+    int enemyAttackCount; // 敵Unitの攻撃回数
+    int enemyAccuracy;  // 敵Unitの命中率
     int enemyDeathblow; // 敵Unitの必殺率
 
     void Start()
@@ -260,36 +260,45 @@ public class PhaseManager : MonoBehaviour
                     focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.LEFT);
 
                 // 攻撃パラメータのチェック
-                playerAttackPower = 10;
-                playerAvoidance = 100;
-                playerDeathblow = 10;
-                enemyAttackPower = 10;
-                playerAvoidance = 100;
-                playerDeathblow = 10;
+                myAttackPower = 8;
+                myAccuracy = 80;
+                myDeathblow = 0;
+                myAttackCount = 2;
 
-                battleStandbyUI.SetActive(true); // UIの切り替え
+                enemyAttackPower = 11;
+                enemyAccuracy = 50;
+                enemyDeathblow = 33;
+                enemyAttackCount = 1;
 
+                // UIの切り替え
+                if (!battleStandbyUI.activeSelf)
+                    battleStandbyUI.SetActive(true);
+                battleStandbyUI.GetComponent<BattleStandby>().SetMyUnitData(
+                    focusUnitObj.GetComponent<UnitInfo>(), myAttackPower, myAccuracy, myDeathblow);
+                battleStandbyUI.GetComponent<BattleStandby>().SetEnemyUnitData(
+                    enemyUnitObj.GetComponent<UnitInfo>(), enemyAttackPower, enemyAccuracy, enemyDeathblow);
             }
             else
+                if (battleStandbyUI.activeSelf)
                 battleStandbyUI.SetActive(false); // UIの切り替え
 
             // クリック処理
             if (Input.GetMouseButtonDown(0))
             {
                 // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
-                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK)
-                {
-                    // 敵プレイヤーをタップしたら
-                    if (Main.GameManager.GetMapUnitInfo(cursorPos) &&
+                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK &&
+                    Main.GameManager.GetMapUnitInfo(cursorPos) &&
                         Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ENEMY)
-                    {
-                        // 戦闘開始
-                        // ターンとUIの切り替え
-                        cursorManager.cursorObj.SetActive(false);
-                        battleStandbyUI.SetActive(false);
-                        attackArea.SetActive(false);
-                        phase = Enums.PHASE.BATTLE;
-                    }
+                {
+                    // 移動完了
+                    Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
+                    focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
+
+                    // 戦闘開始
+                    // ターンとUIの切り替え
+                    cursorManager.cursorObj.SetActive(false);
+                    attackArea.SetActive(false);
+                    phase = Enums.PHASE.BATTLE;
                 }
                 else OnCancelBattleStandby(); // UIの切り替え
             }
@@ -307,18 +316,60 @@ public class PhaseManager : MonoBehaviour
 
             // イベントの発生チェックと登録
 
-            // 必殺の検証
-            bool deathblowFlg = RandomCheck(playerDeathblow);
-            if (deathblowFlg || RandomCheck(playerAvoidance))
+            bool deathblowFlg;
+            bool accuracyFlg;
+            while (true)
             {
-                // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                battleManager.AddEvent(new AttackEvent(ref focusUnitObj, ref enemyUnitObj, playerAttackPower, deathblowFlg));
-            }
-            else
-            {
-                // 攻撃失敗
+                // こちらの攻撃
+                if (0 < myAttackCount)
+                {
+                    myAttackCount--;
 
+                    // 必殺の検証
+                    deathblowFlg = RandomCheck(myDeathblow); // 必殺成功
+                    accuracyFlg = RandomCheck(myAccuracy); // 攻撃命中
+
+                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
+                    battleManager.AddEvent(new AttackEvent(
+                                                           ref focusUnitObj,
+                                                           ref enemyUnitObj,
+                        battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP,
+                                                           myAttackPower, // 与えるダーメージ
+                                                           deathblowFlg, // 必殺発生フラグ
+                                                           accuracyFlg // 攻撃命中フラグ
+                                                          ));
+                }
+
+                // 敵の反撃
+                if (0 < enemyAttackCount)
+                {
+                    enemyAttackCount--;
+
+                    // 必殺の検証
+                    deathblowFlg = RandomCheck(enemyDeathblow); // 必殺成功
+                    accuracyFlg = RandomCheck(enemyAccuracy); // 攻撃命中
+
+                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
+                    battleManager.AddEvent(new AttackEvent(
+                                                           ref enemyUnitObj,
+                                                           ref focusUnitObj,
+                        battleStandbyUI.GetComponent<BattleStandby>().textMyHP,
+                                                           enemyAttackPower, // 与えるダーメージ
+                                                           deathblowFlg, // 必殺発生フラグ
+                                                           accuracyFlg // 攻撃命中フラグ
+                                                          ));
+                }
+
+                // 戦闘イベント登録終了
+                if (myAttackCount <= 0 && enemyAttackCount <= 0)
+                {
+                    break;
+                }
             }
+
+
+
+
 
 
             //eventFunc = new AvoidanceEvent("ccc");
@@ -331,9 +382,9 @@ public class PhaseManager : MonoBehaviour
             //events.Add(eventFunc);
             //eventFunc = new ExpUpEvent("fff");
             //events.Add(eventFunc);
-            //eventFunc = new PlayerWinEvent("fff");
+            //eventFunc = new myWinEvent("fff");
             //events.Add(eventFunc);
-            //eventFunc = new PlayerLoseEvent("fff");
+            //eventFunc = new myLoseEvent("fff");
             //events.Add(eventFunc);
 
             // バトルの実行
@@ -396,8 +447,13 @@ public class PhaseManager : MonoBehaviour
             focusUnitObj.GetComponent<MoveController>().DirectMove(oldFocusUnitPos);
         else
         {
-            Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
-            focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
+            // 未移動であれば移動済みとする
+            if (!focusUnitObj.GetComponent<UnitInfo>().isMoving())
+            {
+                Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
+                focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
+            }
+
         }
 
         RemoveActiveArea();
@@ -408,6 +464,7 @@ public class PhaseManager : MonoBehaviour
         // ターンとUIの切り替え
         phase = Enums.PHASE.SELECT;
         activeMenuUI.SetActive(false);
+        battleStandbyUI.SetActive(false);
         cursorManager.cursorObj.SetActive(true);
     }
 
@@ -433,7 +490,7 @@ public class PhaseManager : MonoBehaviour
     /// <param name="probability">Probability.</param>
     bool RandomCheck(int probability)
     {
-        return probability <= UnityEngine.Random.Range(1, 101) ? true : false;
+        return UnityEngine.Random.Range(1, 101) <= probability ? true : false;
     }
 
     /// <summary>

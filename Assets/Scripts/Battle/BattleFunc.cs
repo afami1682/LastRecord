@@ -7,6 +7,19 @@ using UnityEngine;
 /// </summary>
 public abstract class BattleFunc
 {
-    protected abstract bool Event();
-    public bool Run() { return Event(); }
+    bool isSetup = false;
+
+    protected abstract void Start();
+    protected abstract bool Update();
+
+    public void Setup() { Start(); }
+    public bool Run()
+    {
+        if (!isSetup)
+        {
+            Start();
+            isSetup = true;
+        }
+        return Update();
+    }
 }

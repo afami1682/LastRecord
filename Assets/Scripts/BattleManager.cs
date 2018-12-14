@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
-
     List<BattleFunc> eventFuncs = new List<BattleFunc>(); // バトル処理の全体イベント
     BattleFunc eventFunc; // バトル処理の単体イベント
     bool oneEventFlg = false; // 単体のイベント実行中かどうかのフラグ
@@ -23,11 +22,9 @@ public class BattleManager : MonoBehaviour
             oneEventFlg = true;
         }
 
-
         // 一つずつのイベントの実行
         if (oneEventFlg)
         {
-           
             // イベントが終了したら次のイベントを実行する
             if (!eventFunc.Run())
             {
@@ -46,7 +43,8 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public void StartEvent()
     {
-        allEventFlg = true;
+        // 1件以上のイベントが登録されてるなら開始する
+        allEventFlg = (0 < eventFuncs.Count) ? true : false;
     }
 
     /// <summary>
