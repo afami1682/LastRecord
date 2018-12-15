@@ -312,10 +312,7 @@ public class PhaseManager : MonoBehaviour
     {
         if (!isBattle)
         {
-            // 戦闘前に戦闘結果を演算しイベントを登録する
-
             // イベントの発生チェックと登録
-
             bool deathblowFlg;
             bool accuracyFlg;
             while (true)
@@ -387,6 +384,18 @@ public class PhaseManager : MonoBehaviour
             //eventFunc = new myLoseEvent("fff");
             //events.Add(eventFunc);
 
+
+            // 敵をこちらに向かせる
+            if (Mathf.Abs(enemyUnitObj.transform.position.x - focusUnitObj.transform.position.x) <= 0f)
+                if (enemyUnitObj.transform.position.y < focusUnitObj.transform.position.y)
+                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.UP);
+                else
+                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+            else if (enemyUnitObj.transform.position.x < focusUnitObj.transform.position.x)
+                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.RIGHT);
+            else
+                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.LEFT);
+
             // バトルの実行
             battleManager.StartEvent();
             isBattle = true;
@@ -396,6 +405,9 @@ public class PhaseManager : MonoBehaviour
             // 全てのイベントが終了したらフェーズを変える
             if (!battleManager.isBattle())
             {
+                // 敵の向きを元に戻す
+                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+
                 isBattle = false;
                 // ターンとUIの切り替え
                 phase = Enums.PHASE.RESULT; // 攻撃終了

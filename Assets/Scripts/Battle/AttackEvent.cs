@@ -9,8 +9,8 @@ using System.Linq;
 /// </summary>
 public class AttackEvent : BattleFunc
 {
-    // 攻撃速度
-    const float ATTACK_SPEED = 0.3f;
+    const float ATTACK_SPEED = 0.3f; // 攻撃アニメーションの速度
+    const float ATTACK_MOVE = 0.4f; // 攻撃する時の移動距離
 
     GameObject myUnitObj, enemyUnitObj;
     Text textEnemyHP;
@@ -61,12 +61,12 @@ public class AttackEvent : BattleFunc
         keysY[0] = new Keyframe(ATTACK_SPEED * 0, pos.y);
 
         if (Mathf.Abs(pos.x - enemyUnitObj.transform.position.x) <= 0f) keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x);
-        else if (pos.x < enemyUnitObj.transform.position.x) keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x + 0.5f);
-        else keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x - 0.5f);
+        else if (pos.x < enemyUnitObj.transform.position.x) keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x + ATTACK_MOVE);
+        else keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x - ATTACK_MOVE);
 
         if (Mathf.Abs(pos.y - enemyUnitObj.transform.position.y) <= 0f) keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y);
-        else if (pos.y < enemyUnitObj.transform.position.y) keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y + 0.5f);
-        else keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y - 0.5f);
+        else if (pos.y < enemyUnitObj.transform.position.y) keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y + ATTACK_MOVE);
+        else keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y - ATTACK_MOVE);
 
         keysX[2] = new Keyframe(ATTACK_SPEED * 2, pos.x);
         keysY[2] = new Keyframe(ATTACK_SPEED * 2, pos.y);
@@ -87,23 +87,17 @@ public class AttackEvent : BattleFunc
 
     protected override void Start()
     {
-        // ダメージ処理
+        // ダメージ減算処理
         enemyHP = enemyUnitObj.GetComponent<UnitInfo>().hp; // 現在のHP
         if (deathblowFlg)
-        {
-            // 必殺発動
-            enemyResidualHP = enemyHP - damage * 3;
-        }
+            enemyResidualHP = enemyHP - damage * 3; // 必殺発動
         else if (accuracyFlg)
-        {
-            // 通常攻撃命中
-            enemyResidualHP = enemyHP - damage;
-        }
+            enemyResidualHP = enemyHP - damage;  // 通常攻撃命中
         else
-        {
-            // 攻撃失敗
-            enemyResidualHP = enemyHP;
-        }
+            enemyResidualHP = enemyHP; // 攻撃失敗
+
+        // HPは0未満にしない
+        enemyResidualHP = enemyResidualHP < 0 ? 0 : enemyResidualHP;
 
         // アニンメーションの再生
         animation.Play(clip.name);
