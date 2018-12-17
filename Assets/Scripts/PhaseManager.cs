@@ -13,9 +13,9 @@ public class PhaseManager : MonoBehaviour
     public GameObject battleStandbyUI;
     public GameObject selectUnitInfoUI;
     public GameObject cellInfoUI;
+    public GameObject cursorObj;
 
     // マネージャースクリプト
-    public CursorManager cursorManager;
     public BattleManager battleManager;
     PhaseManager phaseManager;
     RouteManager routeManager;
@@ -200,7 +200,7 @@ public class PhaseManager : MonoBehaviour
                     // ターンとUI切り替え
                     phase = Enums.PHASE.MOVE;
                     rootArea.SetActive(false);
-                    cursorManager.cursorObj.SetActive(false);
+                    cursorObj.SetActive(false);
                     activeArea.SetActive(false);
                 }
             }
@@ -296,7 +296,7 @@ public class PhaseManager : MonoBehaviour
 
                     // 戦闘開始
                     // ターンとUIの切り替え
-                    cursorManager.cursorObj.SetActive(false);
+                    cursorObj.SetActive(false);
                     attackArea.SetActive(false);
                     phase = Enums.PHASE.BATTLE;
                 }
@@ -442,7 +442,7 @@ public class PhaseManager : MonoBehaviour
         activeArea.SetActive(false);
         activeMenuUI.SetActive(false);
         rootArea.SetActive(false);
-        cursorManager.cursorObj.SetActive(true);
+        cursorObj.SetActive(true);
     }
 
     /// <summary>
@@ -477,7 +477,7 @@ public class PhaseManager : MonoBehaviour
         phase = Enums.PHASE.SELECT;
         activeMenuUI.SetActive(false);
         battleStandbyUI.SetActive(false);
-        cursorManager.cursorObj.SetActive(true);
+        cursorObj.SetActive(true);
     }
 
     /// <summary>
@@ -490,7 +490,7 @@ public class PhaseManager : MonoBehaviour
         // ターンとUIの切り替え
         phase = Enums.PHASE.MOVE;
         battleStandbyUI.SetActive(false);
-        cursorManager.cursorObj.SetActive(false);
+        cursorObj.SetActive(false);
         rootArea.SetActive(true);
         activeArea.SetActive(true);
     }

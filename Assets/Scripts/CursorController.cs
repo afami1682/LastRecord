@@ -6,20 +6,18 @@ using UnityEngine.UI;
 /// <summary>
 /// カーソルの描画,アクティブエリアの描画,フォーカスユニットの制御
 /// </summary>
-public class CursorManager : MonoBehaviour
+public class CursorController : MonoBehaviour
 {
     // カーソル描画関連
-    public GameObject cursorObj; // カーソルObj
     Vector2 mouseScreenPos;
     Vector3 cursorPos;
     Vector3 _cursorPos;
 
     public PhaseManager phaseManager;
+    public CameraController cameraController;
 
     void Start()
     {
-        // カーソルの生成
-        cursorObj = Instantiate(cursorObj, Vector3.zero, Quaternion.identity);
     }
 
     private void Update()
@@ -35,13 +33,14 @@ public class CursorManager : MonoBehaviour
             cursorPos = _cursorPos;
 
         // カーソル座標が更新されてないなら更新する
-        if (cursorObj.transform.position != cursorPos)
+        if (transform.position != cursorPos)
         {
             // カーソルの座標を更新
-            cursorObj.transform.position = cursorPos;
+            transform.position = cursorPos;
 
             // カーソル更新イベントの呼び出し
             phaseManager.cursorUpdate(cursorPos);
+            cameraController.cursorUpdate(cursorPos);
         }
     }
 
