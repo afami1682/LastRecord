@@ -257,14 +257,14 @@ public class PhaseManager : MonoBehaviour
 
                 // 攻撃パラメータのチェック
                 myAttackPower = 8;
-                myAccuracy = 40;
-                myDeathblow = 3;
-                myAttackCount = 20;
+                myAccuracy = 80;
+                myDeathblow = 10;
+                myAttackCount = 2;
 
                 enemyAttackPower = 9;
-                enemyAccuracy = 20;
-                enemyDeathblow = 1;
-                enemyAttackCount = 10;
+                enemyAccuracy = 60;
+                enemyDeathblow = 3;
+                enemyAttackCount = 1;
 
                 // UIの切り替え
                 if (!battleStandbyUI.activeSelf)
