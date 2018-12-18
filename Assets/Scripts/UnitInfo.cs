@@ -45,16 +45,6 @@ public class UnitInfo : MonoBehaviour
     public void Moving(bool moving)
     {
         this.moving = moving;
-        if (moving)
-            GetComponent<SpriteRenderer>().material = Resources.Load<Material>("Material/Sprite-Grayscale");
-        else
-        {
-#if UNITY_EDITOR
-            GetComponent<SpriteRenderer>().material = UnityEditor.AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-#else
-            GetComponent<SpriteRenderer>().material  = Resources.GetBuiltinResource<Material>("Sprites-Default.mat");
-#endif
-        }
     }
 
     /// <summary>

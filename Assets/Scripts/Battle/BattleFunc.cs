@@ -9,17 +9,15 @@ public abstract class BattleFunc
 {
     bool isSetup = false;
 
-    protected abstract void Start();
+    protected abstract bool Start();
     protected abstract bool Update();
 
-    public void Setup() { Start(); }
+    public bool Setup() { return Start(); }
     public bool Run()
     {
         if (!isSetup)
-        {
-            Start();
-            isSetup = true;
-        }
+            return isSetup = Setup(); // セットアップ完了
+
         return Update();
     }
 }

@@ -14,8 +14,9 @@ public class DeathblowEvent : BattleFunc
         test = _test;
     }
 
-    protected override void Start()
+    protected override bool Start()
     {
+        return true;
     }
 
     protected override bool Update()

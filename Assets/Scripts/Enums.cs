@@ -68,11 +68,21 @@ public class Enums
     }
 
     /// <summary>
+    /// Battle.
+    /// </summary>
+    public enum BATTLE
+    {
+        NORMAL, // 通常攻撃
+        DEATH_BLOW, // 必殺技
+        MISS // 攻撃失敗(回避された)
+    }
+
+    /// <summary>
     /// クラスタイプ
     /// </summary>
     public enum CLASS_TYPE
     {
-        SOLDIER, 
+        SOLDIER,
 
 
 
