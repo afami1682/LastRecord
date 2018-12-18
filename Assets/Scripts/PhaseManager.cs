@@ -50,13 +50,23 @@ public class PhaseManager : MonoBehaviour
     // 戦闘関係のメンバー変数
     bool isBattle = false;
 
-    GameObject myUnitObj, enemyUnitObj; // Unitのオブジェクト
-    int myAttackPower, enemyAttackPower; // 攻撃力
-    int myDeathblow, enemyDeathblow; // 必殺の発生率
-    int myAttackCount, enemyAttackCount;// 攻撃回数
-    int myAccuracy, enemyAccuracy;// 命中率
-    Enums.BATTLE myAttackState, enemyAttackState; // 攻撃判定
-    Text textMyHP, textEnemyHP; // 表示用
+    // バトル用
+    [HideInInspector]
+    public bool playerAttack;
+    [HideInInspector]
+    public GameObject myUnitObj, enemyUnitObj; // Unitのオブジェクト
+    [HideInInspector]
+    public int myAttackPower, enemyAttackPower; // 攻撃力
+    [HideInInspector]
+    public int myDeathblow, enemyDeathblow; // 必殺の発生率
+    [HideInInspector]
+    public int myAttackCount, enemyAttackCount;// 攻撃回数
+    [HideInInspector]
+    public int myAccuracy, enemyAccuracy;// 命中率
+    [HideInInspector]
+    public Enums.BATTLE myAttackState, enemyAttackState; // 攻撃判定
+    [HideInInspector]
+    public Text textMyHP, textEnemyHP; // 表示用
 
     void Start()
     {
@@ -161,14 +171,15 @@ public class PhaseManager : MonoBehaviour
         // クリック処理
         if (Input.GetMouseButtonDown(0))
         {
-            // 未行動のユニットであればフォーカスし、アクティブエリアを表示する
+            // 未行動の自軍ユニットであればフォーカスし、アクティブエリアを表示する
             if (Main.GameManager.GetMapUnitInfo(cursorPos) != null && activeAreaList == null)
-                if (!Main.GameManager.GetMapUnitInfo(cursorPos).isMoving())
-                {
-                    // フォーカスユニットの取得
-                    focusUnitObj = Main.GameManager.GetMapUnitObj(cursorPos);
-                    AddActiveArea();
-                }
+                if (Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ALLY)
+                    if (!Main.GameManager.GetMapUnitInfo(cursorPos).isMoving())
+                    {
+                        // フォーカスユニットの取得
+                        focusUnitObj = Main.GameManager.GetMapUnitObj(cursorPos);
+                        AddActiveArea();
+                    }
         }
     }
 
@@ -241,8 +252,22 @@ public class PhaseManager : MonoBehaviour
                 Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ENEMY &&
                 attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK)
             {
-                // 敵ユニットの取得
+
+                // バトルパラメータのセット
+                myUnitObj = focusUnitObj;
                 enemyUnitObj = Main.GameManager.GetMapUnitObj(cursorPos);
+                textMyHP = battleStandbyUI.GetComponent<BattleStandby>().textMyHP;
+                textEnemyHP = battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP;
+
+                myAttackPower = 12;
+                myAccuracy = 100;
+                myDeathblow = 10;
+                myAttackCount = 2;
+
+                enemyAttackPower = 9;
+                enemyAccuracy = 60;
+                enemyDeathblow = 3;
+                enemyAttackCount = 1;
 
                 // 敵の向きに合わせてUnitのアニメーション変更
                 if (Mathf.Abs(focusUnitObj.transform.position.x - enemyUnitObj.transform.position.x) <= 0f)
@@ -254,17 +279,6 @@ public class PhaseManager : MonoBehaviour
                     focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.RIGHT);
                 else
                     focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.LEFT);
-
-                // 攻撃パラメータのチェック
-                myAttackPower = 8;
-                myAccuracy = 80;
-                myDeathblow = 10;
-                myAttackCount = 2;
-
-                enemyAttackPower = 9;
-                enemyAccuracy = 60;
-                enemyDeathblow = 3;
-                enemyAttackCount = 1;
 
                 // UIの切り替え
                 if (!battleStandbyUI.activeSelf)
@@ -313,8 +327,6 @@ public class PhaseManager : MonoBehaviour
                 // こちらの攻撃
                 if (0 < myAttackCount)
                 {
-                    myAttackCount--;
-
                     // 必殺の検証
                     myAttackState = RandomCheck(myDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
 
@@ -323,21 +335,21 @@ public class PhaseManager : MonoBehaviour
                         myAttackState = RandomCheck(myAccuracy) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
 
                     // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    battleManager.AddEvent(new AttackEvent(
-                        this,
-                        ref focusUnitObj,
-                        ref enemyUnitObj,
-                        battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP,
-                        myAttackPower, // 与えるダーメージ
-                        myAttackState // 判定(通常攻撃、必殺、ミス)
-                    ));
+                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
+                    attackEvent.phaseManager = this;
+                    attackEvent.myUnitObj = focusUnitObj;
+                    attackEvent.enemyUnitObj = enemyUnitObj;
+                    attackEvent.myAttackPower = myAttackPower;
+                    attackEvent.myAttackState = myAttackState;
+                    attackEvent.textEnemyHP = textEnemyHP;
+                    battleManager.AddEvent(attackEvent);
+
+                    myAttackCount--;
                 }
 
                 // 敵の反撃
                 if (0 < enemyAttackCount)
                 {
-                    enemyAttackCount--;
-
                     // 必殺の検証
                     enemyAttackState = RandomCheck(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
 
@@ -346,43 +358,21 @@ public class PhaseManager : MonoBehaviour
                         enemyAttackState = RandomCheck(enemyAccuracy) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
 
                     // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    battleManager.AddEvent(new AttackEvent(
-                        this,
-                        ref enemyUnitObj,
-                        ref focusUnitObj,
-                        battleStandbyUI.GetComponent<BattleStandby>().textMyHP,
-                        enemyAttackPower, // 与えるダーメージ
-                        enemyAttackState // 判定(通常攻撃、必殺、ミス)
-                    ));
+                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
+                    attackEvent.phaseManager = this;
+                    attackEvent.myUnitObj = enemyUnitObj;
+                    attackEvent.enemyUnitObj = myUnitObj;
+                    attackEvent.myAttackPower = enemyAttackPower;
+                    attackEvent.myAttackState = enemyAttackState;
+                    attackEvent.textEnemyHP = textMyHP;
+                    battleManager.AddEvent(attackEvent);
+
+                    enemyAttackCount--;
                 }
 
                 // 戦闘イベント登録終了
-                if (myAttackCount <= 0 && enemyAttackCount <= 0)
-                {
-                    break;
-                }
+                if (myAttackCount <= 0 && enemyAttackCount <= 0) break;
             }
-
-
-
-
-
-
-            //eventFunc = new AvoidanceEvent("ccc");
-            //events.Add(eventFunc);
-            //eventFunc = new ConversationEvent("eee");
-            //events.Add(eventFunc);
-            //eventFunc = new DeathblowEvent("fff");
-            //events.Add(eventFunc);
-            //eventFunc = new LevelUpEvent("fff");
-            //events.Add(eventFunc);
-            //eventFunc = new ExpUpEvent("fff");
-            //events.Add(eventFunc);
-            //eventFunc = new myWinEvent("fff");
-            //events.Add(eventFunc);
-            //eventFunc = new myLoseEvent("fff");
-            //events.Add(eventFunc);
-
 
             // 敵をこちらに向かせる
             if (Mathf.Abs(enemyUnitObj.transform.position.x - focusUnitObj.transform.position.x) <= 0f)
@@ -405,7 +395,8 @@ public class PhaseManager : MonoBehaviour
             if (!battleManager.isBattle())
             {
                 // 敵の向きを元に戻す
-                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+                if (enemyUnitObj)
+                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
 
                 isBattle = false;
                 // ターンとUIの切り替え
@@ -464,13 +455,13 @@ public class PhaseManager : MonoBehaviour
                 Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
                 focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
             }
-
+            // グレースケールにする
+            ChangeGrayScale(focusUnitObj, true);
         }
 
         RemoveActiveArea();
         RemoveAttackArea();
         RemoveMarker();
-        ChangeGrayScale(focusUnitObj, true);
         focusUnitObj = null;
 
         // ターンとUIの切り替え
@@ -720,7 +711,7 @@ public class PhaseManager : MonoBehaviour
     public void ChangeGrayScale(GameObject unitObj, bool val)
     {
         if (val)
-            unitObj.GetComponent<SpriteRenderer>().material = Resources.Load<Material>("Material/Sprite-Grayscale");
+            unitObj.GetComponent<SpriteRenderer>().material = Resources.Load<Material>("Material/SpriteGrayscale");
         else
         {
 #if UNITY_EDITOR
@@ -729,16 +720,5 @@ public class PhaseManager : MonoBehaviour
             unitObj.GetComponent<SpriteRenderer>().material  = Resources.GetBuiltinResource<Material>("Sprites-Default.mat");
 #endif
         }
-    }
-
-    /// <summary>
-    /// BattleFunc呼び出し用
-    /// </summary>
-    /// <param name="obj">Object.</param>
-    /// <param name="pos">Position.</param>
-    /// <param name="quaternion">Quaternion.</param>
-    public void CreateObject(GameObject obj, Vector3 pos, Quaternion quaternion)
-    {
-        Instantiate(obj, pos, quaternion);
     }
 }

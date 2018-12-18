@@ -8,50 +8,49 @@ using System;
 /// <summary>
 /// 攻撃イベント
 /// </summary>
-public class AttackEvent : BattleFunc
+public class AttackEvent : MonoBehaviour
 {
     const float ATTACK_SPEED = 0.3f; // 攻撃アニメーションの速度
     const float ATTACK_MOVE = 0.4f; // 攻撃する時の移動距離
 
-    PhaseManager parent;
-    GameObject myUnitObj, enemyUnitObj; // Unitのオブジェクト
-    int myAttackPower, enemyAttackPower; // 攻撃力
-    Enums.BATTLE myAttackState, enemyAttackState; // 攻撃判定
-    Text textMyHP, textEnemyHP; // 表示用
+    int enemyHP; // 敵HP
+    int enemyResidualHP; // ダーメージ処理後の敵HP
 
-    int enemyHP;
-    int enemyResidualHP; // ダーメージを受けた後の残りHP
-
-    float span = ATTACK_SPEED / 2; // ダメージ処理タイミング
-    float delta = 0; // 計測時間
-
-    Animation animation;
+    Animation anim;
     AnimationClip clip;
 
-    // 各小イベントの実行中かどうか
+    // 引き継ぎパラメータ
+    public PhaseManager phaseManager;
+    public GameObject myUnitObj, enemyUnitObj; // Unitのオブジェクト
+    public int myAttackPower, enemyAttackPower; // 攻撃力
+    public int myDeathblow, enemyDeathblow; // 必殺の発生率
+    public int myAttackCount, enemyAttackCount;// 攻撃回数
+    public int myAccuracy, enemyAccuracy;// 命中率
+    public Enums.BATTLE myAttackState, enemyAttackState; // 攻撃判定
+    public Text textMyHP, textEnemyHP; // 表示用
+
+    // 各イベントの実行フラグ
     bool[] runninge = new bool[] {
         true, // ダメージ処理
         true, // ライフの減算
         true // 攻撃アニメーション
-    };
+        };
 
     /// <summary>
-    /// コンストラクター
+    /// Start this instance.
     /// </summary>
-    /// <param name="parent">Parent.</param>
-    /// <param name="myUnitObj">My unit object.</param>
-    /// <param name="enemyUnitObj">Enemy unit object.</param>
-    /// <param name="myAttackPower">My attack power.</param>
-    /// <param name="myAttackState">My attack state.</param>
-    /// <param name="textEnemyHP">Text enemy hp.</param>
-    public AttackEvent(PhaseManager parent, ref GameObject myUnitObj, ref GameObject enemyUnitObj, Text textEnemyHP, int myAttackPower, Enums.BATTLE myAttackState)
+    /// <returns>イベントを開始できるかどうか</returns>
+    void Start()
     {
-        this.parent = parent;
-        this.myUnitObj = myUnitObj;
-        this.enemyUnitObj = enemyUnitObj;
-        this.myAttackPower = myAttackPower;
-        this.myAttackState = myAttackState;
-        this.textEnemyHP = textEnemyHP;
+        // ダメージ減算処理
+        enemyHP = enemyUnitObj.GetComponent<UnitInfo>().hp; // 現在のHP
+
+        // 自軍か敵Unitの体力が0以下なら終了
+        if (myUnitObj.GetComponent<UnitInfo>().hp <= 0 || enemyHP <= 0)
+        {
+            Destroy(this);
+            return;
+        }
 
         // 攻撃アニメーションの設定
         Vector3 pos = myUnitObj.transform.position;
@@ -87,24 +86,8 @@ public class AttackEvent : BattleFunc
         clip.legacy = true;
 
         // 作成したアニメーションのアタッチ
-        animation = myUnitObj.GetComponent<Animation>();
-        animation.AddClip(clip, clip.name); // アタッチ
-    }
-
-    /// <summary>
-    /// Start this instance.
-    /// </summary>
-    /// <returns>イベントを開始できるかどうか</returns>
-    protected override bool Start()
-    {
-        // 自軍体力が0以下なら終了
-        if (myUnitObj.GetComponent<UnitInfo>().hp < 1) { return false; }
-
-        // ダメージ減算処理
-        enemyHP = enemyUnitObj.GetComponent<UnitInfo>().hp; // 現在のHP
-
-        // 敵体力が0以下なら終了
-        if (enemyHP < 1) { return false; }
+        anim = myUnitObj.GetComponent<Animation>();
+        anim.AddClip(clip, clip.name);
 
         switch (myAttackState)
         {
@@ -125,56 +108,72 @@ public class AttackEvent : BattleFunc
         enemyResidualHP = enemyResidualHP < 0 ? 0 : enemyResidualHP;
 
         // アニンメーションの再生
-        animation.Play(clip.name);
+        anim.Play(clip.name);
 
-        return true;
-    }
-
-    /// <summary>
-    /// 毎フレーム実行されるイベント
-    /// </summary>
-    /// <returns>イベントが実行中かどうか</returns>
-    protected override bool Update()
-    {
-        // 攻撃アニメーションの半分の時間に、ダメージ処理を行う
-        if (span < delta && runninge[0])
+        // 攻撃アニメーションの途中でダメージ処理
+        StartCoroutine(DelayMethod(ATTACK_SPEED / 2, () =>
         {
             switch (myAttackState)
             {
                 case Enums.BATTLE.NORMAL:
                 case Enums.BATTLE.DEATH_BLOW:
                     // ダメージの反映
-                    enemyUnitObj.GetComponent<UnitInfo>().hp = enemyResidualHP;
+                    (enemyUnitObj).GetComponent<UnitInfo>().hp = enemyResidualHP;
                     Main.GameManager.GetMapUnitInfo(enemyUnitObj.transform.position).hp = enemyResidualHP;
                     break;
 
                 case Enums.BATTLE.MISS:
                     GameObject missObj = Resources.Load<GameObject>("Prefabs/Miss");
-                    parent.CreateObject(missObj, enemyUnitObj.transform.position, Quaternion.identity);
+                    Instantiate(missObj, enemyUnitObj.transform.position, Quaternion.identity);
                     break;
             }
-
             // ダメージ判定の終了
             runninge[0] = false;
-        }
+        }));
+    }
 
+    /// <summary>
+    /// 毎フレーム実行されるイベント
+    /// </summary>
+    /// <returns>イベントが実行中かどうか</returns>
+    void Update()
+    {
         // ライフの減算（徐々に減らしていく）
-        if (enemyHP > enemyResidualHP)
-        {
-            enemyHP--;
-            textEnemyHP.text = enemyHP.ToString();
-        }
-        else
-            runninge[1] = false; // HPの減算終了
+        if (runninge[1])
+            if (enemyHP > enemyResidualHP)
+            {
+                enemyHP--;
+                textEnemyHP.text = enemyHP.ToString();
+            }
+            else
+            {
+                // HPが0になった場合は、消滅イベントを追加
+                if (enemyHP <= 0)
+                {
+                    UnitLoseEvent unitLoseEvent = enemyUnitObj.AddComponent<UnitLoseEvent>();
+                    unitLoseEvent.phaseManager = phaseManager;
+                    phaseManager.battleManager.AddEvent(unitLoseEvent);
+                }
+                runninge[1] = false; // HPの減算終了
+            }
 
         // アニメーションの終了検知
-        if (!animation.IsPlaying(clip.name))
-            runninge[2] = false; // アニメーションの終了
+        if (runninge[2])
+            if (!anim.IsPlaying(clip.name))
+                runninge[2] = false; // アニメーションの終了
 
-        delta += Time.deltaTime;
+        // 全ての小イベントが終了（false)になったら自身を削除する
+        if (runninge.All(value => value == false))
+            Destroy(this);
+    }
 
-        // 全ての小イベントが終了（false)になったらfalseを返す
-        return !runninge.All(value => value == false);
+    /// <summary>
+    /// コンポーネント削除時に呼ばれる
+    /// </summary>
+    private void OnDestroy()
+    {
+        // 次のバトルイベントを実行する
+        phaseManager.battleManager.NextEvent();
     }
 
     /// <summary>

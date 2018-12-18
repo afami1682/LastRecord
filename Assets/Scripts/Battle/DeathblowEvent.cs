@@ -5,22 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 必殺イベント
 /// </summary>
-public class DeathblowEvent : BattleFunc
+public class DeathblowEvent: MonoBehaviour
 {
-    string test;
 
-    public DeathblowEvent(string _test)
-    {
-        test = _test;
-    }
-
-    protected override bool Start()
-    {
-        return true;
-    }
-
-    protected override bool Update()
-    {
-        return true;
-    }
 }

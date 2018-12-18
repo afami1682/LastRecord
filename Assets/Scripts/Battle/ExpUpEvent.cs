@@ -5,21 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Expの取得イベント
 /// </summary>
-public class ExpUpEvent : BattleFunc
+public class ExpUpEvent: MonoBehaviour
 {
-    string test;
 
-    public ExpUpEvent(string _test)
-    {
-        test = _test;
-    }
-    protected override bool Start()
-    {
-        return true;
-    }
-
-    protected override bool Update()
-    {
-        return true;
-    }
 }

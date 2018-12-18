@@ -5,21 +5,7 @@ using UnityEngine;
 /// <summary>
 /// スキル発動イベント
 /// </summary>
-public class SkillEvent : BattleFunc{
-    
-    string test;
+public class SkillEvent: MonoBehaviour
+{
 
-    public SkillEvent(string _test)
-    {
-        test = _test;
-    }
-    protected override bool Start()
-    {
-        return true;
-    }
-
-    protected override bool Update()
-    {
-        return true;
-    }
 }

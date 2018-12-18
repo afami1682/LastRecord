@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
-    List<BattleFunc> eventFuncs = new List<BattleFunc>(); // バトル処理の全体イベント
-    BattleFunc eventFunc; // バトル処理の単体イベント
+    List<MonoBehaviour> eventFuncs = new List<MonoBehaviour>();
+    MonoBehaviour eventFunc;
     bool oneEventFlg = false; // 単体のイベント実行中かどうかのフラグ
     bool allEventFlg = false; // 全体のイベント実行中かどうかのフラグ
 
@@ -18,23 +18,8 @@ public class BattleManager : MonoBehaviour
             eventFunc = eventFuncs[0];
             eventFuncs.RemoveAt(0);
 
-            // イベント開始
-            oneEventFlg = true;
-        }
-
-        // 一つずつのイベントの実行
-        if (oneEventFlg)
-        {
-            // イベントが終了したら次のイベントを実行する
-            if (!eventFunc.Run())
-            {
-                // 移動終了
-                oneEventFlg = false;
-
-                // イベント全てが終わったら
-                if (eventFuncs.Count == 0)
-                    allEventFlg = false;
-            }
+            // イベントの開始(Start()から始まる)
+            eventFunc.enabled = oneEventFlg = true;
         }
     }
 
@@ -45,6 +30,18 @@ public class BattleManager : MonoBehaviour
     {
         // 1件以上のイベントが登録されてるなら開始する
         allEventFlg = (0 < eventFuncs.Count) ? true : false;
+    }
+
+    /// <summary>
+    /// Nexts the event.
+    /// </summary>
+    public void NextEvent()
+    {
+        oneEventFlg = false;
+
+        // イベント全てが終わったら
+        if (eventFuncs.Count == 0)
+            allEventFlg = false;
     }
 
     /// <summary>
@@ -60,8 +57,9 @@ public class BattleManager : MonoBehaviour
     /// Adds the event.
     /// </summary>
     /// <param name="eventFunc">Event func.</param>
-    public void AddEvent(BattleFunc eventFunc)
+    public void AddEvent(MonoBehaviour eventFunc)
     {
+        eventFunc.enabled = false; // スクリプトのアタッチ直後に無効化する
         eventFuncs.Add(eventFunc);
     }
 }
