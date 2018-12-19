@@ -80,5 +80,54 @@ namespace Main
         {
             mapUnitObj[-(int)pos.y, (int)pos.x] = null;
         }
+
+        /// <summary>
+        /// 指定された軍のユニットリストを返す
+        /// </summary>
+        /// <returns>The get.</returns>
+        /// <param name="army">Army.</param>
+        public static List<GameObject> GetUnitList(Enums.ARMY army)
+        {
+            List<GameObject> units = new List<GameObject>();
+            for (int y = 0; y < MapManager.GetFieldData().height; y++)
+                for (int x = 0; x < MapManager.GetFieldData().width; x++)
+                    if (mapUnitObj[y, x] != null && mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army)
+                        units.Add(mapUnitObj[y, x]);
+            return units;
+        }
+
+        /// <summary>
+        /// 指定された軍の未行動ユニットがいるかどうかのチェック
+        /// </summary>
+        /// <returns>The get.</returns>
+        /// <param name="army">Army.</param>
+        public static List<GameObject> GetUnBehaviorUnit(Enums.ARMY army)
+        {
+            List<GameObject> units = new List<GameObject>();
+            for (int y = 0; y < MapManager.GetFieldData().height; y++)
+                for (int x = 0; x < MapManager.GetFieldData().width; x++)
+                    if (mapUnitObj[y, x] != null &&
+                        mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army &&
+                        !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().isMoving())
+                        units.Add(mapUnitObj[y, x]);
+            return units;
+        }
+
+        /// <summary>
+        /// 指定された軍のユニットを全て未行動にする
+        /// </summary>
+        /// <returns>The get.</returns>
+        /// <param name="army">Army.</param>
+        public static void UnBehaviorUnitAll(Enums.ARMY army)
+        {
+            for (int y = 0; y < MapManager.GetFieldData().height; y++)
+                for (int x = 0; x < MapManager.GetFieldData().width; x++)
+                    if (mapUnitObj[y, x] != null &&
+                        mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army)
+                    {
+                        mapUnitObj[y, x].GetComponent<UnitInfo>().Moving(false);
+                        mapUnitObj[y, x].GetComponent<EffectController>().GrayScale(false);
+                    }
+        }
     }
 }

@@ -45,6 +45,14 @@ public class CursorController : MonoBehaviour
     }
 
     /// <summary>
+    /// 外部呼び出し用
+    /// </summary>
+    /// <param name="pos">Position.</param>
+    public void SetPos(Vector3 pos){
+        cursorPos = pos;
+    }
+
+    /// <summary>
     /// 倍数での四捨五入のような値を求める（ｎおきの数の中間の値で切り捨て・切り上げをする）
     ///（例）倍数 = 10 のとき、12 → 10, 17 → 20
     /// </summary>

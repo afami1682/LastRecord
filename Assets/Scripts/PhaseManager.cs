@@ -15,7 +15,7 @@ public class PhaseManager : MonoBehaviour
     public GameObject selectUnitInfoUI;
     public GameObject cellInfoUI;
     public GameObject cursorObj;
-    public Image turnImage;
+    public Image playerTurnImage, enemyTurnImage;
     Animator turnImageAnim;
 
     // マネージャースクリプト
@@ -46,13 +46,8 @@ public class PhaseManager : MonoBehaviour
     public GameObject markerObj;
     public Sprite[] makerSprites;
 
-    // 行動ターン
-    Enums.PHASE phase = Enums.PHASE.START;
-
-    // 戦闘関係のメンバー変数
-    bool isBattle = false;
-
     // バトル用
+    bool isBattle = false;
     [HideInInspector]
     public bool playerAttack;
     [HideInInspector]
@@ -70,16 +65,24 @@ public class PhaseManager : MonoBehaviour
     [HideInInspector]
     public Text textMyHP, textEnemyHP; // 表示用
 
+    // 行動ターン
+    Enums.PHASE phase = Enums.PHASE.START;
+
+    // 行動するターンプレイヤー
+    Enums.ARMY turnPlayer;
+
+    // 各行動イベント
+    Action StartPhase, // プレイヤーのターン開始時
+    StandbyPhase, // Unit選択中
+    FoucusPhase, // Unit選択時
+    MovePhase, // Unit行動時
+    BattleStandbyPhase, // Unit攻撃選択時
+    BattlePhase, // Unit攻撃時
+    ResultPhase, // Unit攻撃終了時（まだ見操作のUnitがいれば、SELECTに戻る）
+    EndPhase; // プレイヤーのターン終了時
+
     void Start()
     {
-        // UIの非表示
-        activeMenuUI.SetActive(false);
-        battleStandbyUI.SetActive(false);
-        selectUnitInfoUI.SetActive(false);
-        cellInfoUI.SetActive(false);
-        turnImage.gameObject.SetActive(false);
-        cursorObj.SetActive(false);
-
         // インスタンスの初期化
         routeManager = new RouteManager();
         phaseManager = this;
@@ -91,6 +94,18 @@ public class PhaseManager : MonoBehaviour
         attackArea.transform.parent = transform;
         activeArea.transform.parent = transform;
         rootArea.transform.parent = transform;
+
+        // プレイヤーターンから始める
+        TurnChange(Enums.ARMY.ALLY);
+
+        // UIの非表示
+        activeMenuUI.SetActive(false);
+        battleStandbyUI.SetActive(false);
+        selectUnitInfoUI.SetActive(false);
+        cellInfoUI.SetActive(false);
+        playerTurnImage.gameObject.SetActive(false);
+        enemyTurnImage.gameObject.SetActive(false);
+        cursorObj.SetActive(false);
     }
 
     public void Update()
@@ -122,10 +137,12 @@ public class PhaseManager : MonoBehaviour
                 break;
 
             case Enums.PHASE.RESULT:
+                Debug.Log("resu");
                 ResultPhase();
                 break;
 
             case Enums.PHASE.END:
+                Debug.Log("en d");
                 EndPhase();
                 break;
         }
@@ -135,310 +152,40 @@ public class PhaseManager : MonoBehaviour
     /// 外部変更用
     /// </summary>
     /// <param name="newPhase">New phase.</param>
-    public void ChangePhase(Enums.PHASE newPhase)
-    {
-        phase = newPhase;
-    }
+    public void ChangePhase(Enums.PHASE newPhase) { phase = newPhase; }
 
     /// <summary>
-    /// ターン開始時
+    /// ターンの切り替え処理
     /// </summary>
-    void StartPhase()
+    /// <param name="player">Turn player.</param>
+    void TurnChange(Enums.ARMY player)
     {
-        if (turnImageAnim == null)
+        switch (player)
         {
-            turnImageAnim = turnImage.gameObject.GetComponent<Animator>();
-            turnImage.gameObject.SetActive(true);
+            case Enums.ARMY.ALLY:
+                this.turnPlayer = player;
+                StartPhase = MyStartPhase;
+                StandbyPhase = MyStandbyPhase;
+                FoucusPhase = MyFoucusPhase;
+                MovePhase = MyMovePhase;
+                BattleStandbyPhase = MyBattleStandbyPhase;
+                BattlePhase = MyBattlePhase;
+                ResultPhase = MyResultPhase;
+                EndPhase = MyEndPhase;
+                break;
+
+            case Enums.ARMY.ENEMY:
+                this.turnPlayer = player;
+                StartPhase = EnemyStartPhase;
+                StandbyPhase = EnemyStandbyPhase;
+                FoucusPhase = EnemyFoucusPhase;
+                MovePhase = EnemyMovePhase;
+                BattleStandbyPhase = EnemyBattleStandbyPhase;
+                BattlePhase = EnemyBattlePhase;
+                ResultPhase = EnemyResultPhase;
+                EndPhase = EnemyEndPhase;
+                break;
         }
-        else
-        {
-            // アニメーションが終了したらターンを開始する
-            if (!(turnImageAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f))
-            {
-                // ターンとUI切り替え
-                phase = Enums.PHASE.SELECT;
-                selectUnitInfoUI.SetActive(true);
-                cellInfoUI.SetActive(true);
-                turnImage.gameObject.SetActive(false);
-                cursorObj.SetActive(true);
-                turnImageAnim = null;
-            }
-        }
-    }
-
-    /// <summary>
-    /// ユニット選択前
-    /// </summary>
-    void StandbyPhase()
-    {
-        // カーソルが更新されたら
-        if (cursorPos != oldCursorPos)
-        {
-            // カーソルの更新
-            oldCursorPos = cursorPos;
-
-            // セル情報の更新
-            cellInfoUI.GetComponent<CellInfo>().SetData(MapManager.GetFieldData().cells[-(int)cursorPos.y, (int)cursorPos.x]);
-
-            // ユニット情報の更新
-            if (Main.GameManager.GetMapUnitInfo(cursorPos))
-                selectUnitInfoUI.GetComponent<SelectUnitInfo>().ShowUnitInfo(Main.GameManager.GetMapUnitInfo(cursorPos));
-            else
-                selectUnitInfoUI.GetComponent<SelectUnitInfo>().CloseUnitInfo();
-        }
-
-        // クリック処理
-        if (Input.GetMouseButtonDown(0))
-        {
-            // 未行動の自軍ユニットであればフォーカスし、アクティブエリアを表示する
-            if (Main.GameManager.GetMapUnitInfo(cursorPos) != null && activeAreaList == null)
-                if (Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ALLY)
-                    if (!Main.GameManager.GetMapUnitInfo(cursorPos).isMoving())
-                    {
-                        // フォーカスユニットの取得
-                        focusUnitObj = Main.GameManager.GetMapUnitObj(cursorPos);
-                        AddActiveArea();
-                    }
-        }
-    }
-
-    /// <summary>
-    /// ユニット選択後
-    /// </summary>
-    void FoucusPhase()
-    {
-        // 移動マーカの更新
-        AddMarker();
-
-        if (Input.GetMouseButtonDown(0))
-            // アクティブエリア（移動可能マス）を選択されたら移動する
-            if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.MOVE)
-            {
-                // 他ユニットがいなければ
-                if (!Main.GameManager.GetMapUnitInfo(cursorPos))
-                {
-                    // ユニットの移動前の座標を保存
-                    oldFocusUnitPos = focusUnitObj.transform.position;
-
-                    // 移動可能エリアがクリックされたら移動する
-                    focusUnitObj.GetComponent<MoveController>().setMoveRoots(moveRoot);
-
-                    // ターンとUI切り替え
-                    phase = Enums.PHASE.MOVE;
-                    rootArea.SetActive(false);
-                    cursorObj.SetActive(false);
-                    activeArea.SetActive(false);
-                }
-            }
-            else // アクティブエリア外をクリックされたらフォーカスを外す
-            {
-                // アニメーションを元に戻す
-                focusUnitObj.GetComponent<MoveController>().FocuseEnd();
-                focusUnitObj = null;
-
-                // ターンとUI切り替え
-                phase = Enums.PHASE.SELECT;
-                RemoveMarker();
-                RemoveActiveArea();
-            }
-    }
-
-    /// <summary>
-    /// ユニットの移動
-    /// </summary>
-    void MovePhase()
-    {
-        // 移動が終わったらUIを切り替える
-        if (!focusUnitObj.GetComponent<MoveController>().movingFlg)
-        {
-            attackArea.SetActive(true);
-            activeMenuUI.SetActive(true);
-        }
-    }
-
-    /// <summary>
-    /// 戦闘するユニットの選択
-    /// </summary>
-    void BattleStandbyPhase()
-    {
-        // 攻撃範囲の描画
-        if (attackAreaList == null)
-            AddAttackArea();
-        else
-        {
-            // カーソルを敵ユニットに合わせた時の処理
-            if (Main.GameManager.GetMapUnitInfo(cursorPos) &&
-                Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ENEMY &&
-                attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK)
-            {
-
-                // バトルパラメータのセット
-                myUnitObj = focusUnitObj;
-                enemyUnitObj = Main.GameManager.GetMapUnitObj(cursorPos);
-                textMyHP = battleStandbyUI.GetComponent<BattleStandby>().textMyHP;
-                textEnemyHP = battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP;
-
-                myAttackPower = 12;
-                myAccuracy = 100;
-                myDeathblow = 10;
-                myAttackCount = 2;
-
-                enemyAttackPower = 9;
-                enemyAccuracy = 60;
-                enemyDeathblow = 3;
-                enemyAttackCount = 1;
-
-                // 敵の向きに合わせてUnitのアニメーション変更
-                if (Mathf.Abs(focusUnitObj.transform.position.x - enemyUnitObj.transform.position.x) <= 0f)
-                    if (focusUnitObj.transform.position.y < enemyUnitObj.transform.position.y)
-                        focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.UP);
-                    else
-                        focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
-                else if (focusUnitObj.transform.position.x < enemyUnitObj.transform.position.x)
-                    focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.RIGHT);
-                else
-                    focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.LEFT);
-
-                // UIの切り替え
-                if (!battleStandbyUI.activeSelf)
-                    battleStandbyUI.SetActive(true);
-                battleStandbyUI.GetComponent<BattleStandby>().SetMyUnitData(
-                    focusUnitObj.GetComponent<UnitInfo>(), myAttackPower, myAccuracy, myDeathblow);
-                battleStandbyUI.GetComponent<BattleStandby>().SetEnemyUnitData(
-                    enemyUnitObj.GetComponent<UnitInfo>(), enemyAttackPower, enemyAccuracy, enemyDeathblow);
-            }
-            else
-                if (battleStandbyUI.activeSelf)
-                battleStandbyUI.SetActive(false); // UIの切り替え
-
-            // クリック処理
-            if (Input.GetMouseButtonDown(0))
-            {
-                // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
-                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK &&
-                    Main.GameManager.GetMapUnitInfo(cursorPos) &&
-                        Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ENEMY)
-                {
-                    // 移動完了
-                    Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
-                    focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
-
-                    // 戦闘開始
-                    // ターンとUIの切り替え
-                    cursorObj.SetActive(false);
-                    attackArea.SetActive(false);
-                    phase = Enums.PHASE.BATTLE;
-                }
-                else OnCancelBattleStandby(); // UIの切り替え
-            }
-        }
-    }
-
-    /// <summary>
-    /// ユニットとの戦闘
-    /// </summary>
-    void BattlePhase()
-    {
-        if (!isBattle)
-        {
-            while (true)
-            {
-                // こちらの攻撃
-                if (0 < myAttackCount)
-                {
-                    // 必殺の検証
-                    myAttackState = RandomCheck(myDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
-
-                    // 通常攻撃命中判定
-                    if (myAttackState != Enums.BATTLE.DEATH_BLOW)
-                        myAttackState = RandomCheck(myAccuracy) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
-
-                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
-                    attackEvent.phaseManager = this;
-                    attackEvent.myUnitObj = myUnitObj;
-                    attackEvent.enemyUnitObj = enemyUnitObj;
-                    attackEvent.myAttackPower = myAttackPower;
-                    attackEvent.myAttackState = myAttackState;
-                    attackEvent.textEnemyHP = textEnemyHP;
-                    battleManager.AddEvent(attackEvent);
-
-                    myAttackCount--;
-                }
-
-                // 敵の反撃
-                if (0 < enemyAttackCount)
-                {
-                    // 必殺の検証
-                    enemyAttackState = RandomCheck(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
-
-                    // 通常攻撃命中判定
-                    if (enemyAttackState != Enums.BATTLE.DEATH_BLOW)
-                        enemyAttackState = RandomCheck(enemyAccuracy) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
-
-                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
-                    attackEvent.phaseManager = this;
-                    attackEvent.myUnitObj = enemyUnitObj;
-                    attackEvent.enemyUnitObj = myUnitObj;
-                    attackEvent.myAttackPower = enemyAttackPower;
-                    attackEvent.myAttackState = enemyAttackState;
-                    attackEvent.textEnemyHP = textMyHP;
-                    battleManager.AddEvent(attackEvent);
-
-                    enemyAttackCount--;
-                }
-
-                // 戦闘イベント登録終了
-                if (myAttackCount <= 0 && enemyAttackCount <= 0) break;
-            }
-
-            // 敵をこちらに向かせる
-            if (Mathf.Abs(enemyUnitObj.transform.position.x - focusUnitObj.transform.position.x) <= 0f)
-                if (enemyUnitObj.transform.position.y < focusUnitObj.transform.position.y)
-                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.UP);
-                else
-                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
-            else if (enemyUnitObj.transform.position.x < focusUnitObj.transform.position.x)
-                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.RIGHT);
-            else
-                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.LEFT);
-
-            // バトルの実行
-            battleManager.StartEvent();
-            isBattle = true;
-        }
-        else
-        {
-            // 全てのイベントが終了したらフェーズを変える
-            if (!battleManager.isBattle())
-            {
-                // 敵の向きを元に戻す
-                if (enemyUnitObj)
-                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
-
-                isBattle = false;
-                // ターンとUIの切り替え
-                phase = Enums.PHASE.RESULT; // 攻撃終了
-            }
-        }
-    }
-
-    /// <summary>
-    /// ユニット同士の戦闘終了後
-    /// </summary>
-    void ResultPhase()
-    {
-        // 移動終了
-        MoveEnd(false);
-    }
-
-    /// <summary>
-    /// ターン終了時
-    /// </summary>
-    void EndPhase()
-    {
-
     }
 
     /// <summary>
@@ -457,26 +204,14 @@ public class PhaseManager : MonoBehaviour
     /// <summary>
     /// 行動終了ボタン処理
     /// </summary>
-    public void MoveEnd(bool moveCancel)
+    public void MoveCancel()
     {
         // アニメーションを元に戻す
         if (focusUnitObj)
-            focusUnitObj.GetComponent<MoveController>().FocuseEnd();
+            focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
 
-        // ユニット管理リストの更新
-        if (moveCancel)
-            focusUnitObj.GetComponent<MoveController>().DirectMove(oldFocusUnitPos);
-        else
-        {
-            // 未移動であれば移動済みとする
-            if (!focusUnitObj.GetComponent<UnitInfo>().isMoving())
-            {
-                Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
-                focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
-            }
-            // グレースケールにする
-            ChangeGrayScale(focusUnitObj, true);
-        }
+        // ユニットの位置を元に戻す
+        focusUnitObj.GetComponent<MoveController>().DirectMove(oldFocusUnitPos);
 
         RemoveActiveArea();
         RemoveAttackArea();
@@ -510,10 +245,7 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     /// <returns><c>true</c>, if check was randomed, <c>false</c> otherwise.</returns>
     /// <param name="probability">Probability.</param>
-    bool RandomCheck(int probability)
-    {
-        return UnityEngine.Random.Range(1, 101) <= probability ? true : false;
-    }
+    bool RandomCheck(int probability) { return UnityEngine.Random.Range(1, 101) <= probability ? true : false; }
 
     /// <summary>
     /// アクティブエリアの表示
@@ -623,11 +355,7 @@ public class PhaseManager : MonoBehaviour
                     }
                     else if (moveRoot[i] == Vector3.down)
                     {
-                        if (i + 1 == moveRootCount)
-                        {
-                            angle.eulerAngles = new Vector3(0, 0, 180);
-                            spriteId = 3;
-                        }
+                        if (i + 1 == moveRootCount) { angle.eulerAngles = new Vector3(0, 0, 180); spriteId = 3; }
                         else
                         {
                             if (moveRoot[i + 1] != Vector3.down)
@@ -723,21 +451,391 @@ public class PhaseManager : MonoBehaviour
     public void cursorUpdate(Vector3 newPos) { cursorPos = newPos; }
 
     /// <summary>
-    /// Changes the gray scale.
+    /// ターン開始時
     /// </summary>
-    /// <param name="unitObj">Unit object.</param>
-    /// <param name="val">If set to <c>true</c> value.</param>
-    public void ChangeGrayScale(GameObject unitObj, bool val)
+    void MyStartPhase()
     {
-        if (val)
-            unitObj.GetComponent<SpriteRenderer>().material = Resources.Load<Material>("Material/SpriteGrayscale");
+        if (turnImageAnim == null)
+        {
+            turnImageAnim = playerTurnImage.gameObject.GetComponent<Animator>();
+            playerTurnImage.gameObject.SetActive(true);
+        }
         else
         {
-#if UNITY_EDITOR
-            unitObj.GetComponent<SpriteRenderer>().material = UnityEditor.AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat");
-#else
-            unitObj.GetComponent<SpriteRenderer>().material  = Resources.GetBuiltinResource<Material>("Sprites-Default.mat");
-#endif
+            // アニメーションが終了したらターンを開始する
+            if (!(turnImageAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f))
+            {
+                // ターンとUIの切り替え
+                List<GameObject> list = Main.GameManager.GetUnBehaviorUnit(Enums.ARMY.ALLY);
+                if (list.Count == 0)
+                    phase = Enums.PHASE.END;
+                else
+                    phase = Enums.PHASE.SELECT;
+
+                selectUnitInfoUI.SetActive(true);
+                cellInfoUI.SetActive(true);
+                playerTurnImage.gameObject.SetActive(false);
+                cursorObj.SetActive(true);
+                turnImageAnim = null;
+            }
         }
     }
+
+    /// <summary>
+    /// ユニット選択前
+    /// </summary>
+    void MyStandbyPhase()
+    {
+        // カーソルが更新されたら
+        if (cursorPos != oldCursorPos)
+        {
+            // カーソルの更新
+            oldCursorPos = cursorPos;
+
+            // セル情報の更新
+            cellInfoUI.GetComponent<CellInfo>().SetData(MapManager.GetFieldData().cells[-(int)cursorPos.y, (int)cursorPos.x]);
+
+            // ユニット情報の更新
+            if (Main.GameManager.GetMapUnitInfo(cursorPos))
+                selectUnitInfoUI.GetComponent<SelectUnitInfo>().ShowUnitInfo(Main.GameManager.GetMapUnitInfo(cursorPos));
+            else
+                selectUnitInfoUI.GetComponent<SelectUnitInfo>().CloseUnitInfo();
+        }
+
+        // クリック処理
+        if (Input.GetMouseButtonDown(0))
+        {
+            // 未行動の自軍ユニットであればフォーカスし、アクティブエリアを表示する
+            if (Main.GameManager.GetMapUnitInfo(cursorPos) != null && activeAreaList == null)
+                if (Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ALLY)
+                    if (!Main.GameManager.GetMapUnitInfo(cursorPos).isMoving())
+                    {
+                        // フォーカスユニットの取得
+                        focusUnitObj = Main.GameManager.GetMapUnitObj(cursorPos);
+                        AddActiveArea();
+                    }
+        }
+    }
+
+    /// <summary>
+    /// ユニット選択後
+    /// </summary>
+    void MyFoucusPhase()
+    {
+        // 移動マーカの更新
+        AddMarker();
+
+        if (Input.GetMouseButtonDown(0))
+            // アクティブエリア（移動可能マス）を選択されたら移動する
+            if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.MOVE)
+            {
+                // 他ユニットがいなければ
+                if (!Main.GameManager.GetMapUnitInfo(cursorPos))
+                {
+                    // ユニットの移動前の座標を保存
+                    oldFocusUnitPos = focusUnitObj.transform.position;
+
+                    // 移動可能エリアがクリックされたら移動する
+                    focusUnitObj.GetComponent<MoveController>().setMoveRoots(moveRoot);
+
+                    // ターンとUI切り替え
+                    phase = Enums.PHASE.MOVE;
+                    rootArea.SetActive(false);
+                    cursorObj.SetActive(false);
+                    activeArea.SetActive(false);
+                }
+            }
+            else // アクティブエリア外をクリックされたらフォーカスを外す
+            {
+                // アニメーションを元に戻す
+                focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+                focusUnitObj = null;
+
+                // ターンとUI切り替え
+                phase = Enums.PHASE.SELECT;
+                RemoveMarker();
+                RemoveActiveArea();
+            }
+    }
+
+    /// <summary>
+    /// ユニットの移動
+    /// </summary>
+    void MyMovePhase()
+    {
+        // 移動が終わったらUIを切り替える
+        if (!focusUnitObj.GetComponent<MoveController>().movingFlg)
+        {
+            attackArea.SetActive(true);
+            activeMenuUI.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// 戦闘するユニットの選択
+    /// </summary>
+    void MyBattleStandbyPhase()
+    {
+        // 攻撃範囲の描画
+        if (attackAreaList == null)
+            AddAttackArea();
+        else
+        {
+            // カーソルを敵ユニットに合わせた時の処理
+            if (Main.GameManager.GetMapUnitInfo(cursorPos) &&
+                Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ENEMY &&
+                attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK)
+            {
+
+                // バトルパラメータのセット
+                myUnitObj = focusUnitObj;
+                enemyUnitObj = Main.GameManager.GetMapUnitObj(cursorPos);
+                textMyHP = battleStandbyUI.GetComponent<BattleStandby>().textMyHP;
+                textEnemyHP = battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP;
+
+                myAttackPower = 12;
+                myAccuracy = 100;
+                myDeathblow = 10;
+                myAttackCount = 2;
+
+                enemyAttackPower = 9;
+                enemyAccuracy = 60;
+                enemyDeathblow = 3;
+                enemyAttackCount = 1;
+
+                // 敵の向きに合わせてUnitのアニメーション変更
+                if (Mathf.Abs(focusUnitObj.transform.position.x - enemyUnitObj.transform.position.x) <= 0f)
+                    if (focusUnitObj.transform.position.y < enemyUnitObj.transform.position.y)
+                        focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.UP);
+                    else
+                        focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+                else if (focusUnitObj.transform.position.x < enemyUnitObj.transform.position.x)
+                    focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.RIGHT);
+                else
+                    focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.LEFT);
+
+                // UIの切り替え
+                if (!battleStandbyUI.activeSelf)
+                    battleStandbyUI.SetActive(true);
+                battleStandbyUI.GetComponent<BattleStandby>().SetMyUnitData(
+                    focusUnitObj.GetComponent<UnitInfo>(), myAttackPower, myAccuracy, myDeathblow);
+                battleStandbyUI.GetComponent<BattleStandby>().SetEnemyUnitData(
+                    enemyUnitObj.GetComponent<UnitInfo>(), enemyAttackPower, enemyAccuracy, enemyDeathblow);
+            }
+            else
+                if (battleStandbyUI.activeSelf)
+                battleStandbyUI.SetActive(false); // UIの切り替え
+
+            // クリック処理
+            if (Input.GetMouseButtonDown(0))
+            {
+                // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
+                if (attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK &&
+                    Main.GameManager.GetMapUnitInfo(cursorPos) &&
+                        Main.GameManager.GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ENEMY)
+                {
+                    // 移動完了
+                    Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
+                    focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
+
+                    // 戦闘開始
+                    // ターンとUIの切り替え
+                    cursorObj.SetActive(false);
+                    attackArea.SetActive(false);
+                    phase = Enums.PHASE.BATTLE;
+                }
+                else OnCancelBattleStandby(); // UIの切り替え
+            }
+        }
+    }
+
+    /// <summary>
+    /// ユニットとの戦闘
+    /// </summary>
+    void MyBattlePhase()
+    {
+        if (!isBattle)
+        {
+            while (true)
+            {
+                // こちらの攻撃
+                if (0 < myAttackCount)
+                {
+                    // 必殺の検証
+                    myAttackState = RandomCheck(myDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
+
+                    // 通常攻撃命中判定
+                    if (myAttackState != Enums.BATTLE.DEATH_BLOW)
+                        myAttackState = RandomCheck(myAccuracy) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
+
+                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
+                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
+                    attackEvent.phaseManager = this;
+                    attackEvent.myUnitObj = myUnitObj;
+                    attackEvent.enemyUnitObj = enemyUnitObj;
+                    attackEvent.myAttackPower = myAttackPower;
+                    attackEvent.myAttackState = myAttackState;
+                    attackEvent.textEnemyHP = textEnemyHP;
+                    battleManager.AddEvent(attackEvent);
+
+                    myAttackCount--;
+                }
+
+                // 敵の反撃
+                if (0 < enemyAttackCount)
+                {
+                    // 必殺の検証
+                    enemyAttackState = RandomCheck(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
+
+                    // 通常攻撃命中判定
+                    if (enemyAttackState != Enums.BATTLE.DEATH_BLOW)
+                        enemyAttackState = RandomCheck(enemyAccuracy) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
+
+                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
+                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
+                    attackEvent.phaseManager = this;
+                    attackEvent.myUnitObj = enemyUnitObj;
+                    attackEvent.enemyUnitObj = myUnitObj;
+                    attackEvent.myAttackPower = enemyAttackPower;
+                    attackEvent.myAttackState = enemyAttackState;
+                    attackEvent.textEnemyHP = textMyHP;
+                    battleManager.AddEvent(attackEvent);
+
+                    enemyAttackCount--;
+                }
+
+                // 戦闘イベント登録終了
+                if (myAttackCount <= 0 && enemyAttackCount <= 0) break;
+            }
+
+            // 敵をこちらに向かせる
+            if (Mathf.Abs(enemyUnitObj.transform.position.x - focusUnitObj.transform.position.x) <= 0f)
+                if (enemyUnitObj.transform.position.y < focusUnitObj.transform.position.y)
+                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.UP);
+                else
+                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+            else if (enemyUnitObj.transform.position.x < focusUnitObj.transform.position.x)
+                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.RIGHT);
+            else
+                enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.LEFT);
+
+            // バトルの実行
+            battleManager.StartEvent();
+            isBattle = true;
+        }
+        else
+        {
+            // 全てのイベントが終了したらフェーズを変える
+            if (!battleManager.isBattle())
+            {
+                // 敵の向きを元に戻す
+                if (enemyUnitObj)
+                    enemyUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+
+                isBattle = false;
+                // ターンとUIの切り替え
+                phase = Enums.PHASE.RESULT; // 攻撃終了
+            }
+        }
+    }
+
+    /// <summary>
+    /// ユニット同士の戦闘終了後
+    /// </summary>
+    public void MyResultPhase()
+    {
+        // アニメーションを元に戻す
+        if (focusUnitObj)
+            focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+
+        // 未移動であれば移動済みとする
+        if (!focusUnitObj.GetComponent<UnitInfo>().isMoving())
+        {
+            Main.GameManager.MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
+            focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
+        }
+        // グレースケールにする
+        focusUnitObj.GetComponent<EffectController>().GrayScale(true);
+
+        RemoveActiveArea();
+        RemoveAttackArea();
+        RemoveMarker();
+        focusUnitObj = null;
+
+        // ターンとUIの切り替え
+        List<GameObject> list = Main.GameManager.GetUnBehaviorUnit(Enums.ARMY.ALLY);
+        if (list.Count == 0)
+            phase = Enums.PHASE.END;
+        else
+            phase = Enums.PHASE.SELECT;
+
+        activeMenuUI.SetActive(false);
+        battleStandbyUI.SetActive(false);
+        cursorObj.SetActive(true);
+    }
+
+    /// <summary>
+    /// ターン終了時
+    /// </summary>
+    void MyEndPhase()
+    {
+        // 自軍ユニットを全て未行動に戻す
+        Main.GameManager.UnBehaviorUnitAll(Enums.ARMY.ALLY);
+        // 敵ターンに切り替える
+        TurnChange(Enums.ARMY.ENEMY);
+        phase = Enums.PHASE.START;
+    }
+
+    void EnemyStartPhase()
+    {
+        if (turnImageAnim == null)
+        {
+            turnImageAnim = enemyTurnImage.gameObject.GetComponent<Animator>();
+            enemyTurnImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            // アニメーションが終了したらターンを開始する
+            if (!(turnImageAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f))
+            {
+                // ターンとUI切り替え
+                phase = Enums.PHASE.SELECT;
+                selectUnitInfoUI.SetActive(false);
+                cellInfoUI.SetActive(false);
+                enemyTurnImage.gameObject.SetActive(false);
+                cursorObj.SetActive(false);
+                turnImageAnim = null;
+            }
+        }
+    }
+
+    void EnemyStandbyPhase()
+    {
+    }
+
+    void EnemyFoucusPhase()
+    {
+    }
+
+    void EnemyMovePhase()
+    {
+    }
+
+    void EnemyBattleStandbyPhase()
+    {
+    }
+
+    void EnemyBattlePhase()
+    {
+    }
+
+    void EnemyResultPhase()
+    {
+    }
+
+    void EnemyEndPhase()
+    {
+    }
+
+
 }

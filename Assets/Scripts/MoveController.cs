@@ -109,13 +109,4 @@ public class MoveController : MonoBehaviour
     {
         animator.SetInteger("Walk", (int)move);
     }
-
-    /// <summary>
-    /// フォーカスが外れたら呼び出す処理
-    /// </summary>
-    public void FocuseEnd()
-    {
-        // アニメーションを元に戻す
-        playAnim(Enums.MOVE.DOWN);
-    }
 }
