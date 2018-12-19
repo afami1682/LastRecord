@@ -337,7 +337,7 @@ public class PhaseManager : MonoBehaviour
                     // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
                     AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
                     attackEvent.phaseManager = this;
-                    attackEvent.myUnitObj = focusUnitObj;
+                    attackEvent.myUnitObj = myUnitObj;
                     attackEvent.enemyUnitObj = enemyUnitObj;
                     attackEvent.myAttackPower = myAttackPower;
                     attackEvent.myAttackState = myAttackState;
