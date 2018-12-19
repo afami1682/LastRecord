@@ -15,6 +15,8 @@ public class PhaseManager : MonoBehaviour
     public GameObject selectUnitInfoUI;
     public GameObject cellInfoUI;
     public GameObject cursorObj;
+    public Image turnImage;
+    Animator turnImageAnim;
 
     // マネージャースクリプト
     public BattleManager battleManager;
@@ -75,6 +77,8 @@ public class PhaseManager : MonoBehaviour
         battleStandbyUI.SetActive(false);
         selectUnitInfoUI.SetActive(false);
         cellInfoUI.SetActive(false);
+        turnImage.gameObject.SetActive(false);
+        cursorObj.SetActive(false);
 
         // インスタンスの初期化
         routeManager = new RouteManager();
@@ -141,10 +145,25 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void StartPhase()
     {
-        // ターンとUI切り替え
-        phase = Enums.PHASE.SELECT;
-        selectUnitInfoUI.SetActive(true);
-        cellInfoUI.SetActive(true);
+        if (turnImageAnim == null)
+        {
+            turnImageAnim = turnImage.gameObject.GetComponent<Animator>();
+            turnImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            // アニメーションが終了したらターンを開始する
+            if (!(turnImageAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f))
+            {
+                // ターンとUI切り替え
+                phase = Enums.PHASE.SELECT;
+                selectUnitInfoUI.SetActive(true);
+                cellInfoUI.SetActive(true);
+                turnImage.gameObject.SetActive(false);
+                cursorObj.SetActive(true);
+                turnImageAnim = null;
+            }
+        }
     }
 
     /// <summary>
