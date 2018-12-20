@@ -15,7 +15,7 @@ public class MoveController : MonoBehaviour
     Animator animator;
 
     bool moveFlg = false; // 単体での移動中かどうか
-    bool movedFlg = true; // 全体での移動中かどうか
+    bool movedFlg = true; // 目的地に移動済みかどうか
 
     void Start()
     {

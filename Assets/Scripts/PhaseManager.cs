@@ -22,7 +22,6 @@ public class PhaseManager : MonoBehaviour
     public BattleManager battleManager;
     public MoveMarkerManager moveMarkerManager;
     PhaseManager phaseManager;
-    //RouteManager GameManager.GetRoute();
 
     [HideInInspector]
     public Vector3 cursorPos, oldCursorPos;
