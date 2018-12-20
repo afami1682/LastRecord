@@ -15,7 +15,7 @@ public class MoveController : MonoBehaviour
     Animator animator;
 
     bool moveFlg = false; // 単体での移動中かどうか
-    public bool movingFlg = false; // 全体での移動中かどうか
+    bool movedFlg = true; // 全体での移動中かどうか
 
     void Start()
     {
@@ -24,7 +24,7 @@ public class MoveController : MonoBehaviour
         animator = GetComponent<Animator>();
 
         // GameManagerにユニット情報を登録する
-        Main.GameManager.AddMapUnitObj(movePos, gameObject);
+        GameManager.GetUnit().AddMapUnitObj(movePos, gameObject);
     }
 
     private void Update()
@@ -45,7 +45,7 @@ public class MoveController : MonoBehaviour
 
             // 移動開始
             moveFlg = true;
-            movingFlg = true;
+            movedFlg = false;
         }
     }
 
@@ -69,7 +69,7 @@ public class MoveController : MonoBehaviour
 
                 // 移動全体の完了
                 if (moveRoot.Count == 0)
-                    movingFlg = false;
+                    movedFlg = true;
             }
         }
     }
@@ -109,4 +109,10 @@ public class MoveController : MonoBehaviour
     {
         animator.SetInteger("Walk", (int)move);
     }
+
+    /// <summary>
+    /// 全ての移動が終わったかどうか
+    /// </summary>
+    /// <returns><c>true</c>, if moved was ised, <c>false</c> otherwise.</returns>
+    public bool isMoved() { return movedFlg; }
 }

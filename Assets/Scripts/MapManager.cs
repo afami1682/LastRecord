@@ -6,13 +6,22 @@ using System.IO;
 
 public class MapManager
 {
-    static Struct.Field field;
+    public Struct.Field field;
 
     /// <summary>
-    /// コンストラクタ
+    /// コンストラクター
     /// </summary>
-    /// <param name="mapId">ステージId</param>
+    /// <param name="mapId">Map identifier.</param>
     public MapManager(int mapId)
+    {
+        // マップデータの取得
+        GetMapData(mapId);
+    }
+
+    /// <summary>
+    /// Gets the map data.
+    /// </summary>
+    void GetMapData(int mapId)
     {
         Struct.FieldBase fieldBase = new Struct.FieldBase();
         switch (mapId)
@@ -54,14 +63,5 @@ public class MapManager
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// 外部からの呼び出し用
-    /// </summary>
-    /// <returns>The field data.</returns>
-    public static Struct.Field GetFieldData()
-    {
-        return field;
     }
 }

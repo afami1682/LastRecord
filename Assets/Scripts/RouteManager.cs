@@ -9,6 +9,21 @@ using System;
 /// </summary>
 public class RouteManager
 {
+    // ルートの算出に必要なフィールドデータ
+    Struct.Field field;
+    int fieldWidth, fieldHeight;
+
+    /// <summary>
+    /// コンストラクター
+    /// </summary>
+    /// <param name="field">Field.</param>
+    public RouteManager(Struct.Field field)
+    {
+        this.field = field;
+        this.fieldWidth = field.width;
+        this.fieldHeight = field.height;
+    }
+
     /// <summary>
     /// フォーカスユニットから目的地までの最短ルートをチェックし、
     /// ユニットの移動ルートリストに登録する
@@ -23,7 +38,7 @@ public class RouteManager
         // 開始地点から終了地点までたどり着けるか
         bool isEnd = false;
         Vector3 pos = phaseManager.focusUnitObj.transform.position;
-        Struct.NodeMove[,] nodeList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
+        Struct.NodeMove[,] nodeList = new Struct.NodeMove[fieldHeight, fieldWidth];
         nodeList[-(int)pos.y, (int)pos.x].aREA = Enums.AREA.UNIT;
 
         // スタート地点からエンドまで再帰的に移動コストをチェックする
@@ -46,9 +61,9 @@ public class RouteManager
     {
         // 配列の外（マップ外）なら何もしない
         if (-(int)checkPos.y < 0 ||
-            MapManager.GetFieldData().height <= -checkPos.y ||
+           fieldHeight <= -checkPos.y ||
             checkPos.x < 0 ||
-            MapManager.GetFieldData().width <= checkPos.x)
+           fieldWidth <= checkPos.x)
             return;
 
         // アクティブエリアでなければ何もしない
@@ -59,12 +74,12 @@ public class RouteManager
         // 省コストで上書きできない場合は終了
         if (nodeList[-(int)checkPos.y, (int)checkPos.x].cost != 0 &&
             nodeList[-(int)checkPos.y, (int)checkPos.x].cost <=
-            previousCost + MapManager.GetFieldData().cells[-(int)checkPos.y, (int)checkPos.x].moveCost)
+            previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost)
             return;
 
         // 移動前のコストと今回のコストを合計して設定する（開始地点を除く）
         if (nodeList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
-            nodeList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + MapManager.GetFieldData().cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
+            nodeList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
 
         // ゴールまで辿り着ける事を確認した
         if (checkPos == endPos) isEnd = true;
@@ -137,9 +152,9 @@ public class RouteManager
     {
         // 配列の外（マップ外）なら何もしない
         if (-(int)checkPos.y < 0 ||
-            MapManager.GetFieldData().height <= -checkPos.y ||
+           fieldHeight <= -checkPos.y ||
             checkPos.x < 0 ||
-            MapManager.GetFieldData().width <= checkPos.x)
+           fieldWidth <= checkPos.x)
             return -1;
 
         // アクティブエリアでなければ-1を返す
@@ -159,7 +174,7 @@ public class RouteManager
     {
         // スタート地点からエンドまで再帰的に移動コストをチェックする
         Vector3 pos = phaseManager.focusUnitObj.transform.position;
-        phaseManager.activeAreaList = new Struct.NodeMove[MapManager.GetFieldData().height, MapManager.GetFieldData().width];
+        phaseManager.activeAreaList = new Struct.NodeMove[fieldHeight, fieldWidth];
         phaseManager.activeAreaList[-(int)pos.y, (int)pos.x].aREA = Enums.AREA.UNIT;
         CheckMoveAreaRecursive(ref phaseManager, pos, 0);
     }
@@ -174,19 +189,19 @@ public class RouteManager
     {
         // 配列の外（マップ外）なら何もしない
         if (-(int)checkPos.y < 0 ||
-            MapManager.GetFieldData().height <= -checkPos.y ||
+           fieldHeight <= -checkPos.y ||
             checkPos.x < 0 ||
-            MapManager.GetFieldData().width <= checkPos.x)
+           fieldWidth <= checkPos.x)
             return;
 
         // キャラが移動できないマスなら何もしない
-        if (!isMoveing(MapManager.GetFieldData().cells[-(int)checkPos.y, (int)checkPos.x].category, phaseManager.focusUnitObj.GetComponent<UnitInfo>().moveType))
+        if (!isMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, phaseManager.focusUnitObj.GetComponent<UnitInfo>().moveType))
             return;
 
         // 移動先にユニットがいた場合のすり抜けチェック
-        if (Main.GameManager.GetMapUnitInfo(checkPos))
+        if (GameManager.GetUnit().GetMapUnitInfo(checkPos))
         {
-            switch (Main.GameManager.GetMapUnitInfo(checkPos).aRMY)
+            switch (GameManager.GetUnit().GetMapUnitInfo(checkPos).aRMY)
             {
                 case Enums.ARMY.ALLY:
                     if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.ENEMY)
@@ -207,13 +222,13 @@ public class RouteManager
         // 省コストで上書きできない場合は終了
         if (phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost != 0 &&
             phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost <=
-            previousCost + MapManager.GetFieldData().cells[-(int)checkPos.y, (int)checkPos.x].moveCost)
+            previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost)
             return;
 
         // 移動前のコストと今回のコストを合計して設定する（開始地点を除く）
         if (phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
         {
-            phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + MapManager.GetFieldData().cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
+            phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
             phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA = Enums.AREA.MOVE;
         }
 
@@ -259,9 +274,9 @@ public class RouteManager
 
         // 配列の外（マップ外）なら何もしない
         if (-(int)checkPos.y < 0 ||
-            MapManager.GetFieldData().height <= -checkPos.y ||
+           fieldHeight <= -checkPos.y ||
             checkPos.x < 0 ||
-            MapManager.GetFieldData().width <= checkPos.x)
+           fieldWidth <= checkPos.x)
             return;
 
         if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.NONE)

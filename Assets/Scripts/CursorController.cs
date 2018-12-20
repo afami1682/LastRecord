@@ -28,8 +28,8 @@ public class CursorController : MonoBehaviour
                                 MultipleRound(mouseScreenPos.y, 1), 0);
 
         // マップ内なら新しいカーソル座標を取得する
-        if (0 <= _cursorPos.x && _cursorPos.x < MapManager.GetFieldData().width &&
-            0 <= -_cursorPos.y && -_cursorPos.y < MapManager.GetFieldData().height)
+        if (0 <= _cursorPos.x && _cursorPos.x < GameManager.GetMap().field.width &&
+            0 <= -_cursorPos.y && -_cursorPos.y < GameManager.GetMap().field.height)
             cursorPos = _cursorPos;
 
         // カーソル座標が更新されてないなら更新する
@@ -48,7 +48,8 @@ public class CursorController : MonoBehaviour
     /// 外部呼び出し用
     /// </summary>
     /// <param name="pos">Position.</param>
-    public void SetPos(Vector3 pos){
+    public void SetPos(Vector3 pos)
+    {
         cursorPos = pos;
     }
 

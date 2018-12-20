@@ -119,7 +119,7 @@ public class AttackEvent : MonoBehaviour
                 case Enums.BATTLE.DEATH_BLOW:
                     // ダメージの反映
                     (enemyUnitObj).GetComponent<UnitInfo>().hp = enemyResidualHP;
-                    Main.GameManager.GetMapUnitInfo(enemyUnitObj.transform.position).hp = enemyResidualHP;
+                    GameManager.GetUnit().GetMapUnitInfo(enemyUnitObj.transform.position).hp = enemyResidualHP;
                     break;
 
                 case Enums.BATTLE.MISS:

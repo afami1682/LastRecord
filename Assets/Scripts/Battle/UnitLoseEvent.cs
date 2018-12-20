@@ -34,7 +34,7 @@ public class UnitLoseEvent : MonoBehaviour
             if (currentRemainTime <= 0f)
             {
                 // 残り時間が無くなったら自身を消滅
-                Main.GameManager.RemoveMapUnitObj(transform.position);
+                GameManager.GetUnit().RemoveMapUnitObj(transform.position);
                 Destroy(gameObject);
                 runninge[0] = false;
             }

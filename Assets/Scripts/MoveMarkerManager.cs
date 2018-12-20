@@ -18,7 +18,7 @@ public class MoveMarkerManager : MonoBehaviour
     /// <summary>
     /// markerの表示
     /// </summary>
-    public void AddMarker(ref PhaseManager phaseManager, ref RouteManager routeManager, ref GameObject focusUnitObj, ref List<Vector3> moveRoot, ref Struct.NodeMove[,] activeAreaList, ref Vector3 cursorPos)
+    public void AddMarker(ref PhaseManager phaseManager, ref GameObject focusUnitObj, ref List<Vector3> moveRoot, ref Struct.NodeMove[,] activeAreaList, ref Vector3 cursorPos)
     {
         // アクティブエリアがあるなら、マーカを表示する
         if (activeAreaList != null)
@@ -29,7 +29,7 @@ public class MoveMarkerManager : MonoBehaviour
                 RemoveMarker();
 
                 // 目標までのルートを取得
-                routeManager.CheckShortestRoute(ref phaseManager, cursorPos);
+                GameManager.GetRoute().CheckShortestRoute(ref phaseManager, cursorPos);
 
                 // マーカの生成とスプライト変更
                 Vector3 nextPos = focusUnitObj.transform.position;

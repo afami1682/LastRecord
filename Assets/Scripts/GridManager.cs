@@ -22,8 +22,8 @@ public class GridManager : MonoBehaviour
         GetComponent<MeshRenderer>().material = new Material(Shader.Find("GUI/Text Shader"));
         mesh.Clear();
 
-        int sizeX = MapManager.GetFieldData().width;
-        int sizeY = MapManager.GetFieldData().height;
+        int sizeX = GameManager.GetMap().field.width;
+        int sizeY = GameManager.GetMap().field.height;
 
         float gridSize = 1f;
         int drawGridX = sizeX * 2 + 2;// 描画するグリッドの数（横）
@@ -49,8 +49,8 @@ public class GridManager : MonoBehaviour
         // グリッドの横棒の座標設定
         for (int i = 0; i < drawGridY; i += 2)
         {
-            vertices[drawGridX + i] = new Vector3(-0.5f,-gridPos * i + 0.5f, 0);
-            vertices[drawGridX + i + 1] = new Vector3(width -0.5f, -gridPos * i + 0.5f, 0);
+            vertices[drawGridX + i] = new Vector3(-0.5f, -gridPos * i + 0.5f, 0);
+            vertices[drawGridX + i + 1] = new Vector3(width - 0.5f, -gridPos * i + 0.5f, 0);
         }
 
         for (int i = 0; i < resolution; i++)
@@ -71,7 +71,8 @@ public class GridManager : MonoBehaviour
     /// <summary>
     /// アクティブ状態を反転する
     /// </summary>
-    public void changeActive(){
+    public void changeActive()
+    {
         gameObject.SetActive(!gameObject.activeSelf);
     }
 }
