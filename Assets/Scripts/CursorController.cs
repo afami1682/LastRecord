@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using System;
 
 /// <summary>
 /// カーソルの描画,アクティブエリアの描画,フォーカスユニットの制御
@@ -13,12 +13,8 @@ public class CursorController : MonoBehaviour
     Vector3 cursorPos;
     Vector3 _cursorPos;
 
-    public PhaseManager phaseManager;
-    public CameraController cameraController;
-
-    void Start()
-    {
-    }
+    // カーソル実行時に行う処理のリスト
+    static List<Action<Vector3>> callbackList = new List<Action<Vector3>>();
 
     private void Update()
     {
@@ -38,19 +34,9 @@ public class CursorController : MonoBehaviour
             // カーソルの座標を更新
             transform.position = cursorPos;
 
-            // カーソル更新イベントの呼び出し
-            phaseManager.cursorUpdate(cursorPos);
-            cameraController.cursorUpdate(cursorPos);
+            // カーソル更新時に呼び出す処理
+            foreach (Action<Vector3> callback in callbackList) callback(cursorPos);
         }
-    }
-
-    /// <summary>
-    /// 外部呼び出し用
-    /// </summary>
-    /// <param name="pos">Position.</param>
-    public void SetPos(Vector3 pos)
-    {
-        cursorPos = pos;
     }
 
     /// <summary>
@@ -76,4 +62,10 @@ public class CursorController : MonoBehaviour
     {
         return Mathf.Floor(value / multiple) * multiple;
     }
+
+    /// <summary>
+    /// カーソル更新時に実行するコールバック処理の登録
+    /// </summary>
+    /// <param name="callback">Callback.</param>
+    public static void AddCallBack(Action<Vector3> callback) { callbackList.Add(callback); }
 }

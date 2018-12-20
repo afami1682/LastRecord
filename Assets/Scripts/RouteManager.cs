@@ -42,7 +42,7 @@ public class RouteManager
         nodeList[-(int)pos.y, (int)pos.x].aREA = Enums.AREA.UNIT;
 
         // スタート地点からエンドまで再帰的に移動コストをチェックする
-        CheckRootAreaRecursive(ref nodeList, ref phaseManager.activeAreaList, pos, ref endPos, 0, ref isEnd);
+        CheckRootAreaRecursive(ref nodeList, ref phaseManager.activeAreaManager.activeAreaList, pos, ref endPos, 0, ref isEnd);
 
         // ゴールできる場合は最短ルートをチェックする
         if (isEnd) phaseManager.moveRoot = CheckShootRootRecursive(ref phaseManager, ref nodeList, endPos);
@@ -105,13 +105,13 @@ public class RouteManager
 
         // 上下左右のコストをチェクし昇順に並び替える
         List<Struct.NodeRoot> list = new List<Struct.NodeRoot>();
-        int valUp = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.up);
+        int valUp = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaManager.activeAreaList, checkPos + Vector3.up);
         if (-1 < valUp) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.UP, valUp));
-        int valDown = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.down);
+        int valDown = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaManager.activeAreaList, checkPos + Vector3.down);
         if (-1 < valDown) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.DOWN, valDown));
-        int valLeft = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.left);
+        int valLeft = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaManager.activeAreaList, checkPos + Vector3.left);
         if (-1 < valLeft) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.LEFT, valLeft));
-        int valRight = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaList, checkPos + Vector3.right);
+        int valRight = CheckNodeCost(ref nodeList, ref phaseManager.activeAreaManager.activeAreaList, checkPos + Vector3.right);
         if (-1 < valRight) list.Insert(list.Count, new Struct.NodeRoot(Enums.MOVE.RIGHT, valRight));
         list.Sort((a, b) => a.cost.CompareTo(b.cost));
 
@@ -174,8 +174,8 @@ public class RouteManager
     {
         // スタート地点からエンドまで再帰的に移動コストをチェックする
         Vector3 pos = phaseManager.focusUnitObj.transform.position;
-        phaseManager.activeAreaList = new Struct.NodeMove[fieldHeight, fieldWidth];
-        phaseManager.activeAreaList[-(int)pos.y, (int)pos.x].aREA = Enums.AREA.UNIT;
+        phaseManager.activeAreaManager.activeAreaList = new Struct.NodeMove[fieldHeight, fieldWidth];
+        phaseManager.activeAreaManager.activeAreaList[-(int)pos.y, (int)pos.x].aREA = Enums.AREA.UNIT;
         CheckMoveAreaRecursive(ref phaseManager, pos, 0);
     }
 
@@ -220,26 +220,26 @@ public class RouteManager
         }
 
         // 省コストで上書きできない場合は終了
-        if (phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost != 0 &&
-            phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost <=
+        if (phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost != 0 &&
+            phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost <=
             previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost)
             return;
 
         // 移動前のコストと今回のコストを合計して設定する（開始地点を除く）
-        if (phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
+        if (phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA != Enums.AREA.UNIT)
         {
-            phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
-            phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA = Enums.AREA.MOVE;
+            phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
+            phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA = Enums.AREA.MOVE;
         }
 
         // 移動コストを超えた場合は終了
-        if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().movementRange <= phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost) return;
+        if (phaseManager.focusUnitObj.GetComponent<UnitInfo>().movementRange <= phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost) return;
 
         // 次に検証する座標を指定（上下左右）
-        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.up, phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
-        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.down, phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
-        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.left, phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
-        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.right, phaseManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
+        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.up, phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
+        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.down, phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
+        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.left, phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
+        CheckMoveAreaRecursive(ref phaseManager, checkPos + Vector3.right, phaseManager.activeAreaManager.activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
     }
 
     /// <summary>

@@ -17,6 +17,9 @@ public class CameraController : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
+
+        // カーソル更新時に呼び出す処理の登録
+        CursorController.AddCallBack((Vector3 newPos) => { cursorPos = newPos; });
     }
 
     void Update()
@@ -48,10 +51,4 @@ public class CameraController : MonoBehaviour
         }
         delta += Time.deltaTime;
     }
-
-    /// <summary>
-    /// カーソルの更新時に呼ばれる
-    /// </summary>
-    /// <param name="newPos">New position.</param>
-    public void cursorUpdate(Vector3 newPos) { cursorPos = newPos; }
 }

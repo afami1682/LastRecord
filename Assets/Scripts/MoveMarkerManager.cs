@@ -18,36 +18,35 @@ public class MoveMarkerManager : MonoBehaviour
     /// <summary>
     /// markerの表示
     /// </summary>
-    public void AddMarker(ref PhaseManager phaseManager, ref GameObject focusUnitObj, ref List<Vector3> moveRoot, ref Struct.NodeMove[,] activeAreaList, ref Vector3 cursorPos)
+    public void AddMarker(ref PhaseManager phaseManager)
     {
         // アクティブエリアがあるなら、マーカを表示する
-        if (activeAreaList != null)
+        if (phaseManager.activeAreaManager.activeAreaList != null)
             // 移動エリア内ならマーカを表示する
-            if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.MOVE)
+            if (phaseManager.activeAreaManager.activeAreaList[-(int)phaseManager.cursorPos.y, (int)phaseManager.cursorPos.x].aREA == Enums.AREA.MOVE)
             {
                 // マーカの削除
                 RemoveMarker();
 
                 // 目標までのルートを取得
-                GameManager.GetRoute().CheckShortestRoute(ref phaseManager, cursorPos);
+                GameManager.GetRoute().CheckShortestRoute(ref phaseManager, phaseManager.cursorPos);
 
                 // マーカの生成とスプライト変更
-                Vector3 nextPos = focusUnitObj.transform.position;
+                Vector3 nextPos = phaseManager.focusUnitObj.transform.position;
                 int spriteId = 0;
                 Quaternion angle = Quaternion.identity;
-                int moveRootCount = moveRoot.Count;
+                int moveRootCount = phaseManager.moveRoot.Count;
                 if (moveRootCount != 0)
                 {
-                    if (moveRoot[0] == Vector3.down) angle.eulerAngles = new Vector3(180, 0, 0);
-                    else if (moveRoot[0] == Vector3.left) angle.eulerAngles = new Vector3(0, 0, 90);
-                    else if (moveRoot[0] == Vector3.right) angle.eulerAngles = new Vector3(0, 0, -90);
+                    if (phaseManager.moveRoot[0] == Vector3.down) angle.eulerAngles = new Vector3(180, 0, 0);
+                    else if (phaseManager.moveRoot[0] == Vector3.left) angle.eulerAngles = new Vector3(0, 0, 90);
+                    else if (phaseManager.moveRoot[0] == Vector3.right) angle.eulerAngles = new Vector3(0, 0, -90);
                     markerObj.GetComponent<SpriteRenderer>().sprite = markerSprites[spriteId];
-                    Instantiate(markerObj, nextPos, angle).transform.parent = moveMarkerObj.transform;
                     Instantiate(markerObj, nextPos, angle).transform.parent = moveMarkerObj.transform;
                 }
                 for (int i = 0; i < moveRootCount; i++)
                 {
-                    if (moveRoot[i] == Vector3.up)
+                    if (phaseManager.moveRoot[i] == Vector3.up)
                     {
                         if (i + 1 == moveRootCount)
                         {
@@ -56,9 +55,9 @@ public class MoveMarkerManager : MonoBehaviour
                         }
                         else
                         {
-                            if (moveRoot[i + 1] != Vector3.up)
+                            if (phaseManager.moveRoot[i + 1] != Vector3.up)
                             {
-                                angle.eulerAngles = moveRoot[i + 1] == Vector3.left ? new Vector3(0, 180, 0) : new Vector3(0, 0, 0);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.left ? new Vector3(0, 180, 0) : new Vector3(0, 0, 0);
                                 spriteId = 2;
                             }
                             else
@@ -68,14 +67,14 @@ public class MoveMarkerManager : MonoBehaviour
                             }
                         }
                     }
-                    else if (moveRoot[i] == Vector3.down)
+                    else if (phaseManager.moveRoot[i] == Vector3.down)
                     {
                         if (i + 1 == moveRootCount) { angle.eulerAngles = new Vector3(0, 0, 180); spriteId = 3; }
                         else
                         {
-                            if (moveRoot[i + 1] != Vector3.down)
+                            if (phaseManager.moveRoot[i + 1] != Vector3.down)
                             {
-                                angle.eulerAngles = moveRoot[i + 1] == Vector3.left ? new Vector3(0, 0, 180) : new Vector3(180, 0, 0);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.left ? new Vector3(0, 0, 180) : new Vector3(180, 0, 0);
                                 spriteId = 2;
                             }
                             else
@@ -86,7 +85,7 @@ public class MoveMarkerManager : MonoBehaviour
                         }
 
                     }
-                    else if (moveRoot[i] == Vector3.right)
+                    else if (phaseManager.moveRoot[i] == Vector3.right)
                     {
                         if (i + 1 == moveRootCount)
                         {
@@ -95,9 +94,9 @@ public class MoveMarkerManager : MonoBehaviour
                         }
                         else
                         {
-                            if (moveRoot[i + 1] != Vector3.right)
+                            if (phaseManager.moveRoot[i + 1] != Vector3.right)
                             {
-                                angle.eulerAngles = moveRoot[i + 1] == Vector3.up ? new Vector3(0, 180, 90) : new Vector3(0, 0, -90);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.up ? new Vector3(0, 180, 90) : new Vector3(0, 0, -90);
                                 spriteId = 2;
                             }
                             else
@@ -116,9 +115,9 @@ public class MoveMarkerManager : MonoBehaviour
                         }
                         else
                         {
-                            if (moveRoot[i + 1] != Vector3.left)
+                            if (phaseManager.moveRoot[i + 1] != Vector3.left)
                             {
-                                angle.eulerAngles = moveRoot[i + 1] == Vector3.up ? new Vector3(0, 0, 90) : new Vector3(0, 180, -90);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.up ? new Vector3(0, 0, 90) : new Vector3(0, 180, -90);
                                 spriteId = 2;
                             }
                             else
@@ -129,10 +128,10 @@ public class MoveMarkerManager : MonoBehaviour
                         }
                     }
                     markerObj.GetComponent<SpriteRenderer>().sprite = markerSprites[spriteId];
-                    Instantiate(markerObj, nextPos += moveRoot[i], angle).transform.parent = moveMarkerObj.transform;
+                    Instantiate(markerObj, nextPos += phaseManager.moveRoot[i], angle).transform.parent = moveMarkerObj.transform;
                 }
             }
-            else if (activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.UNIT)
+            else if (phaseManager.activeAreaManager.activeAreaList[-(int)phaseManager.cursorPos.y, (int)phaseManager.cursorPos.x].aREA == Enums.AREA.UNIT)
                 RemoveMarker(); // カーソルがユニット上なら表示しない
     }
 
