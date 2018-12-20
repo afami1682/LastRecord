@@ -43,7 +43,6 @@ public class ActiveAreaManager : MonoBehaviour
                 {
                     // 移動エリアの表示
                     Instantiate(areaBlue, new Vector3(x, -y, 0), Quaternion.identity).transform.parent = activeAreaObj.transform;
-                    UnitInfo a = phaseManager.focusUnitObj.GetComponent<UnitInfo>();
                     // 攻撃エリアの検証
                     GameManager.GetRoute().CheckAttackArea(ref activeAreaList, new Vector3(x, -y, 0), phaseManager.focusUnitObj.GetComponent<UnitInfo>().attackRange);
                 }

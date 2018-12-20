@@ -30,7 +30,6 @@ public class PhaseManager : MonoBehaviour
     // フォーカス（選択中）Unit関連
     [HideInInspector]
     public GameObject focusUnitObj;
-    [HideInInspector]
     Vector3 oldFocusUnitPos;
     [HideInInspector]
     public List<Vector3> moveRoot; // 移動ルートの座標引き渡し用
