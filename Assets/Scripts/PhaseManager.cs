@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using System.Linq;
 
 /// <summary>
 /// Phaseの管理
@@ -66,7 +67,7 @@ public class PhaseManager : MonoBehaviour
     MovePhase, // Unit行動時
     BattleStandbyPhase, // Unit攻撃選択時
     BattlePhase, // Unit攻撃時
-    ResultPhase, // Unit攻撃終了時（まだ見操作のUnitがいれば、SELECTに戻る）
+    ResultPhase, // Unit攻撃終了時（まだ見操作のUnitがいれば、STANDBYに戻る）
     EndPhase; // プレイヤーのターン終了時
 
     void Start()
@@ -95,7 +96,7 @@ public class PhaseManager : MonoBehaviour
         switch (phase)
         {
             case Enums.PHASE.START: StartPhase(); break;
-            case Enums.PHASE.SELECT: StandbyPhase(); break;
+            case Enums.PHASE.STANDBY: StandbyPhase(); break;
             case Enums.PHASE.FOCUS: FoucusPhase(); break;
             case Enums.PHASE.MOVE: MovePhase(); break;
             case Enums.PHASE.BATTLE_STANDBY: BattleStandbyPhase(); break;
@@ -109,7 +110,10 @@ public class PhaseManager : MonoBehaviour
     /// 外部変更用
     /// </summary>
     /// <param name="newPhase">New phase.</param>
-    public void ChangePhase(Enums.PHASE newPhase) { phase = newPhase; }
+    public void ChangePhase(Enums.PHASE newPhase)
+    {
+        phase = newPhase;
+    }
 
     /// <summary>
     /// ターンの切り替え処理
@@ -176,7 +180,7 @@ public class PhaseManager : MonoBehaviour
         focusUnitObj = null;
 
         // ターンとUIの切り替え
-        phase = Enums.PHASE.SELECT;
+        phase = Enums.PHASE.STANDBY;
         activeMenuUI.SetActive(false);
         battleStandbyUI.SetActive(false);
         cursorObj.SetActive(true);
@@ -230,11 +234,12 @@ public class PhaseManager : MonoBehaviour
                 if (list.Count == 0)
                     phase = Enums.PHASE.END;
                 else
-                    phase = Enums.PHASE.SELECT;
+                    phase = Enums.PHASE.STANDBY;
 
                 selectUnitInfoUI.SetActive(true);
                 cellInfoUI.SetActive(true);
                 playerTurnImage.gameObject.SetActive(false);
+                activeAreaManager.activeAreaObj.SetActive(true);
                 cursorObj.SetActive(true);
                 turnImageAnim = null;
             }
@@ -272,7 +277,7 @@ public class PhaseManager : MonoBehaviour
                     {
                         // フォーカスユニットの取得
                         focusUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
-                        activeAreaManager.CreateActiveArea(ref phaseManager);
+                        activeAreaManager.CreateActiveArea(ref phaseManager, true);
 
                         // ターンとUIの切り替え
                         phase = Enums.PHASE.FOCUS;
@@ -299,11 +304,13 @@ public class PhaseManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
             // アクティブエリア（移動可能マス）を選択されたら移動する
-            if (activeAreaManager.activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.MOVE)
+            switch (activeAreaManager.activeAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA)
             {
-                // 他ユニットがいなければ
-                if (!GameManager.GetUnit().GetMapUnitInfo(cursorPos))
-                {
+
+                case Enums.AREA.MOVE:
+                    if (GameManager.GetUnit().GetMapUnitInfo(cursorPos)) return; // 移動先に他ユニットがいるならキャンセル
+                    goto case Enums.AREA.UNIT;
+                case Enums.AREA.UNIT:
                     // ユニットの移動前の座標を保存
                     oldFocusUnitPos = focusUnitObj.transform.position;
 
@@ -315,18 +322,19 @@ public class PhaseManager : MonoBehaviour
                     moveMarkerManager.SetActive(false);
                     cursorObj.SetActive(false);
                     activeAreaManager.activeAreaObj.SetActive(false);
-                }
-            }
-            else // アクティブエリア外をクリックされたらフォーカスを外す
-            {
-                // アニメーションを元に戻す
-                focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
-                focusUnitObj = null;
+                    break;
 
-                // ターンとUI切り替え
-                phase = Enums.PHASE.SELECT;
-                moveMarkerManager.RemoveMarker();
-                activeAreaManager.RemoveActiveArea();
+                default:
+                    // アクティブエリア外をクリックされたらフォーカスを外す
+                    // アニメーションを元に戻す
+                    focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+                    focusUnitObj = null;
+
+                    // ターンとUI切り替え
+                    phase = Enums.PHASE.STANDBY;
+                    moveMarkerManager.RemoveMarker();
+                    activeAreaManager.RemoveActiveArea();
+                    break;
             }
     }
 
@@ -539,7 +547,7 @@ public class PhaseManager : MonoBehaviour
         if (list.Count == 0)
             phase = Enums.PHASE.END;
         else
-            phase = Enums.PHASE.SELECT;
+            phase = Enums.PHASE.STANDBY;
 
         activeMenuUI.SetActive(false);
         battleStandbyUI.SetActive(false);
@@ -571,7 +579,7 @@ public class PhaseManager : MonoBehaviour
             if (!(turnImageAnim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f))
             {
                 // ターンとUI切り替え
-                phase = Enums.PHASE.SELECT;
+                phase = Enums.PHASE.STANDBY;
                 selectUnitInfoUI.SetActive(false);
                 cellInfoUI.SetActive(false);
                 enemyTurnImage.gameObject.SetActive(false);
@@ -583,31 +591,94 @@ public class PhaseManager : MonoBehaviour
 
     void EnemyStandbyPhase()
     {
+        // ランダムな未行動ユニット1体の取得
+        focusUnitObj = GameManager.GetUnit().GetUnBehaviorRandomUnit(Enums.ARMY.ENEMY);
+
+        if (focusUnitObj != null)
+        {
+            // アクティブエリアの取得
+            activeAreaManager.CreateActiveArea(ref phaseManager, true);
+            phase = Enums.PHASE.FOCUS;
+        }
+        else phase = Enums.PHASE.END;
     }
 
     void EnemyFoucusPhase()
     {
+        // ユニットの移動前の座標を保存
+        oldFocusUnitPos = focusUnitObj.transform.position;
+
+        Vector3 movePos = GameManager.GetEnemyAI().AttackLocationCalc(ref phaseManager);
+
+        // TODO 
+        if (movePos == Vector3.zero) phase = Enums.PHASE.RESULT;
+
+        // 目標までのルートを取得し設定
+        GameManager.GetRoute().CheckShortestRoute(ref phaseManager, movePos);
+        focusUnitObj.GetComponent<MoveController>().setMoveRoots(moveRoot);
+
+        // ターンとUI切り替え
+        phase = Enums.PHASE.MOVE;
     }
 
     void EnemyMovePhase()
     {
+        // 移動が終わったらフェイズを切り替える
+        if (focusUnitObj.GetComponent<MoveController>().isMoved())
+        {
+            // Unitリストの座標を更新
+            focusUnitObj.GetComponent<UnitInfo>().Moving(true);
+            GameManager.GetUnit().MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
+
+            // フェイズの切り替え
+            phase = Enums.PHASE.BATTLE_STANDBY;
+        }
     }
 
     void EnemyBattleStandbyPhase()
     {
+        // 開発中
+        phase = Enums.PHASE.RESULT;
     }
 
     void EnemyBattlePhase()
     {
+        // 開発中
     }
 
     void EnemyResultPhase()
     {
+        // アニメーションを元に戻す
+        if (focusUnitObj)
+            focusUnitObj.GetComponent<MoveController>().playAnim(Enums.MOVE.DOWN);
+        
+        // 未移動であれば移動済みとする
+        if (!focusUnitObj.GetComponent<UnitInfo>().isMoving())
+        {
+            GameManager.GetUnit().MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
+            focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
+        }
+
+        // グレースケールにする
+        focusUnitObj.GetComponent<EffectController>().GrayScale(true);
+        activeAreaManager.RemoveActiveArea();
+        activeAreaManager.RemoveAttackArea();
+        focusUnitObj = null;
+
+        // ターンとUIの切り替え
+        List<GameObject> list = GameManager.GetUnit().GetUnBehaviorUnits(Enums.ARMY.ENEMY);
+        if (list.Count == 0)
+            phase = Enums.PHASE.END;
+        else
+            phase = Enums.PHASE.STANDBY;
     }
 
     void EnemyEndPhase()
     {
+        // 自軍ユニットを全て未行動に戻す
+        GameManager.GetUnit().UnBehaviorUnitAll(Enums.ARMY.ENEMY);
+        // プレイヤーターンに切り替える
+        TurnChange(Enums.ARMY.ALLY);
+        phase = Enums.PHASE.START;
     }
-
-
 }

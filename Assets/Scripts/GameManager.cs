@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     static MapManager mapManager;
     static UnitManager unitManager;
     static RouteManager routeManager;
+    static EnemyAIManager enemyAIManager;
 
     private void Awake()
     {
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour
         mapManager = new MapManager(mapId);
         unitManager = new UnitManager(mapManager.field);
         routeManager = new RouteManager(mapManager.field);
+        enemyAIManager = new EnemyAIManager(mapManager.field);
     }
 
     /// <summary>
@@ -34,4 +36,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <returns>The route.</returns>
     public static RouteManager GetRoute() { return routeManager; }
+
+    /// <summary>
+    /// 外部呼び出し用
+    /// </summary>
+    /// <returns>The enemy ai.</returns>
+    public static EnemyAIManager GetEnemyAI() { return enemyAIManager; }
 }

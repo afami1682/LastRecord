@@ -71,7 +71,7 @@ public class UnitManager
     public void MoveMapUnitObj(Vector3 oldPos, Vector3 newPos)
     {
         mapUnitObj[-(int)newPos.y, (int)newPos.x] = mapUnitObj[-(int)oldPos.y, (int)oldPos.x];
-        mapUnitObj[-(int)oldPos.y, (int)oldPos.x] = null;
+        if (oldPos != newPos) mapUnitObj[-(int)oldPos.y, (int)oldPos.x] = null;
     }
 
     /// <summary>
@@ -96,6 +96,23 @@ public class UnitManager
                 if (mapUnitObj[y, x] != null && mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army)
                     units.Add(mapUnitObj[y, x]);
         return units;
+    }
+
+    /// <summary>
+    /// 指定された軍の未行動ユニットがいるかどうかチェックし、ランダムの1体を返す
+    /// </summary>
+    /// <returns>The un behavior unit.</returns>
+    /// <param name="army">Army.</param>
+    public GameObject GetUnBehaviorRandomUnit(Enums.ARMY army)
+    {
+        List<GameObject> units = new List<GameObject>();
+        for (int y = 0; y < fieldHeight; y++)
+            for (int x = 0; x < fieldWidth; x++)
+                if (mapUnitObj[y, x] != null &&
+                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army &&
+                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().isMoving())
+                    units.Add(mapUnitObj[y, x]);
+        return units[Random.Range(0, units.Count - 1)];
     }
 
     /// <summary>

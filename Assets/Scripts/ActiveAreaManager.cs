@@ -25,10 +25,10 @@ public class ActiveAreaManager : MonoBehaviour
     }
 
     /// <summary>
-    /// アクティブエリアの表示
+    /// アクティブエリアの生成と表示
     /// </summary>
-    /// <param name="phaseManager">Phase manager.</param>
-    public void CreateActiveArea(ref PhaseManager phaseManager)
+    /// <param name="">パネルの表示<c>true</c> .</param>
+    public void CreateActiveArea(ref PhaseManager phaseManager, bool showArea)
     {
         // アクティブリストの生成と検証
         activeAreaList = new Struct.NodeMove[GameManager.GetMap().field.height, GameManager.GetMap().field.width];
@@ -42,16 +42,18 @@ public class ActiveAreaManager : MonoBehaviour
                 if (activeAreaList[y, x].aREA == Enums.AREA.MOVE || activeAreaList[y, x].aREA == Enums.AREA.UNIT)
                 {
                     // 移動エリアの表示
-                    Instantiate(areaBlue, new Vector3(x, -y, 0), Quaternion.identity).transform.parent = activeAreaObj.transform;
+                    if (showArea) Instantiate(areaBlue, new Vector3(x, -y, 0), Quaternion.identity).transform.parent = activeAreaObj.transform;
+
                     // 攻撃エリアの検証
                     GameManager.GetRoute().CheckAttackArea(ref activeAreaList, new Vector3(x, -y, 0), phaseManager.focusUnitObj.GetComponent<UnitInfo>().attackRange);
                 }
 
         // 攻撃エリアの表示
-        for (int ay = 0; ay < GameManager.GetMap().field.height; ay++)
-            for (int ax = 0; ax < GameManager.GetMap().field.width; ax++)
-                if (activeAreaList[ay, ax].aREA == Enums.AREA.ATTACK)
-                    Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = activeAreaObj.transform;
+        if (showArea)
+            for (int ay = 0; ay < GameManager.GetMap().field.height; ay++)
+                for (int ax = 0; ax < GameManager.GetMap().field.width; ax++)
+                    if (activeAreaList[ay, ax].aREA == Enums.AREA.ATTACK)
+                        Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = activeAreaObj.transform;
     }
 
     /// <summary>

@@ -23,7 +23,7 @@ public class Enums
     public enum PHASE
     {
         START, // プレイヤーのターン開始時
-        SELECT, // Unit選択中
+        STANDBY, // Unit選択中
         FOCUS, // Unit選択時
         MOVE, // Unit行動時
         BATTLE_STANDBY, // Unit攻撃選択時
