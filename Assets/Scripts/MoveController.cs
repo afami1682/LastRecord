@@ -13,15 +13,15 @@ public class MoveController : MonoBehaviour
     List<Vector3> moveRoot = new List<Vector3>(); // 自動行動用、移動ルート
     Vector3 movePos, nextPos; // 各移動状態管理用変数
     Animator animator;
-
-    bool moveFlg = false; // 単体での移動中かどうか
-    bool movedFlg = true; // 目的地に移動済みかどうか
+    private bool moveFlg; // 単体での移動中かどうか
+    private bool movedFlg = true; // 目的地に移動済みかどうか
 
     void Start()
     {
         // 初期化
         movePos = transform.position;
         animator = GetComponent<Animator>();
+        moveFlg = false;
 
         // GameManagerにユニット情報を登録する
         GameManager.GetUnit().AddMapUnitObj(movePos, gameObject);
@@ -38,10 +38,10 @@ public class MoveController : MonoBehaviour
             moveRoot.RemoveAt(0);
 
             // アニメーションの切り替え
-            if (nextPos == Vector3.up) playAnim(Enums.MOVE.UP);
-            else if (nextPos == Vector3.down) playAnim(Enums.MOVE.DOWN);
-            else if (nextPos == Vector3.left) playAnim(Enums.MOVE.LEFT);
-            else if (nextPos == Vector3.right) playAnim(Enums.MOVE.RIGHT);
+            if (nextPos == Vector3.up) PlayAnim(Enums.MOVE.UP);
+            else if (nextPos == Vector3.down) PlayAnim(Enums.MOVE.DOWN);
+            else if (nextPos == Vector3.left) PlayAnim(Enums.MOVE.LEFT);
+            else if (nextPos == Vector3.right) PlayAnim(Enums.MOVE.RIGHT);
 
             // 移動開始
             moveFlg = true;
@@ -68,8 +68,11 @@ public class MoveController : MonoBehaviour
                 moveFlg = false;
 
                 // 移動全体の完了
-                if (moveRoot.Count == 0)
-                    movedFlg = true;
+                //if (moveRoot.Count == 0)
+                //{
+                //    movedFlg = true;
+                //}
+                movedFlg |= moveRoot.Count == 0;
             }
         }
     }
@@ -96,7 +99,7 @@ public class MoveController : MonoBehaviour
     /// 移動ルートの指定
     /// </summary>
     /// <param name="moveRoots">Move roots.</param>
-    public void setMoveRoots(List<Vector3> moveRoots)
+    public void SetMoveRoots(List<Vector3> moveRoots)
     {
         moveRoot = moveRoots;
     }
@@ -105,7 +108,7 @@ public class MoveController : MonoBehaviour
     /// アニメーションの再生
     /// </summary>
     /// <param name="move">Move.</param>
-    public void playAnim(Enums.MOVE move)
+    public void PlayAnim(Enums.MOVE move)
     {
         animator.SetInteger("Walk", (int)move);
     }
@@ -114,5 +117,5 @@ public class MoveController : MonoBehaviour
     /// 全ての移動が終わったかどうか
     /// </summary>
     /// <returns><c>true</c>, if moved was ised, <c>false</c> otherwise.</returns>
-    public bool isMoved() { return movedFlg; }
+    public bool IsMoved() { return movedFlg; }
 }

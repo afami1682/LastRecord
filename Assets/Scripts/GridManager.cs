@@ -14,7 +14,7 @@ public class GridManager : MonoBehaviour
         mesh = ReGrid(mesh);
 
         // 最初は非表示にする
-        changeActive();
+        ChangeActive();
     }
 
     Mesh ReGrid(Mesh mesh)
@@ -71,7 +71,7 @@ public class GridManager : MonoBehaviour
     /// <summary>
     /// アクティブ状態を反転する
     /// </summary>
-    public void changeActive()
+    public void ChangeActive()
     {
         gameObject.SetActive(!gameObject.activeSelf);
     }

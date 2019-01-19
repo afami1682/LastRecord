@@ -20,7 +20,7 @@ public class UnitInfo : MonoBehaviour
     public int attackRange; // 攻撃範囲
     public Enums.MOVE_TYPE moveType; // 移動タイプ
     [HideInInspector]
-    bool moving = false; // 移動したかどうか
+    private bool moving; // 移動したかどうか
     public Enums.ARMY aRMY; // 勢力
 
     [Header("成長パラメータ")]
@@ -51,7 +51,7 @@ public class UnitInfo : MonoBehaviour
     /// 外部取得用
     /// </summary>
     /// <returns><c>true</c>, if moving was ised, <c>false</c> otherwise.</returns>
-    public bool isMoving()
+    public bool IsMoving()
     {
         return moving;
     }

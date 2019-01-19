@@ -11,7 +11,8 @@ public class RouteManager
 {
     // ルートの算出に必要なフィールドデータ
     Struct.Field field;
-    int fieldWidth, fieldHeight;
+    private readonly int fieldWidth;
+    private readonly int fieldHeight;
 
     /// <summary>
     /// コンストラクター
@@ -82,7 +83,8 @@ public class RouteManager
             nodeList[-(int)checkPos.y, (int)checkPos.x].cost = previousCost + field.cells[-(int)checkPos.y, (int)checkPos.x].moveCost;
 
         // ゴールまで辿り着ける事を確認した
-        if (checkPos == endPos) isEnd = true;
+        // if (checkPos == endPos) isEnd = true;
+        isEnd |= checkPos == endPos;
 
         // 次に検証する座標を指定（上下左右）
         CheckRootAreaRecursive(ref nodeList, ref activeAreaList, checkPos + Vector3.up, ref endPos, nodeList[-(int)checkPos.y, (int)checkPos.x].cost, ref isEnd);
@@ -163,7 +165,7 @@ public class RouteManager
             return -1;
 
         // 移動コストを返す
-        return nodeList[-(int)checkPos.y, (int)checkPos.x].cost; ;
+        return nodeList[-(int)checkPos.y, (int)checkPos.x].cost;
     }
 
     /// <summary>
@@ -195,7 +197,7 @@ public class RouteManager
             return;
 
         // キャラが移動できないマスなら何もしない
-        if (!isMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, phaseManager.focusUnitObj.GetComponent<UnitInfo>().moveType))
+        if (!IsMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, phaseManager.focusUnitObj.GetComponent<UnitInfo>().moveType))
             return;
 
         // 移動先にユニットがいた場合のすり抜けチェック
@@ -309,7 +311,7 @@ public class RouteManager
     /// <returns><c>true</c>, if moveing was ised, <c>false</c> otherwise.</returns>
     /// <param name="cellCategory">Cell category.</param>
     /// <param name="moveType">Move type.</param>
-    public static bool isMoveing(int cellCategory, Enums.MOVE_TYPE moveType)
+    public static bool IsMoveing(int cellCategory, Enums.MOVE_TYPE moveType)
     {
         // キャラ毎の移動可能かどうかのチェック
         switch (moveType)

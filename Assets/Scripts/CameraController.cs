@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
@@ -10,12 +8,12 @@ public class CameraController : MonoBehaviour
 
     Vector3 cursorPos, oldCursorPos, distance;
     Camera mainCamera;
-
-    float span = 0.1f; // 生成間隔
-    float delta = 0; // 計測時間
+    readonly float span = 0.1f; // 生成間隔
+    float delta; // 計測時間
 
     private void Start()
     {
+        delta = 0;
         mainCamera = Camera.main;
 
         // カーソル更新時に呼び出す処理の登録

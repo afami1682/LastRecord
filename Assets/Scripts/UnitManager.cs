@@ -110,7 +110,7 @@ public class UnitManager
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
                     mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army &&
-                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().isMoving())
+                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().IsMoving())
                     units.Add(mapUnitObj[y, x]);
         return units[Random.Range(0, units.Count - 1)];
     }
@@ -127,7 +127,7 @@ public class UnitManager
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
                     mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army &&
-                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().isMoving())
+                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().IsMoving())
                     units.Add(mapUnitObj[y, x]);
         return units;
     }

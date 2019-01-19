@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public int mapId = 0; // マップID
+    public int mapId; // マップID
     static MapManager mapManager;
     static UnitManager unitManager;
     static RouteManager routeManager;
     static EnemyAIManager enemyAIManager;
+    static CommonCalc commonCalc;
 
     private void Awake()
     {
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviour
         unitManager = new UnitManager(mapManager.field);
         routeManager = new RouteManager(mapManager.field);
         enemyAIManager = new EnemyAIManager(mapManager.field);
+        commonCalc = new CommonCalc();
     }
 
     /// <summary>
@@ -42,4 +44,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <returns>The enemy ai.</returns>
     public static EnemyAIManager GetEnemyAI() { return enemyAIManager; }
+
+    /// <summary>
+    /// 外部呼び出し用
+    /// </summary>
+    /// <returns>The calculate.</returns>
+    public static CommonCalc GetCommonCalc() { return commonCalc; }
 }

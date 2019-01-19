@@ -27,7 +27,8 @@ public class ActiveAreaManager : MonoBehaviour
     /// <summary>
     /// アクティブエリアの生成と表示
     /// </summary>
-    /// <param name="">パネルの表示<c>true</c> .</param>
+    /// <param name="phaseManager">Phase manager.</param>
+    /// <param name="showArea">If set to <c>true</c> show area.</param>
     public void CreateActiveArea(ref PhaseManager phaseManager, bool showArea)
     {
         // アクティブリストの生成と検証

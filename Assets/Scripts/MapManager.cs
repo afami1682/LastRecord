@@ -36,10 +36,12 @@ public class MapManager
         }
 
         // フィールドデータの読み込み
-        field = new Struct.Field();
-        field.name = fieldBase.name;
-        field.width = fieldBase.width;
-        field.height = fieldBase.height;
+        field = new Struct.Field
+        {
+            name = fieldBase.name,
+            width = fieldBase.width,
+            height = fieldBase.height
+        };
         field.cells = new Struct.CellInfo[field.height, field.width];
 
         // 各セルデータの追加
