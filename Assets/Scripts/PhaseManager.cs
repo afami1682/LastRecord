@@ -334,6 +334,7 @@ public class PhaseManager : MonoBehaviour
                 case Enums.AREA.MOVE:
                     if (GameManager.GetUnit().GetMapUnitInfo(cursorPos)) return; // 移動先に他ユニットがいるならキャンセル
                     goto case Enums.AREA.UNIT;
+
                 case Enums.AREA.UNIT:
                     // ユニットの移動前の座標を保存
                     oldFocusUnitPos = focusUnitObj.transform.position;
@@ -400,7 +401,7 @@ public class PhaseManager : MonoBehaviour
 
                 playerAttackPower = GameManager.GetCommonCalc().GetAttackDamage(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
                 playerHitRate = GameManager.GetCommonCalc().GetHitRate(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
-                playerDeathblow = 10;
+                playerDeathblow = 20;
                 playerAttackCount = 2;
 
                 enemyAttackPower = GameManager.GetCommonCalc().GetAttackDamage(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());

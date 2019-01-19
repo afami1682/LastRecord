@@ -118,19 +118,37 @@ public class AttackEvent : MonoBehaviour
             switch (myAttackState)
             {
                 case Enums.BATTLE.NORMAL:
+                    if (myAttackPower != 0)
+                    {
+                        // ダメージの反映
+                        (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
+                        GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+
+                        // エフェクトを生成する
+                        GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack1");
+                        Instantiate(ef_attack, targetUnitObj.transform.position, Quaternion.identity);
+                    }
+                    else goto case Enums.BATTLE.NO_DAMAGE;
+                    break;
+
                 case Enums.BATTLE.DEATH_BLOW:
                     if (myAttackPower != 0)
                     {
                         // ダメージの反映
                         (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
                         GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+
+                        // エフェクトを生成する
+                        GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack2");
+                        Instantiate(ef_attack, targetUnitObj.transform.position, Quaternion.identity);
                     }
-                    else
-                    {
-                        // NO DAMAGEのエフェクトを生成する
-                        GameObject noDamageObj = Resources.Load<GameObject>("Prefabs/NoDamage");
-                        Instantiate(noDamageObj, targetUnitObj.transform.position, Quaternion.identity);
-                    }
+                    else goto case Enums.BATTLE.NO_DAMAGE;
+                    break;
+
+                case Enums.BATTLE.NO_DAMAGE:
+                    // NO DAMAGEのエフェクトを生成する
+                    GameObject noDamageObj = Resources.Load<GameObject>("Prefabs/NoDamage");
+                    Instantiate(noDamageObj, targetUnitObj.transform.position, Quaternion.identity);
                     break;
 
                 case Enums.BATTLE.MISS:
