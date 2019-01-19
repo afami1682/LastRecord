@@ -50,7 +50,7 @@ public class PhaseManager : MonoBehaviour
     [HideInInspector]
     public int playerHitRate, enemyHitRate;// 命中率
     [HideInInspector]
-    public Enums.BATTLE playerAttackDecision, enemyAttackDecision; // 攻撃成功判定
+    public Enums.BATTLE playerAttackState, enemyAttackState; // 攻撃成功判定
     [HideInInspector]
     public Text playerHPText, enemyHPText; // 表示用
 
@@ -156,7 +156,7 @@ public class PhaseManager : MonoBehaviour
     /// <summary>
     /// Ons the attack button.
     /// </summary>
-    public void OnAttackBtn()
+    public void AttackBtn()
     {
         // ターンとUI切り替え
         phase = Enums.PHASE.BATTLE_STANDBY;
@@ -167,9 +167,9 @@ public class PhaseManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 行動終了ボタン処理
+    /// 行動キャンセル処理
     /// </summary>
-    public void MoveCancel()
+    public void MoveCancelBtn()
     {
         // アニメーションを元に戻す
         if (focusUnitObj)
@@ -189,12 +189,13 @@ public class PhaseManager : MonoBehaviour
         battleStandbyUI.SetActive(false);
         cursorObj.SetActive(true);
         cellInfoUI.SetActive(true);
+        activeAreaManager.activeAreaObj.SetActive(true);
     }
 
     /// <summary>
     /// 攻撃選択画面からのキャンセルボタン処理（画面外のクリック）
     /// </summary>
-    public void OnCancelBattleStandby()
+    public void BattleCancelBtn()
     {
         activeAreaManager.RemoveAttackArea();
 
@@ -207,6 +208,13 @@ public class PhaseManager : MonoBehaviour
         activeAreaManager.activeAreaObj.SetActive(true);
     }
 
+    /// <summary>
+    /// 行動終了ボタン処理
+    /// </summary>
+    public void MoveEndBtn()
+    {
+        MyResultPhase();
+    }
 
     /// <summary>
     /// カーソルの更新時に呼ばれる
@@ -270,21 +278,36 @@ public class PhaseManager : MonoBehaviour
         // クリック処理
         if (Input.GetMouseButtonDown(0))
         {
+            // アクティブエリアの初期化
+            activeAreaManager.RemoveActiveArea();
+
+
             // 未行動の自軍ユニットであればフォーカスし、アクティブエリアを表示する
             if (GameManager.GetUnit().GetMapUnitInfo(cursorPos) != null && activeAreaManager.activeAreaList == null)
-                if (GameManager.GetUnit().GetMapUnitInfo(cursorPos).aRMY == Enums.ARMY.ALLY)
-                    if (!GameManager.GetUnit().GetMapUnitInfo(cursorPos).IsMoving())
-                    {
+                switch (GameManager.GetUnit().GetMapUnitInfo(cursorPos).aRMY)
+                {
+                    case Enums.ARMY.ALLY:
+                        if (!GameManager.GetUnit().GetMapUnitInfo(cursorPos).IsMoving())
+                        {
+                            // フォーカスユニットの取得
+                            focusUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
+                            activeAreaManager.CreateActiveArea(ref phaseManager, true);
+
+                            // ターンとUIの切り替え
+                            phase = Enums.PHASE.FOCUS;
+                            selectUnitInfoUI.SetActive(false);
+                          //  activeAreaManager.activeAreaObj.SetActive(true);
+                            moveMarkerManager.SetActive(true);
+                        }
+                        break;
+                    case Enums.ARMY.ENEMY:
+                    case Enums.ARMY.NEUTRAL:
                         // フォーカスユニットの取得
                         focusUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
                         activeAreaManager.CreateActiveArea(ref phaseManager, true);
+                        break;
 
-                        // ターンとUIの切り替え
-                        phase = Enums.PHASE.FOCUS;
-                        selectUnitInfoUI.SetActive(false);
-                        activeAreaManager.activeAreaObj.SetActive(true);
-                        moveMarkerManager.SetActive(true);
-                    }
+                }
         }
     }
 
@@ -426,7 +449,7 @@ public class PhaseManager : MonoBehaviour
                     activeAreaManager.attackAreaObj.SetActive(false);
                     phase = Enums.PHASE.BATTLE;
                 }
-                else OnCancelBattleStandby(); // UIの切り替え
+                else BattleCancelBtn(); // UIの切り替え
             }
         }
     }
@@ -444,18 +467,18 @@ public class PhaseManager : MonoBehaviour
                 if (0 < playerAttackCount)
                 {
                     // 必殺の検証
-                    playerAttackDecision = GameManager.GetCommonCalc().ProbabilityDecision(playerDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
+                    playerAttackState = GameManager.GetCommonCalc().ProbabilityDecision(playerDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
 
                     // 通常攻撃命中判定
-                    if (playerAttackDecision != Enums.BATTLE.DEATH_BLOW)
-                        playerAttackDecision = GameManager.GetCommonCalc().GetHitDecision(playerHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
+                    if (playerAttackState != Enums.BATTLE.DEATH_BLOW)
+                        playerAttackState = GameManager.GetCommonCalc().GetHitDecision(playerHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
 
                     // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
                     AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
                     attackEvent.phaseManager = this;
                     attackEvent.myUnitObj = playerUnitObj;
                     attackEvent.myAttackPower = playerAttackPower;
-                    attackEvent.myAttackDecision = playerAttackDecision;
+                    attackEvent.myAttackState = playerAttackState;
                     attackEvent.targetUnitObj = enemyUnitObj;
                     attackEvent.targetHPText = enemyHPText;
                     battleManager.AddEvent(attackEvent);
@@ -467,18 +490,18 @@ public class PhaseManager : MonoBehaviour
                 if (0 < enemyAttackCount)
                 {
                     // 必殺の検証
-                    enemyAttackDecision = GameManager.GetCommonCalc().ProbabilityDecision(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
+                    enemyAttackState = GameManager.GetCommonCalc().ProbabilityDecision(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
 
                     // 通常攻撃命中判定
-                    if (enemyAttackDecision != Enums.BATTLE.DEATH_BLOW)
-                        enemyAttackDecision = GameManager.GetCommonCalc().GetHitDecision(enemyHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
+                    if (enemyAttackState != Enums.BATTLE.DEATH_BLOW)
+                        enemyAttackState = GameManager.GetCommonCalc().GetHitDecision(enemyHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
 
                     // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
                     AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
                     attackEvent.phaseManager = this;
                     attackEvent.myUnitObj = enemyUnitObj;
                     attackEvent.myAttackPower = enemyAttackPower;
-                    attackEvent.myAttackDecision = enemyAttackDecision;
+                    attackEvent.myAttackState = enemyAttackState;
                     attackEvent.targetUnitObj = playerUnitObj;
                     attackEvent.targetHPText = playerHPText;
                     battleManager.AddEvent(attackEvent);
@@ -530,6 +553,9 @@ public class PhaseManager : MonoBehaviour
         {
             // アニメーションを元に戻す
             focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
+            
+            // グレースケールにする
+            focusUnitObj.GetComponent<EffectController>().GrayScale(true);
 
             // 未移動であれば移動済みとする
             if (!focusUnitObj.GetComponent<UnitInfo>().IsMoving())
@@ -537,9 +563,6 @@ public class PhaseManager : MonoBehaviour
                 GameManager.GetUnit().MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
                 focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
             }
-
-            // グレースケールにする
-            focusUnitObj.GetComponent<EffectController>().GrayScale(true);
         }
 
         activeAreaManager.RemoveActiveArea();
@@ -558,6 +581,7 @@ public class PhaseManager : MonoBehaviour
         battleStandbyUI.SetActive(false);
         cursorObj.SetActive(true);
         cellInfoUI.SetActive(true);
+        activeAreaManager.activeAreaObj.SetActive(true);
     }
 
     /// <summary>
@@ -565,6 +589,8 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void MyEndPhase()
     {
+        activeAreaManager.activeAreaObj.SetActive(false);
+
         // 自軍ユニットを全て未行動に戻す
         GameManager.GetUnit().UnBehaviorUnitAll(Enums.ARMY.ALLY);
         // 敵ターンに切り替える
@@ -697,11 +723,11 @@ public class PhaseManager : MonoBehaviour
                 if (0 < enemyAttackCount)
                 {
                     // 必殺の検証
-                    enemyAttackDecision = GameManager.GetCommonCalc().ProbabilityDecision(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
+                    enemyAttackState = GameManager.GetCommonCalc().ProbabilityDecision(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
 
                     // 通常攻撃命中判定
-                    if (enemyAttackDecision != Enums.BATTLE.DEATH_BLOW)
-                        enemyAttackDecision = GameManager.GetCommonCalc().GetHitDecision(enemyHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
+                    if (enemyAttackState != Enums.BATTLE.DEATH_BLOW)
+                        enemyAttackState = GameManager.GetCommonCalc().GetHitDecision(enemyHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
 
                     // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
                     AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
@@ -709,7 +735,7 @@ public class PhaseManager : MonoBehaviour
 
                     attackEvent.myUnitObj = enemyUnitObj;
                     attackEvent.myAttackPower = enemyAttackPower;
-                    attackEvent.myAttackDecision = enemyAttackDecision;
+                    attackEvent.myAttackState = enemyAttackState;
 
                     attackEvent.targetUnitObj = playerUnitObj;
                     attackEvent.targetHPText = playerHPText;
@@ -723,11 +749,11 @@ public class PhaseManager : MonoBehaviour
                 if (0 < playerAttackCount)
                 {
                     // 必殺の検証
-                    playerAttackDecision = GameManager.GetCommonCalc().ProbabilityDecision(playerDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
+                    playerAttackState = GameManager.GetCommonCalc().ProbabilityDecision(playerDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
 
                     // 通常攻撃命中判定
-                    if (playerAttackDecision != Enums.BATTLE.DEATH_BLOW)
-                        playerAttackDecision = GameManager.GetCommonCalc().GetHitDecision(playerHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
+                    if (playerAttackState != Enums.BATTLE.DEATH_BLOW)
+                        playerAttackState = GameManager.GetCommonCalc().GetHitDecision(playerHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
 
                     // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
                     AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
@@ -735,7 +761,7 @@ public class PhaseManager : MonoBehaviour
 
                     attackEvent.myUnitObj = playerUnitObj;
                     attackEvent.myAttackPower = playerAttackPower;
-                    attackEvent.myAttackDecision = playerAttackDecision;
+                    attackEvent.myAttackState = playerAttackState;
 
                     attackEvent.targetUnitObj = enemyUnitObj;
                     attackEvent.targetHPText = enemyHPText;

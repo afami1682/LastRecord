@@ -3,8 +3,8 @@
 public class CameraController : MonoBehaviour
 {
     // カメラの追尾範囲
-    const int CAM_TRACKING_WIDTH = 7;
-    const int CAM_TRACKING_HEIGHT = 5;
+    const int CAM_TRACKING_WIDTH = 9;
+    const int CAM_TRACKING_HEIGHT = 7;
 
     Vector3 cursorPos, oldCursorPos, distance;
     Camera mainCamera;

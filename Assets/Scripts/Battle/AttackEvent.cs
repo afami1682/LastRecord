@@ -26,7 +26,7 @@ public class AttackEvent : MonoBehaviour
     public int myDeathblow, targetDeathblow; // 必殺の発生率
     public int myAttackCount, targetAttackCount;// 攻撃回数
     public int myAccuracy, targetAccuracy;// 命中率
-    public Enums.BATTLE myAttackDecision, targetAttackDecision; // 攻撃成功判定
+    public Enums.BATTLE myAttackState, targetAttackState; // 攻撃成功判定
     public Text myHPText, targetHPText; // 表示用
 
     // 各イベントの実行フラグ
@@ -91,7 +91,7 @@ public class AttackEvent : MonoBehaviour
         anim = myUnitObj.GetComponent<Animation>();
         anim.AddClip(clip, clip.name);
 
-        switch (myAttackDecision)
+        switch (myAttackState)
         {
             case Enums.BATTLE.NORMAL:
                 targetResidualHP = targetHP - myAttackPower;  // 通常攻撃命中
@@ -115,13 +115,22 @@ public class AttackEvent : MonoBehaviour
         // 攻撃アニメーションの途中でダメージ処理
         StartCoroutine(DelayMethod(ATTACK_SPEED / 2, () =>
         {
-            switch (myAttackDecision)
+            switch (myAttackState)
             {
                 case Enums.BATTLE.NORMAL:
                 case Enums.BATTLE.DEATH_BLOW:
-                    // ダメージの反映
-                    (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
-                    GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+                    if (myAttackPower != 0)
+                    {
+                        // ダメージの反映
+                        (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
+                        GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+                    }
+                    else
+                    {
+                        // NO DAMAGEのエフェクトを生成する
+                        GameObject noDamageObj = Resources.Load<GameObject>("Prefabs/NoDamage");
+                        Instantiate(noDamageObj, targetUnitObj.transform.position, Quaternion.identity);
+                    }
                     break;
 
                 case Enums.BATTLE.MISS:
