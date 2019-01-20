@@ -47,8 +47,8 @@ public class BattleStandby : MonoBehaviour
         imgEnemy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
         textEnemyName.text = unitInfo.unitName;
         textEnemyHP.text = unitInfo.hp.ToString();
-        textEnemyAttackPower.text = attackPower.ToString();
-        textEnemyAvoidance.text = string.Format("{0}%", avoidance.ToString());
-        textEnemyDeathblow.text = string.Format("{0}%", deathblow.ToString());
+        textEnemyAttackPower.text = (attackPower != -1) ? attackPower.ToString() : "-";
+        textEnemyAvoidance.text = (avoidance != -1) ? string.Format("{0}%", avoidance.ToString()) : "-";
+        textEnemyDeathblow.text = (deathblow != -1) ? string.Format("{0}%", deathblow.ToString()) : "-";
     }
 }

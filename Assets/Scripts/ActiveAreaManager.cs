@@ -29,13 +29,13 @@ public class ActiveAreaManager : MonoBehaviour
     /// </summary>
     /// <param name="phaseManager">Phase manager.</param>
     /// <param name="showArea">If set to <c>true</c> show area.</param>
-    public void CreateActiveArea(ref PhaseManager phaseManager, bool showArea)
+    public void CreateActiveArea(GameObject checkUnitObj, bool showArea)
     {
         // アクティブリストの生成と検証
         activeAreaList = new Struct.NodeMove[GameManager.GetMap().field.height, GameManager.GetMap().field.width];
 
         // 移動エリアの検証
-        GameManager.GetRoute().CheckMoveArea(ref phaseManager);
+        GameManager.GetRoute().CheckMoveArea(ref activeAreaList, checkUnitObj);
 
         // エリアパネルの表示
         for (int y = 0; y < GameManager.GetMap().field.height; y++)
@@ -46,7 +46,7 @@ public class ActiveAreaManager : MonoBehaviour
                     if (showArea) Instantiate(areaBlue, new Vector3(x, -y, 0), Quaternion.identity).transform.parent = activeAreaObj.transform;
 
                     // 攻撃エリアの検証
-                    GameManager.GetRoute().CheckAttackArea(ref activeAreaList, new Vector3(x, -y, 0), phaseManager.focusUnitObj.GetComponent<UnitInfo>().attackRange);
+                    GameManager.GetRoute().CheckAttackArea(ref activeAreaList, new Vector3(x, -y, 0), checkUnitObj.GetComponent<UnitInfo>().attackRange);
                 }
 
         // 攻撃エリアの表示
@@ -68,6 +68,7 @@ public class ActiveAreaManager : MonoBehaviour
         attackAreaList = new Struct.NodeMove[GameManager.GetMap().field.height, GameManager.GetMap().field.width];
 
         // 攻撃エリアの検証と表示
+        // TODO あとで改良する
         GameManager.GetRoute().CheckAttackArea(ref attackAreaList, pos, attackRange);
         for (int ay = 0; ay < GameManager.GetMap().field.height; ay++)
             for (int ax = 0; ax < GameManager.GetMap().field.width; ax++)

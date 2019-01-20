@@ -100,8 +100,25 @@ public class CommonCalc
     /// <returns></returns>
     public int GetAttackCount(UnitInfo myUnit, UnitInfo targetUnit)
     {
-        // 自分のスピード - 相手のスピード >= 10 なら2回
-        return (myUnit.speed - targetUnit.speed >= 10) ? 2 : 1;
+        // 自分のスピード - 相手のスピード >= 8 なら2回
+        return (myUnit.speed - targetUnit.speed >= 8) ? 2 : 1;
+    }
+
+    /// <summary>
+    /// 必殺率を返す
+    /// </summary>
+    /// <param name="myUnit"></param>
+    /// <param name="targetUnit"></param>
+    /// <returns></returns>
+    public int GetDeathBlowRete(UnitInfo myUnit, UnitInfo targetUnit)
+    {
+        // 参考 必殺	=(技-4)/2+装備武器の必殺+クラス補正
+        // 参考 必殺回避	=幸運/2+装備武器の必殺回避+クラス補正
+
+        // (技 -/ 2 + 武器補正値) - (敵の幸運 / 2)
+        int deathBlowRate = (myUnit.dexterity / 2 + 1) - (targetUnit.luck / 2);
+
+        return Mathf.Clamp(deathBlowRate, 0, 100);
     }
 
     /// <summary>
@@ -127,5 +144,18 @@ public class CommonCalc
     /// </summary>
     /// <returns><c>true</c>, if check was randomed, <c>false</c> otherwise.</returns>
     /// <param name="probability">Probability.</param>
-    public bool ProbabilityDecision(int probability) { return UnityEngine.Random.Range(0, 100) < probability ? true : false; }
+    public bool ProbabilityDecision(int probability) {
+        return UnityEngine.Random.Range(0, 100) < probability ? true : false;
+    }
+
+    /// <summary>
+    /// posAからposBまでのセル数を返す
+    /// </summary>
+    /// <param name="posA"></param>
+    /// <param name="posB"></param>
+    /// <returns></returns>
+    public int GetCellDistance(Vector3 posA, Vector3 posB)
+    {
+        return Mathf.Abs((int)posA.x - (int)posB.x) + Mathf.Abs((int)posA.y - (int)posB.y);
+    }
 }

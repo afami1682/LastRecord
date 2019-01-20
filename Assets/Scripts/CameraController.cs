@@ -3,14 +3,14 @@
 public class CameraController : MonoBehaviour
 {
     const int CAM_TRACKING_WIDTH = 7;
-    const int CAM_TRACKING_HEIGHT = 5;
-    const int CAM_MOVE_SPEED = 6;
+    const int CAM_TRACKING_HEIGHT = 4;
 
     const float x_aspect = 16.0f;
     const float y_aspect = 9.0f;
 
-    Vector3 cursorPos, oldCursorPos, distance;
+    Vector3 cursorPos, oldCursorPos;
     Camera mainCamera;
+    PhaseManager phaseManager;
 
     void Awake()
     {
@@ -21,8 +21,8 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        // delta = 0;
         mainCamera = Camera.main;
+        phaseManager = GameObject.Find("PhaseManager").GetComponent<PhaseManager>();
 
         // カーソル更新時に呼び出す処理の登録
         CursorController.AddCallBack((Vector3 newPos) => { cursorPos = newPos; });
@@ -30,35 +30,56 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        // カーソル座標が更新されてないなら更新する
-        if (cursorPos != oldCursorPos)
+        // カメラの追従
+        if (phaseManager.turnPlayer != Enums.ARMY.ALLY && phaseManager.phase != Enums.PHASE.START)
         {
-            // カーソルの座標を更新
-            oldCursorPos = cursorPos;
+            // フォーカスユニットを追従する
+            // カメラとの距離を計算
+            if (phaseManager.focusUnitObj)
+                Move(mainCamera.transform.position - phaseManager.focusUnitObj.transform.position, 15f);
+        }
+        else
+        {
+            // カーソルを追従する
+            if (phaseManager.cursorObj.activeSelf || phaseManager.phase == Enums.PHASE.START)
+                // カーソルの座標が更新されたら取得
+                if (cursorPos != oldCursorPos)
+                    oldCursorPos = cursorPos;
 
             // カメラとの距離を計算
-            distance = mainCamera.transform.position - cursorPos;
+            Move(mainCamera.transform.position - cursorPos, 8f);
+
         }
 
+
+    }
+
+    /// <summary>
+    /// カメラの移動
+    /// </summary>
+    /// <param name="distance"></param>
+    /// <param name="speed"></param>
+    private void Move(Vector3 distance, float speed)
+    {
         // 左移動
         if (distance.x > CAM_TRACKING_WIDTH)
             if (12 <= transform.position.x)
-                mainCamera.transform.position += Vector3.left * Time.deltaTime * CAM_MOVE_SPEED;
+                mainCamera.transform.position += Vector3.left * Time.deltaTime * speed;
 
         // 右移動
         if (distance.x < -CAM_TRACKING_WIDTH)
             if (transform.position.x <= (GameManager.GetMap().field.width - 13))
-                mainCamera.transform.position += Vector3.right * Time.deltaTime * CAM_MOVE_SPEED;
+                mainCamera.transform.position += Vector3.right * Time.deltaTime * speed;
 
         // 上移動
         if (distance.y < -CAM_TRACKING_HEIGHT)
             if (-6.5 >= transform.position.y)
-                mainCamera.transform.position += Vector3.up * Time.deltaTime * CAM_MOVE_SPEED;
+                mainCamera.transform.position += Vector3.up * Time.deltaTime * speed;
 
         // 下移動
         if (distance.y > CAM_TRACKING_HEIGHT)
             if (transform.position.y >= (-GameManager.GetMap().field.height + 7.5))
-                mainCamera.transform.position += Vector3.down * Time.deltaTime * CAM_MOVE_SPEED;
+                mainCamera.transform.position += Vector3.down * Time.deltaTime * speed;
     }
 
     /// <summary>
