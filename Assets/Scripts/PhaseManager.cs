@@ -402,12 +402,12 @@ public class PhaseManager : MonoBehaviour
                 playerAttackPower = GameManager.GetCommonCalc().GetAttackDamage(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
                 playerHitRate = GameManager.GetCommonCalc().GetHitRate(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
                 playerDeathblow = 20;
-                playerAttackCount = 2;
+                playerAttackCount = GameManager.GetCommonCalc().GetAttackCount(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>()); ;
 
                 enemyAttackPower = GameManager.GetCommonCalc().GetAttackDamage(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
                 enemyHitRate = GameManager.GetCommonCalc().GetHitRate(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
                 enemyDeathblow = 3;
-                enemyAttackCount = 1;
+                enemyAttackCount = GameManager.GetCommonCalc().GetAttackCount(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>()); ;
 
                 // 敵の向きに合わせてUnitのアニメーション変更
                 if (Mathf.Abs(focusUnitObj.transform.position.x - enemyUnitObj.transform.position.x) <= 0f)
@@ -692,13 +692,13 @@ public class PhaseManager : MonoBehaviour
         enemyAttackPower = GameManager.GetCommonCalc().GetAttackDamage(focusUnitObj.GetComponent<UnitInfo>(), playerUnitObj.GetComponent<UnitInfo>());
         enemyHitRate = GameManager.GetCommonCalc().GetHitRate(focusUnitObj.GetComponent<UnitInfo>(), playerUnitObj.GetComponent<UnitInfo>());
         enemyDeathblow = 3;
-        enemyAttackCount = 1;
+        enemyAttackCount = GameManager.GetCommonCalc().GetAttackCount(focusUnitObj.GetComponent<UnitInfo>(), playerUnitObj.GetComponent<UnitInfo>());
 
         // プレイヤーユニット
         playerAttackPower = GameManager.GetCommonCalc().GetAttackDamage(playerUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
         playerHitRate = GameManager.GetCommonCalc().GetHitRate(playerUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
         playerDeathblow = 10;
-        playerAttackCount = 2;
+        playerAttackCount = GameManager.GetCommonCalc().GetAttackCount(playerUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
 
         // 敵の向きに合わせてUnitのアニメーション変更
         if (Mathf.Abs(focusUnitObj.transform.position.x - playerUnitObj.transform.position.x) <= 0f)

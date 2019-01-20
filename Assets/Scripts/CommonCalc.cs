@@ -93,6 +93,18 @@ public class CommonCalc
     }
 
     /// <summary>
+    /// 攻撃回数を返す
+    /// </summary>
+    /// <param name="myUnit"></param>
+    /// <param name="targetUnit"></param>
+    /// <returns></returns>
+    public int GetAttackCount(UnitInfo myUnit, UnitInfo targetUnit)
+    {
+        // 自分のスピード - 相手のスピード >= 10 なら2回
+        return (myUnit.speed - targetUnit.speed >= 10) ? 2 : 1;
+    }
+
+    /// <summary>
     /// 実効命中率による攻撃命中判定
     /// </summary>
     /// <returns><c>true</c>, if hit decision was gotten, <c>false</c> otherwise.</returns>
