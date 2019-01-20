@@ -64,7 +64,8 @@ public class EnemyAIManager
         // ターゲト周辺の移動可能マス内で一番有効な攻撃場所を探索する
         Vector3 checkPos;
         List<Vector3> cellPos = new List<Vector3>();
-
+        // TODO ここ長さ取得すればいいんでね？
+        // 座標を求める
         for (int a = 1; a <= targetUnitInfo.attackRange; a++)
         {
             // 上
