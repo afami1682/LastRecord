@@ -49,7 +49,6 @@ public class MapManager
         {
             for (int x = 0; x < field.width; x++)
             {
-                Debug.Log( y + " " +  x+" "+ fieldBase.cells[y, x]);
                 switch (fieldBase.cells[y, x])
                 {
                     // name, category, moveCost, defenseBonus, avoidanceBonus, recoveryBonus; 

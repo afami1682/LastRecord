@@ -6,7 +6,7 @@ using System;
 public class MoveController : MonoBehaviour
 {
     // ゲーム設定値
-    const float MOVE_SPEED = 7F; // 移動速度
+    const float MOVE_SPEED = 8F; // 移動速度
     const float NEXT_MOVE_ERROR = 0.1F; // 移動の誤差補完値
 
     // 移動ルート管理用の2次元配列

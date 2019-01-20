@@ -3,20 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// HPゲージの更新
+/// HPゲージの生成と更新
 /// </summary>
-[RequireComponent(typeof(LineRenderer))]
-public class GaugeController : MonoBehaviour
+public class HPGaugeController : MonoBehaviour
 {
-    int hp = 0;
+    public GameObject hpGauge;
+    public GameObject hpGaugeBg;
 
+    int hp = 0;
     LineRenderer lineRenderer;
     UnitInfo unitInfo;
 
     void Start()
     {
-        lineRenderer = GetComponent<LineRenderer>();
-        unitInfo = transform.parent.gameObject.GetComponent<UnitInfo>();
+        // ゲージの生成
+        hpGauge = Instantiate(hpGauge);
+        hpGauge.transform.SetParent(transform, false);
+        hpGaugeBg = Instantiate(hpGaugeBg);
+        hpGaugeBg.transform.SetParent(transform, false);
+
+        lineRenderer = hpGauge.GetComponent<LineRenderer>();
+        unitInfo = gameObject.GetComponent<UnitInfo>();
 
         // 初期のHP反映
         hp = unitInfo.hp;
@@ -30,5 +37,5 @@ public class GaugeController : MonoBehaviour
             lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)hp-- / (float)unitInfo.vitality) - 0.5f, -0.3f, 0));
         else if (unitInfo.hp > hp)
             lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)hp++ / (float)unitInfo.vitality) - 0.5f, -0.3f, 0));
-    }
+        }
 }

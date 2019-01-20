@@ -22,7 +22,7 @@ public class CursorController : MonoBehaviour
         mouseScreenPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         _cursorPos = new Vector3(MultipleRound(mouseScreenPos.x, 1),
                                 MultipleRound(mouseScreenPos.y, 1), 0);
-        Debug.Log(GameManager.GetMap().field.width);
+
         // マップ内なら新しいカーソル座標を取得する
         if (0 <= _cursorPos.x && _cursorPos.x < GameManager.GetMap().field.width &&
             0 <= -_cursorPos.y && -_cursorPos.y < GameManager.GetMap().field.height)

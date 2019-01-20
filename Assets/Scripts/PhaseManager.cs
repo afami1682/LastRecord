@@ -651,7 +651,7 @@ public class PhaseManager : MonoBehaviour
             return;
         }
 
-        Vector3 movePos = GameManager.GetEnemyAI().GetAttackLocationCalc(phaseManager.activeAreaManager.activeAreaList, playerUnitObj);
+        Vector3 movePos = GameManager.GetEnemyAI().GetAttackLocationCalc(phaseManager.activeAreaManager.activeAreaList,focusUnitObj, playerUnitObj);
         // TODO 
         if (movePos == Vector3.zero)
         {

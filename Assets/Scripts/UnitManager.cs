@@ -112,7 +112,7 @@ public class UnitManager
                     mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army &&
                     !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().IsMoving())
                     units.Add(mapUnitObj[y, x]);
-        return units[Random.Range(0, units.Count - 1)];
+        return (units.Count != 0)? units[Random.Range(0, units.Count - 1)]: null;
     }
 
     /// <summary>
