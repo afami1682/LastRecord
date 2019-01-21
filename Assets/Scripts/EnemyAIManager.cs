@@ -76,6 +76,10 @@ public class EnemyAIManager
                 // 敵ユニットの位置は飛ばす
                 if ((int)targetPos.y == y && (int)targetPos.x == x) continue;
 
+                // 自分でない他ユニットがいるなら飛ばす
+                if (activeAreaList[-y, x].aREA != Enums.AREA.UNIT &&
+                GameManager.GetUnit().GetMapUnitObj(new Vector3(x, y, 0)) != null) continue;
+
                 // 攻撃が届く範囲の移動場所の追加
                 if (GameManager.GetCommonCalc().GetCellDistance(new Vector3(x, y, 0), targetPos) <= myUnitInfo.attackRange)
                 {
