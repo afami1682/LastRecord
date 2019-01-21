@@ -24,11 +24,11 @@ public class EnemyAIManager
     }
 
     /// <summary>
-    /// アクティブエリア内にて攻撃できるプレイヤーUnitを取得
+    /// アクティブエリア内にて攻撃できるプレイヤーのリストを返す
     /// </summary>
     /// <returns>The attack target unit.</returns>
     /// <param name="activeAreaList">Active area list.</param>
-    public GameObject GetAttackTargetUnit(Struct.NodeMove[,] activeAreaList)
+    public List<GameObject> GetAttackTargetList(Struct.NodeMove[,] activeAreaList)
     {
         // 攻撃範囲内にいるプレイヤーUnit
         List<GameObject> targetList = new List<GameObject>();
@@ -45,8 +45,45 @@ public class EnemyAIManager
         // 攻撃できる対象がいなければ終了
         if (targetList.Count < 1) return null;
 
-        // TODO とりあえず現時点では一番最初にみつけたUnitを攻撃対象とする
-        return targetList[0];
+        return targetList;
+    }
+
+    /// <summary>
+    /// ターゲットリストの中で一番攻撃する条件の良いユニットを返す
+    /// </summary>
+    /// <returns>The attack target selection.</returns>
+    /// <param name="targetList">Target list.</param>
+    public GameObject GetAttackTargetSelection(UnitInfo unitInfo, List<GameObject> targetList)
+    {
+        // リストが空ならnullを返す
+        if (targetList == null) return null;
+
+        // 攻撃可能な全ての敵に対して、攻撃シュミレーションを行う
+        List<Dictionary<string, int>> simulationEvaluations = new List<Dictionary<string, int>>();
+        UnitInfo targetUnitInfo;
+        int damage, hitRate, deathBlowRate, attackCount, evaluationPoint;
+        for (int i = 0; i < targetList.Count; i++)
+        {
+            // 戦闘シュミレーション
+            targetUnitInfo = targetList[i].GetComponent<UnitInfo>();
+            damage = GameManager.GetCommonCalc().GetAttackDamage(unitInfo, targetUnitInfo);
+            hitRate = GameManager.GetCommonCalc().GetHitRate(unitInfo, targetUnitInfo);
+            deathBlowRate = GameManager.GetCommonCalc().GetDeathBlowRete(unitInfo, targetUnitInfo);
+            attackCount = GameManager.GetCommonCalc().GetAttackCount(unitInfo, targetUnitInfo);
+
+            // 評価ポイントの計算( ダメージ * 攻撃回数 + 命中率 / 2 + 必殺率)
+            evaluationPoint = damage * attackCount + hitRate / 2 + deathBlowRate;
+
+            simulationEvaluations.Add(new Dictionary<string, int>(){
+                {"id",i},
+                {"evaluationPoint", evaluationPoint}}
+                );
+        };
+
+        // 評価点リストを降順で並び替え
+        simulationEvaluations.Sort((a, b) => b["evaluationPoint"] - a["evaluationPoint"]);
+
+        return targetList[simulationEvaluations[0]["id"]];
     }
 
     /// <summary>

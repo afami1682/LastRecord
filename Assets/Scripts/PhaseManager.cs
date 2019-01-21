@@ -664,7 +664,9 @@ public class PhaseManager : MonoBehaviour
             activeAreaManager.CreateActiveArea(checkUnitObj, true);
 
             // 行動範囲内にて攻撃できるプレイヤーUnitを探索する
-            playerUnitObj = GameManager.GetEnemyAI().GetAttackTargetUnit(phaseManager.activeAreaManager.activeAreaList);
+            List<GameObject> targetList = GameManager.GetEnemyAI().GetAttackTargetList(phaseManager.activeAreaManager.activeAreaList);
+
+            playerUnitObj = GameManager.GetEnemyAI().GetAttackTargetSelection(checkUnitObj.GetComponent<UnitInfo>(), targetList);
             if (playerUnitObj != null)
             {
                 // 行動範囲内に攻撃できる対象がいる場合は、移動して攻撃する
