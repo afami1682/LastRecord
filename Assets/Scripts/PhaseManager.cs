@@ -586,7 +586,7 @@ public class PhaseManager : MonoBehaviour
             focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
 
             // グレースケールにする
-            focusUnitObj.GetComponent<EffectController>().GrayScale(true);
+            focusUnitObj.GetComponent<UnitEffectController>().GrayScale(true);
 
             // 未移動であれば移動済みとする
             if (!focusUnitObj.GetComponent<UnitInfo>().IsMoving())
@@ -893,7 +893,7 @@ public class PhaseManager : MonoBehaviour
             focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
 
             // グレースケールにする
-            focusUnitObj.GetComponent<EffectController>().GrayScale(true);
+            focusUnitObj.GetComponent<UnitEffectController>().GrayScale(true);
 
             // 未移動であれば移動済みとする
             if (!focusUnitObj.GetComponent<UnitInfo>().IsMoving())

@@ -127,4 +127,15 @@ public class Enums
         //遊牧騎兵
         //魔道士
     }
+
+    /// <summary>
+    /// 魔法陣(アイテム)
+    /// </summary>
+    public enum MAGIC_CIRCLE
+    {
+        BLUE,
+        GREEN,
+        PURPLE,
+        YELLOW,
+    }
 }

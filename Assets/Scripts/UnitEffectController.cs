@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
-public class EffectController : MonoBehaviour
+public class UnitEffectController : MonoBehaviour
 {
     private void Start()
     {

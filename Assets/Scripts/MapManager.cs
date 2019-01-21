@@ -54,13 +54,13 @@ public class MapManager
                     // name, category, moveCost, defenseBonus, avoidanceBonus, recoveryBonus; 
                     case 0:
                     default:
-                        field.cells[y, x] = new Struct.CellInfo("平地", 0, 1, 0, 0, 0);
+                        field.cells[y, x] = new Struct.CellInfo(0, "平地", 0, 1, 0, 0, 0);
                         break;
                     case 1:
-                        field.cells[y, x] = new Struct.CellInfo("草むら", 0, 2, 10, 0, 0);
+                        field.cells[y, x] = new Struct.CellInfo(1, "草むら", 0, 2, 10, 0, 0);
                         break;
                     case 2:
-                        field.cells[y, x] = new Struct.CellInfo("壁", 1, 1, 5, 1, 0);
+                        field.cells[y, x] = new Struct.CellInfo(2, "壁", 1, 1, 5, 1, 0);
                         break;
                 }
             }

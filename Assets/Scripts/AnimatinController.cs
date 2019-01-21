@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimatinController : MonoBehaviour {
+[RequireComponent(typeof(SpriteRenderer))]
+public class AnimatinController : MonoBehaviour
+{
 
     public float fps = 16.0f;
     public Sprite[] frames;
@@ -18,10 +20,12 @@ public class AnimatinController : MonoBehaviour {
         InvokeRepeating("NextFrame", 1 / fps, 1 / fps);
     }
 
+    /// <summary>
+    /// 次のフレーム処理(画像切り替え)
+    /// </summary>
     void NextFrame()
     {
         spriteRenderer.sprite = frames[frameIndex];
-///            sharedMaterial.SetTexture("_MainTex", frames[frameIndex]);
         frameIndex = (frameIndex + 0001) % frames.Length;
         if (!roop && frameIndex == frames.Length - 1) Destroy(gameObject);
     }

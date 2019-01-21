@@ -34,6 +34,7 @@ public class Struct
     /// </summary>
     public struct CellInfo
     {
+        public int cellId; // セルのId
         public string name; // 名前
         public int category; // 種類
         public int moveCost; // 移動コスト
@@ -50,8 +51,9 @@ public class Struct
         /// <param name="avoidanceBonus">Avoidance bonus.</param>
         /// <param name="defenseBonus">Defense bonus.</param>
         /// <param name="magicalDefenseBonus">Magical defense bonus.</param>
-        public CellInfo(string name, int category, int moveCost, int avoidanceBonus, int defenseBonus, int magicalDefenseBonus)
+        public CellInfo(int cellId,string name, int category, int moveCost, int avoidanceBonus, int defenseBonus, int magicalDefenseBonus)
         {
+            this.cellId = cellId;
             this.name = name;
             this.category = category;
             this.moveCost = moveCost;
