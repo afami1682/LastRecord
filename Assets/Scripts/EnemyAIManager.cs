@@ -50,157 +50,44 @@ public class EnemyAIManager
     }
 
     /// <summary>
-    /// 攻撃できる範囲内の中で、一番有効な敵に対して、一番良い場所から攻撃する
+    /// 移動できる範囲で、ターゲットに攻撃できる場所のリストを返す
     /// </summary>
     /// <returns>The attack location calculate.</returns>
     /// <param name="activeAreaList">Active area list.</param>
     /// <param name="targetUnit">Target unit.</param>
-    public Vector3 GetAttackLocationCalc(Struct.NodeMove[,] activeAreaList, GameObject myUnit, GameObject targetUnit)
+    public List<Vector3> GetAttackLocationList(Struct.NodeMove[,] activeAreaList, GameObject myUnit, GameObject targetUnit)
     {
-
         Vector3 targetPos = targetUnit.transform.position;
+        UnitInfo myUnitInfo = myUnit.GetComponent<UnitInfo>();
         UnitInfo targetUnitInfo = targetUnit.GetComponent<UnitInfo>();
 
-        // ターゲト周辺の移動可能マス内で一番有効な攻撃場所を探索する
-        Vector3 checkPos;
-        List<Vector3> cellPos = new List<Vector3>();
-        // TODO ここ長さ取得すればいいんでね？
-        // 座標を求める
-        for (int a = 1; a <= targetUnitInfo.attackRange; a++)
-        {
-            // 上
-            checkPos = targetPos + new Vector3(0, a, 0);
-            if (1 > (int)checkPos.y)
-            {
-                // 離れた位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-              GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                    cellPos.Add(checkPos);
+        List<Vector3> attackLocationList = new List<Vector3>();
 
-                // 今いる位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                    checkPos == myUnit.transform.position)
-                    cellPos.Add(checkPos);
-            }
-            // 右上
-            if (a % 2 == 0)
+        // 下列の左側からチェックしていく
+        for (int y = (int)targetPos.y - myUnitInfo.attackRange; y <= -(int)targetPos.y + myUnitInfo.attackRange; y++)
+            for (int x = (int)targetPos.x - myUnitInfo.attackRange; x <= (int)targetPos.x + myUnitInfo.attackRange; x++)
             {
-                checkPos = targetPos + new Vector3(a / 2, a / 2, 0);
-                if ((int)checkPos.x < GameManager.GetMap().field.width &&
-                    1 > (int)checkPos.y)
+                // 配列の外（マップ外）は飛ばす
+                if (-y < 0 ||
+                   fieldHeight <= -y ||
+                    x < 0 ||
+                   fieldWidth <= x) continue;
+
+                // 敵ユニットの位置は飛ばす
+                if ((int)targetPos.y == y && (int)targetPos.x == x) continue;
+
+                // 攻撃が届く範囲の移動場所の追加
+                if (GameManager.GetCommonCalc().GetCellDistance(new Vector3(x, y, 0), targetPos) <= myUnitInfo.attackRange)
                 {
-                    // 離れた位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-                  GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                        cellPos.Add(checkPos);
-
-                    // 今いる位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                        checkPos == myUnit.transform.position)
-                        cellPos.Add(checkPos);
+                    switch (activeAreaList[-y, x].aREA)
+                    {
+                        case Enums.AREA.MOVE:
+                        case Enums.AREA.UNIT:
+                            attackLocationList.Add(new Vector3(x, y, 0));
+                            break;
+                    }
                 }
             }
-            // 右
-            checkPos = targetPos + new Vector3(a, 0, 0);
-            if ((int)checkPos.x < GameManager.GetMap().field.width)
-            {
-                // 離れた位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-              GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                    cellPos.Add(checkPos);
-
-                // 今いる位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                    checkPos == myUnit.transform.position)
-                    cellPos.Add(checkPos);
-            }
-            // 右下
-            if (a % 2 == 0)
-            {
-                checkPos = targetPos + new Vector3(a / 2, -a / 2, 0);
-                if ((int)checkPos.x < GameManager.GetMap().field.width &&
-                    (int)checkPos.y > -GameManager.GetMap().field.height)
-                {
-                    // 離れた位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-                  GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                        cellPos.Add(checkPos);
-
-                    // 今いる位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                        checkPos == myUnit.transform.position)
-                        cellPos.Add(checkPos);
-                }
-            }
-            // 下
-            checkPos = targetPos + new Vector3(0, -a, 0);
-            if ((int)checkPos.y > -GameManager.GetMap().field.height)
-            {
-                // 離れた位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-              GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                    cellPos.Add(checkPos);
-
-                // 今いる位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                    checkPos == myUnit.transform.position)
-                    cellPos.Add(checkPos);
-            }
-
-            // 左下
-            if (a % 2 == 0)
-            {
-                checkPos = targetPos + new Vector3(-a / 2, -a / 2, 0);
-                if (-1 < (int)checkPos.x &&
-                    (int)checkPos.y > -GameManager.GetMap().field.height)
-                {
-                    // 離れた位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-                  GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                        cellPos.Add(checkPos);
-
-                    // 今いる位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                        checkPos == myUnit.transform.position)
-                        cellPos.Add(checkPos);
-                }
-            }
-            // 左
-            checkPos = targetPos + new Vector3(-a, 0, 0);
-            if (-1 < (int)checkPos.x)
-            {
-                // 離れた位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-              GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                    cellPos.Add(checkPos);
-
-                // 今いる位置の検証
-                if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                    checkPos == myUnit.transform.position)
-                    cellPos.Add(checkPos);
-            }
-
-            // 左上
-            if (a % 2 == 0)
-            {
-                checkPos = targetPos + new Vector3(-a / 2, a / 2, 0);
-                if (-1 < (int)checkPos.x &&
-                    1 > (int)checkPos.y)
-                {
-                    // 離れた位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.MOVE &&
-                  GameManager.GetUnit().GetMapUnitObj(checkPos) == null)
-                        cellPos.Add(checkPos);
-
-                    // 今いる位置の検証
-                    if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].aREA == Enums.AREA.UNIT &&
-                        checkPos == myUnit.transform.position)
-                        cellPos.Add(checkPos);
-                }
-            }
-        }
-
-        // TODO とりあえず一番最初に見つけた移動エリアを返す
-        return (0 < cellPos.Count) ? cellPos[0] : Vector3.zero;
+        return attackLocationList;
     }
 }

@@ -669,6 +669,7 @@ public class PhaseManager : MonoBehaviour
             {
                 // 行動範囲内に攻撃できる対象がいる場合は、移動して攻撃する
                 focusUnitObj = checkUnitObj;
+
                 phase = Enums.PHASE.FOCUS;
             }
             else if (false)
@@ -694,13 +695,21 @@ public class PhaseManager : MonoBehaviour
         // ユニットの移動前の座標を保存
         oldFocusUnitPos = focusUnitObj.transform.position;
 
-        Vector3 movePos = GameManager.GetEnemyAI().GetAttackLocationCalc(phaseManager.activeAreaManager.activeAreaList, focusUnitObj, playerUnitObj);
-        // TODO 
-        //if (movePos == Vector3.zero)
-        //{
-        //    phase = Enums.PHASE.RESULT;
-        //    return;
-        //}
+        // 移動できる範囲で、ターゲットに攻撃できる場所のリストを取得する
+        List<Vector3> attackLocationList = GameManager.GetEnemyAI().GetAttackLocationList(phaseManager.activeAreaManager.activeAreaList, focusUnitObj, playerUnitObj);
+
+        // 攻撃対象に対して、攻撃できる場所がなかった場合、行動終了とする
+        if (attackLocationList.Count < 1)
+        {
+            // このターンは移動しない
+            focusUnitObj.GetComponent<UnitInfo>().Moving(true); // 行動済み
+            focusUnitObj = null;
+            phase = Enums.PHASE.RESULT;
+            return;
+        }
+
+        // TODO とりあえず一つ目を目的地とする
+        Vector3 movePos = attackLocationList[0];
 
         // 目標までのルートを取得し設定
         GameManager.GetRoute().CheckShortestRoute(ref phaseManager, movePos);
