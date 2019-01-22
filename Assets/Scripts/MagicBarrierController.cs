@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MagicCircleController : MonoBehaviour
-{
+public class MagicBarrierController : MonoBehaviour {
+
     public Enums.MAGIC_CIRCLE magicCircleType;
     string bkName;
     Vector3 pos;
@@ -20,8 +20,8 @@ public class MagicCircleController : MonoBehaviour
             switch (magicCircleType)
             {
                 case Enums.MAGIC_CIRCLE.BLUE:
-                    // 敵の足止め
-                    GameManager.GetMap().field.cells[-(int)pos.y, (int)pos.x].name = "魔法陣(青)";
+                    // 設置した場合はそのセルのavoidanceBonusを加算する
+                    GameManager.GetMap().field.cells[-(int)pos.y, (int)pos.x].name = "魔法障壁";
                     GameManager.GetMap().field.cells[-(int)pos.y, (int)pos.x].avoidanceBonus = 20;
                     break;
 
@@ -32,7 +32,7 @@ public class MagicCircleController : MonoBehaviour
                     break;
 
                 case Enums.MAGIC_CIRCLE.PURPLE:
-                    // 毒
+                    // 設置した場合はそのセルのavoidanceBonusを加算する
                     GameManager.GetMap().field.cells[-(int)pos.y, (int)pos.x].name = "魔法陣(紫)";
                     GameManager.GetMap().field.cells[-(int)pos.y, (int)pos.x].magicalDefenseBonus = 5;
                     break;

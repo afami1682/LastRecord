@@ -8,7 +8,6 @@ using System;
 /// </summary>
 public class EnemyAIManager
 {
-    Struct.Field field;
     readonly int fieldWidth;
     readonly int fieldHeight;
 
@@ -18,7 +17,6 @@ public class EnemyAIManager
     /// <param name="field">Field.</param>
     public EnemyAIManager(Struct.Field field)
     {
-        this.field = field;
         this.fieldWidth = field.width;
         this.fieldHeight = field.height;
     }

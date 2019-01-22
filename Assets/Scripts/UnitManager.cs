@@ -5,7 +5,6 @@ using UnityEngine;
 public class UnitManager
 {
     // ルートの算出に必要なフィールドデータ
-    Struct.Field field;
     int fieldWidth, fieldHeight;
 
     GameObject[,] mapUnitObj;
@@ -16,7 +15,6 @@ public class UnitManager
     /// <param name="field">Field.</param>
     public UnitManager(Struct.Field field)
     {
-        this.field = field;
         this.fieldWidth = field.width;
         this.fieldHeight = field.height;
 

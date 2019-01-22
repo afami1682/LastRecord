@@ -10,8 +10,8 @@ public class GridManager : MonoBehaviour
 {
     void Start()
     {
-        Mesh mesh = GetComponent<MeshFilter>().mesh = mesh = new Mesh();
-        mesh = ReGrid(mesh);
+        //Mesh mesh = GetComponent<MeshFilter>().mesh = mesh = new Mesh();
+       // mesh = ReGrid(mesh);
 
         // 最初は非表示にする
         ChangeActive();
