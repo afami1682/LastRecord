@@ -16,6 +16,7 @@ public class UnitInfo : MonoBehaviour
     public Enums.CLASS_TYPE classType;
     public int level;
     public int hp;
+    public int exp;
     public int movementRange; // 移動範囲
     public int attackRange; // 攻撃範囲
     public Enums.MOVE_TYPE moveType; // 移動タイプ

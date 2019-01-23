@@ -17,6 +17,7 @@ public class PhaseManager : MonoBehaviour
     public GameObject cellInfoUI;
     public GameObject cursorObj;
     public Image playerTurnImage, enemyTurnImage;
+    public ExpGaugeController expGaugeController;
     Animator turnImageAnim;
 
     // マネージャースクリプト
@@ -559,18 +560,19 @@ public class PhaseManager : MonoBehaviour
             battleManager.StartEvent();
             isBattle = true;
         }
-        else
+        else if (!battleManager.isBattle())
         {
-            // 全てのイベントが終了したらフェーズを変える
-            if (!battleManager.isBattle())
+            if (!expGaugeController.isActive)
             {
-                // 敵の向きを元に戻す
-                if (enemyUnitObj)
-                    enemyUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
+                Action callBackEvent = () =>
+                {
+                    // 攻撃終了処理
+                    isBattle = false;
+                    phase = Enums.PHASE.RESULT;
+                };
 
-                isBattle = false;
-                // ターンとUIの切り替え
-                phase = Enums.PHASE.RESULT; // 攻撃終了
+                // Exp取得処理が終了したらバトル終了とする
+                expGaugeController.GaugeUpdate(1001, focusUnitObj.GetComponent<UnitInfo>(), callBackEvent);
             }
         }
     }
@@ -580,6 +582,11 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     public void PlayerResultPhase()
     {
+        // 敵の向きを元に戻す
+        if (enemyUnitObj)
+            enemyUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
+
+
         if (focusUnitObj)
         {
             // アニメーションを元に戻す
