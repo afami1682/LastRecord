@@ -144,7 +144,8 @@ public class CommonCalc
     /// </summary>
     /// <returns><c>true</c>, if check was randomed, <c>false</c> otherwise.</returns>
     /// <param name="probability">Probability.</param>
-    public bool ProbabilityDecision(int probability) {
+    public bool ProbabilityDecision(int probability)
+    {
         return UnityEngine.Random.Range(0, 100) < probability ? true : false;
     }
 
@@ -157,5 +158,20 @@ public class CommonCalc
     public int GetCellDistance(Vector3 posA, Vector3 posB)
     {
         return Mathf.Abs((int)posA.x - (int)posB.x) + Mathf.Abs((int)posA.y - (int)posB.y);
+    }
+
+    /// <summary>
+    /// レベル毎の最大経験値
+    /// </summary>
+    /// <returns>The exp max.</returns>
+    /// <param name="level">Level.</param>
+    public int GetExpMax(int level)
+    {
+        // Lv1 = 1200exp (敵3体)
+        // Lv2 = 1400exp
+        // Lv10 = 3000exp
+        // Lv20 = 5000exp
+        // Lv 40(MAX) = 9000exp (敵23体)
+        return 1000 + (200 * level);
     }
 }
