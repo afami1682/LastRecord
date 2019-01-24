@@ -29,7 +29,8 @@ public class Enums
         BATTLE_STANDBY, // Unit攻撃選択時
         BATTLE, // Unit攻撃時
         RESULT, // Unit攻撃終了時（まだ見操作のUnitがいれば、SELECTに戻る）
-        END // プレイヤーのターン終了時
+        END, // プレイヤーのターン終了時
+        STOP // それ以外や処理待ちの際に指定
     };
 
     /// <summary>

@@ -12,17 +12,19 @@ public class ExpGaugeController : MonoBehaviour
 
     private LineRenderer lineRenderer;
 
-    const int ADD_SPEED = 50;
+    const int ADD_VALUE_RATE = 10;
+    const float GAUGE_UPDATE_SPAWN = 0.04f;
+    float spawn = 0;
 
-    public bool isActive;
+    bool isUpdateStart; // 更新処理の開始フラグ
+    bool isActive; // UIの表示/非表示フラグ
     int nowExp = 0; // 更新中のexp値
     int getExp = 0; // 取得したexp
     int nextExp = 0; // そのレベルでの最大exp
     int gaugeRange = 0; // expゲージの長さ
-    float gaugePosX, gaugePosY;
+    float gaugePosX, gaugePosY; // ゲージ位置
     UnitInfo unitInfo;
     Action callBackEvent;
-    int expRate = 0;
 
     void Start()
     {
@@ -33,6 +35,7 @@ public class ExpGaugeController : MonoBehaviour
         gaugePosX = gaugeRange / 2;
         gaugePosY = lineRenderer.GetPosition(0).y;
         isActive = false;
+        isUpdateStart = false;
 
         // UI非表示
         ChangeActive(false);
@@ -40,28 +43,40 @@ public class ExpGaugeController : MonoBehaviour
 
     void Update()
     {
-        if (isActive)
+        if (isUpdateStart)
         {
-            if (0 < nowExp)
+            if (GAUGE_UPDATE_SPAWN < (spawn += Time.deltaTime))
             {
-                if (0 < getExp / ADD_SPEED && getExp / ADD_SPEED < nowExp)
+                if (0 < nowExp)
                 {
-                    unitInfo.exp += getExp / ADD_SPEED;
-                    lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)unitInfo.exp / nextExp) * gaugeRange - gaugePosX, gaugePosY, 0));
-                    nowExp -= getExp / ADD_SPEED;
+                    if (0 < getExp / ADD_VALUE_RATE && getExp / ADD_VALUE_RATE <= nowExp)
+                    {
+                        unitInfo.exp += getExp / ADD_VALUE_RATE;
+                        lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)unitInfo.exp / nextExp) * gaugeRange - gaugePosX, gaugePosY, 0));
+                        nowExp -= getExp / ADD_VALUE_RATE;
+                    }
+                    else
+                    {
+                        unitInfo.exp++;
+                        lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)unitInfo.exp / nextExp) * gaugeRange - gaugePosX, gaugePosY, 0));
+                        nowExp--;
+                    }
+                    if (!isActive) ChangeActive(true); // UIを表示する
                 }
                 else
                 {
-                    unitInfo.exp++;
-                    lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)unitInfo.exp / nextExp) * gaugeRange - gaugePosX, gaugePosY, 0));
-                    nowExp--;
-                }
-            } else
-            {
-                ChangeActive(false);
-                callBackEvent();
-            }
+                    // ゲージ更新終了
+                    isUpdateStart = false;
 
+                    // ゲージ更新後1秒間待つ
+                    StartCoroutine(DelayMethod(0.4f, () =>
+                    {
+                        ChangeActive(false);
+                        callBackEvent();
+                    }));
+                }
+                spawn = 0;
+            }
         }
     }
 
@@ -77,14 +92,14 @@ public class ExpGaugeController : MonoBehaviour
         this.getExp = getExp;
         this.nowExp = getExp;
         this.callBackEvent = callBackEvent;
-        ChangeActive(true);
+        isUpdateStart = true;
     }
 
     /// <summary>
     /// Expゲージの表示/非表示の切り替え
     /// </summary>
     /// <param name="value">If set to <c>true</c> value.</param>
-    void ChangeActive(bool value)
+    private void ChangeActive(bool value)
     {
         // フラグの切り替え
         isActive = value;
@@ -92,5 +107,11 @@ public class ExpGaugeController : MonoBehaviour
         expText.SetActive(value);
         ExpGauge.SetActive(value);
         ExpGaugeBg.SetActive(value);
+    }
+
+    private IEnumerator DelayMethod(float waitTime, Action action)
+    {
+        yield return new WaitForSeconds(waitTime);
+        action();
     }
 }

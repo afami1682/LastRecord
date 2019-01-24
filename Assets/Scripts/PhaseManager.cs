@@ -110,6 +110,7 @@ public class PhaseManager : MonoBehaviour
             case Enums.PHASE.BATTLE: BattlePhase(); break;
             case Enums.PHASE.RESULT: ResultPhase(); break;
             case Enums.PHASE.END: EndPhase(); break;
+            case Enums.PHASE.STOP: break;
         }
     }
 
@@ -562,17 +563,24 @@ public class PhaseManager : MonoBehaviour
         }
         else if (!battleManager.isBattle())
         {
-            if (!expGaugeController.isActive)
-            {
-                Action callBackEvent = () =>
-                {
-                    // 攻撃終了処理
-                    isBattle = false;
-                    phase = Enums.PHASE.RESULT;
-                };
+            // 攻撃終了処理
+            isBattle = false;
 
-                // Exp取得処理が終了したらバトル終了とする
-                expGaugeController.GaugeUpdate(1001, focusUnitObj.GetComponent<UnitInfo>(), callBackEvent);
+            // プレイヤーUnitが生存していれば経験値取得処理を行う
+            if (focusUnitObj)
+            {
+                // 経験値処理が終わるまでフェーズを停止
+                phase = Enums.PHASE.STOP;
+
+                // Exp取得処理の開始
+                expGaugeController.GaugeUpdate(1000, focusUnitObj.GetComponent<UnitInfo>(), () =>
+                {
+                    phase = Enums.PHASE.RESULT;
+                });
+            }
+            else
+            {
+                phase = Enums.PHASE.RESULT;
             }
         }
     }
@@ -585,7 +593,6 @@ public class PhaseManager : MonoBehaviour
         // 敵の向きを元に戻す
         if (enemyUnitObj)
             enemyUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
-
 
         if (focusUnitObj)
         {
@@ -627,6 +634,7 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void PlayerEndPhase()
     {
+        Debug.Log("PlayerEndPhase " + turnPlayer);
         activeAreaManager.activeAreaObj.SetActive(false);
 
         // 自軍ユニットを全て未行動に戻す
@@ -877,23 +885,35 @@ public class PhaseManager : MonoBehaviour
             battleManager.StartEvent();
             isBattle = true;
         }
-        else
+        else if (!battleManager.isBattle())
         {
-            // 全てのイベントが終了したらフェーズを変える
-            if (!battleManager.isBattle())
-            {
-                // 敵の向きを元に戻す
-                if (playerUnitObj) playerUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
+            // バトル終了
+            isBattle = false;
 
-                isBattle = false;
-                // ターンとUIの切り替え
-                phase = Enums.PHASE.RESULT; // 攻撃終了
+            // プレイヤーUnitが生存していれば経験値取得処理を行う
+            if (playerUnitObj)
+            {
+                // 経験値処理が終わるまでフェーズを停止
+                phase = Enums.PHASE.STOP;
+
+                // Exp取得処理の開始
+                expGaugeController.GaugeUpdate(1000, playerUnitObj.GetComponent<UnitInfo>(), () =>
+                {
+                    phase = Enums.PHASE.RESULT;
+                });
+            }
+            else
+            {
+                phase = Enums.PHASE.RESULT;
             }
         }
     }
 
     void EnemyResultPhase()
     {
+        // 敵の向きを元に戻す
+        if (playerUnitObj) playerUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
+
         if (focusUnitObj)
         {
             // アニメーションを元に戻す
