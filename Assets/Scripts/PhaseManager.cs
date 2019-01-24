@@ -573,7 +573,7 @@ public class PhaseManager : MonoBehaviour
                 phase = Enums.PHASE.STOP;
 
                 // Exp取得処理の開始
-                expGaugeController.GaugeUpdate(1000, focusUnitObj.GetComponent<UnitInfo>(), () =>
+                expGaugeController.GaugeUpdate(1800, focusUnitObj.GetComponent<UnitInfo>(), () =>
                 {
                     phase = Enums.PHASE.RESULT;
                 });
@@ -897,7 +897,7 @@ public class PhaseManager : MonoBehaviour
                 phase = Enums.PHASE.STOP;
 
                 // Exp取得処理の開始
-                expGaugeController.GaugeUpdate(1000, playerUnitObj.GetComponent<UnitInfo>(), () =>
+                expGaugeController.GaugeUpdate(1800, playerUnitObj.GetComponent<UnitInfo>(), () =>
                 {
                     phase = Enums.PHASE.RESULT;
                 });
