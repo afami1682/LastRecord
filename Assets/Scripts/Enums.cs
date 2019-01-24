@@ -86,13 +86,9 @@ public class Enums
     public enum CLASS_TYPE
     {
         SOLDIER,
-
-
-
-
-
+        ARCHER,
+        MAGICIAN
         //アサシン
-        //アーチャー
         //アーマーナイト
         //ウォーリア
         //グレートローど

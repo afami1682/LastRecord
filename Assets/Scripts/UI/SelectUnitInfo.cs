@@ -44,8 +44,8 @@ public class SelectUnitInfo : MonoBehaviour
         faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
         nameText.text = unitInfo.unitName;
         levelText.text = string.Format("Lv: {0}", unitInfo.level);
-        lifeText.text = string.Format("HP: {0}/{1}", unitInfo.hp, unitInfo.vitality);
-        lifeRate = (float)unitInfo.hp / (float)unitInfo.vitality;
+        lifeText.text = string.Format("HP: {0}/{1}", unitInfo.hp, unitInfo.vitality * 2);
+        lifeRate = ((float)unitInfo.hp / 2) / (float)unitInfo.vitality;
         gageImageRect.sizeDelta = new Vector2(
             lifeRate * (float)gageImageBk.sizeDelta.x,
                                           gageImageBk.sizeDelta.y);

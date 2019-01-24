@@ -217,6 +217,11 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     public void MoveEndBtn()
     {
+        // TODO 行動終了時は体力回復(仮実装)
+        UnitInfo u = focusUnitObj.GetComponent<UnitInfo>();
+
+        u.hp += Mathf.Clamp(u.vitality * 2 - u.hp, 0 ,10);
+
         PlayerResultPhase();
     }
 
@@ -238,7 +243,9 @@ public class PhaseManager : MonoBehaviour
             playerTurnImage.gameObject.SetActive(true);
 
             // ランダムな未行動ユニット1体の座標にカーソルを合わせる
-            cursorObj.transform.position = GameManager.GetUnit().GetUnBehaviorRandomUnit(Enums.ARMY.ALLY).transform.position;
+            focusUnitObj = GameManager.GetUnit().GetUnBehaviorRandomUnit(Enums.ARMY.ALLY);
+            cursorPos = focusUnitObj.transform.position;
+            cursorObj.transform.position = cursorPos;
         }
         else
         {
@@ -573,7 +580,7 @@ public class PhaseManager : MonoBehaviour
                 phase = Enums.PHASE.STOP;
 
                 // Exp取得処理の開始
-                expGaugeController.GaugeUpdate(1800, focusUnitObj.GetComponent<UnitInfo>(), () =>
+                expGaugeController.GaugeUpdate(1000, focusUnitObj.GetComponent<UnitInfo>(), () =>
                 {
                     phase = Enums.PHASE.RESULT;
                 });
@@ -897,7 +904,7 @@ public class PhaseManager : MonoBehaviour
                 phase = Enums.PHASE.STOP;
 
                 // Exp取得処理の開始
-                expGaugeController.GaugeUpdate(1800, playerUnitObj.GetComponent<UnitInfo>(), () =>
+                expGaugeController.GaugeUpdate(1000, playerUnitObj.GetComponent<UnitInfo>(), () =>
                 {
                     phase = Enums.PHASE.RESULT;
                 });

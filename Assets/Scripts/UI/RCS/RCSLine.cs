@@ -137,6 +137,14 @@ public class RCSLine : Graphic
     }
 
     /// <summary>
+    /// 再描画
+    /// </summary>
+    public void ReDraw()
+    {
+        GetComponent<Graphic>().SetVerticesDirty();
+    }
+
+    /// <summary>
     /// uGUI座標を作成
     /// </summary>
     private Vector2 CreatePos(float x, float y)
@@ -146,7 +154,6 @@ public class RCSLine : Graphic
         p.y -= rectTransform.pivot.y;
         p.x += x;
         p.y += y;
-        Debug.Log(rectTransform.rect.width);
         p.x *= rectTransform.rect.width;
         p.y *= rectTransform.rect.height;
 

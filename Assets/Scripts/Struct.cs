@@ -51,7 +51,7 @@ public class Struct
         /// <param name="avoidanceBonus">Avoidance bonus.</param>
         /// <param name="defenseBonus">Defense bonus.</param>
         /// <param name="magicalDefenseBonus">Magical defense bonus.</param>
-        public CellInfo(int cellId,string name, int category, int moveCost, int avoidanceBonus, int defenseBonus, int magicalDefenseBonus)
+        public CellInfo(int cellId, string name, int category, int moveCost, int avoidanceBonus, int defenseBonus, int magicalDefenseBonus)
         {
             this.cellId = cellId;
             this.name = name;
@@ -108,5 +108,24 @@ public class Struct
             this.val = val;
             this.jobValMax = JobValMax;
         }
+    }
+
+    /// <summary>
+    /// ユニットのクラスデータ
+    /// </summary>
+    public struct UnitClassData
+    {
+        public string classTypeName;
+        public int attackRange;
+        public int movementRange;
+        public int vitality;
+        public int strength;
+        public int dexterity;
+        public int intelligence;
+        public int speed;
+        public int defense;
+        public int mDefense;
+        public int luck;
+        public int physique;
     }
 }

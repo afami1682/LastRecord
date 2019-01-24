@@ -10,6 +10,8 @@ public class ExpGaugeController : MonoBehaviour
     public GameObject ExpGauge;
     public GameObject ExpGaugeBg;
 
+    public GameObject levelUpUI;
+
     private LineRenderer lineRenderer;
 
     const int ADD_VALUE_RATE = 10; // 一度の更新で加算する割合
@@ -23,6 +25,7 @@ public class ExpGaugeController : MonoBehaviour
     int nextExp = 0; // 次のレベルまでのEXP
     int gaugeRange = 0; // expゲージの長さ
     float gaugePosX, gaugePosY; // ゲージ位置
+    int levelUpCount = 0; // レベルアップした数
     UnitInfo unitInfo;
     Action callBackEvent; // 経験値取得処理後に行う処理
 
@@ -77,8 +80,7 @@ public class ExpGaugeController : MonoBehaviour
                         // 経験値をリセット
                         unitInfo.exp = 0;
 
-                        // レベルアップイベント
-                        LevelUpEvent();
+                        levelUpCount++;
                     }
 
                     // ゲージの更新
@@ -92,11 +94,22 @@ public class ExpGaugeController : MonoBehaviour
                     isUpdateStart = false;
 
                     // ゲージ更新後1秒間待つ
-                    StartCoroutine(DelayMethod(0.4f, () =>
+                    StartCoroutine(DelayMethod(0.5f, () =>
                     {
-                        ChangeActive(false);
-                        callBackEvent();
+                        if (0 < levelUpCount)
+                        {
+                            // レベルアップイベント
+                            ChangeActive(false);
+                            //levelUpUI.SetActive(true);
+                            levelUpUI.GetComponent<LevelUpController>().LevelUpEvent(unitInfo, levelUpCount, callBackEvent);
+                        }
+                        else
+                        {
+                            ChangeActive(false);
+                            callBackEvent();
+                        }
                     }));
+
                 }
                 spawn = 0;
             }
@@ -115,6 +128,7 @@ public class ExpGaugeController : MonoBehaviour
         this.addExp = getExp / ADD_VALUE_RATE;
         this.expCalc = getExp;
         this.callBackEvent = callBackEvent;
+        this.levelUpCount = 0;
         isUpdateStart = true;
     }
 
@@ -130,14 +144,6 @@ public class ExpGaugeController : MonoBehaviour
         expText.SetActive(value);
         ExpGauge.SetActive(value);
         ExpGaugeBg.SetActive(value);
-    }
-
-    /// <summary>
-    /// レベルアップイベント
-    /// </summary>
-    public void LevelUpEvent()
-    {
-        Debug.Log("レベルアップ(てーててててー）");
     }
 
     private IEnumerator DelayMethod(float waitTime, Action action)

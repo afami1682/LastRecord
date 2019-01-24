@@ -12,7 +12,7 @@ public class RCSVal : Graphic
     [HideInInspector]
     public float radius; // 半径
     [HideInInspector]
-    public List<Struct.NodeStatus> statusList; // ステータスリスト
+    public Struct.NodeStatus[] statusList; // ステータスリスト
     [HideInInspector]
     public int statusListCount; // ステータスの数
     [HideInInspector]
@@ -66,6 +66,14 @@ public class RCSVal : Graphic
         p.x += x;
         p.y += y;
         return p;
+    }
+
+    /// <summary>
+    /// 再描画
+    /// </summary>
+    public void ReDraw()
+    {
+        GetComponent<Graphic>().SetVerticesDirty();
     }
 
     /// <summary>
