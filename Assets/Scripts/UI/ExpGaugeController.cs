@@ -6,113 +6,81 @@ using System;
 
 public class ExpGaugeController : MonoBehaviour
 {
-    public GameObject expText;
-    public GameObject ExpGauge;
-    public GameObject ExpGaugeBg;
-
+    public LineRenderer lineRenderer;
     public GameObject levelUpUI;
 
-    private LineRenderer lineRenderer;
+    const int GAUGE_RANGE_MAX = 200;
+    const int ADD_VALUE_RATE = 20; // 一度の更新で加算する割合
+    const float GAUGE_UPDATE_SPAWN = 0.03f; // 更新速度
+    float spawn;
 
-    const int ADD_VALUE_RATE = 10; // 一度の更新で加算する割合
-    const float GAUGE_UPDATE_SPAWN = 0.04f; // 更新速度
-    float spawn = 0;
-
-    bool isUpdateStart; // 更新処理の開始フラグ
-    bool isActive; // UIの表示/非表示フラグ
-    int addExp = 0; // 一度に加算する経験値
-    int expCalc = 0; // 計算用
-    int nextExp = 0; // 次のレベルまでのEXP
-    int gaugeRange = 0; // expゲージの長さ
+    int addExp; // 一度に加算する経験値
+    int expCalc; // 計算用
+    int nextExp; // 次のレベルまでのEXP
     float gaugePosX, gaugePosY; // ゲージ位置
-    int levelUpCount = 0; // レベルアップした数
+    int levelUpCount; // レベルアップした数
     UnitInfo unitInfo;
     Action callBackEvent; // 経験値取得処理後に行う処理
 
-    void Start()
-    {
-        lineRenderer = ExpGauge.GetComponent<LineRenderer>();
-
-        // expゲージの長さを取得
-        gaugeRange = (int)(lineRenderer.GetPosition(1).x - lineRenderer.GetPosition(0).x);
-        gaugePosX = gaugeRange / 2;
-        gaugePosY = lineRenderer.GetPosition(0).y;
-        isActive = false;
-        isUpdateStart = false;
-
-        // UI非表示
-        ChangeActive(false);
-    }
-
     void Update()
     {
-        if (isUpdateStart)
+        if (GAUGE_UPDATE_SPAWN < (spawn += Time.deltaTime))
         {
-            if (GAUGE_UPDATE_SPAWN < (spawn += Time.deltaTime))
+            // expCalc(getExp)が0になるまで経験値に加算し続ける
+            if (0 < expCalc)
             {
-                // expCalc(getExp)が0になるまで経験値に加算し続ける
-                if (0 < expCalc)
+                // 基本はADD_VALUE_RATEを加算し、else はあまりを加算
+                if (0 < addExp)
                 {
-                    // 基本はADD_VALUE_RATEを加算し、else はあまりを加算
-                    if (0 < addExp)
-                    {
-                        // 1割ずつ加算する
-                        unitInfo.exp += addExp;
-                        expCalc -= addExp;
-                    }
-                    else
-                    {
-                        // 余を加算する
-                        unitInfo.exp += expCalc;
-                        expCalc = 0;
-                    }
-
-                    // レベルアップ
-                    if (nextExp <= unitInfo.exp)
-                    {
-                        // レベル加算と次のレベルまでの経験値を更新
-                        unitInfo.level++;
-                        nextExp = GameManager.GetCommonCalc().GetExpMax(unitInfo.level);
-
-                        // 余分な経験値を戻す
-                        expCalc += unitInfo.exp -= nextExp;
-
-                        // 経験値をリセット
-                        unitInfo.exp = 0;
-
-                        levelUpCount++;
-                    }
-
-                    // ゲージの更新
-                    lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)unitInfo.exp / nextExp) * gaugeRange - gaugePosX, gaugePosY, 0));
-
-                    if (!isActive) ChangeActive(true); // UIを表示していなければ、表示する
+                    // 1割ずつ加算する
+                    unitInfo.exp += addExp;
+                    expCalc -= addExp;
                 }
                 else
                 {
-                    // ゲージ更新終了
-                    isUpdateStart = false;
-
-                    // ゲージ更新後1秒間待つ
-                    StartCoroutine(DelayMethod(0.5f, () =>
-                    {
-                        if (0 < levelUpCount)
-                        {
-                            // レベルアップイベント
-                            ChangeActive(false);
-                            //levelUpUI.SetActive(true);
-                            levelUpUI.GetComponent<LevelUpController>().LevelUpEvent(unitInfo, levelUpCount, callBackEvent);
-                        }
-                        else
-                        {
-                            ChangeActive(false);
-                            callBackEvent();
-                        }
-                    }));
-
+                    // 余を加算する
+                    unitInfo.exp += expCalc;
+                    expCalc = 0;
                 }
-                spawn = 0;
+
+                // レベルアップ
+                if (nextExp <= unitInfo.exp)
+                {
+                    // レベル加算と次のレベルまでの経験値を更新
+                    unitInfo.level++;
+                    nextExp = GameManager.GetCommonCalc().GetExpMax(unitInfo.level);
+
+                    // 余分な経験値を戻す
+                    expCalc += unitInfo.exp -= nextExp;
+
+                    // 経験値をリセット
+                    unitInfo.exp = 0;
+
+                    levelUpCount++;
+                }
+
+                // ゲージの更新
+                lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)unitInfo.exp / nextExp) * GAUGE_RANGE_MAX - gaugePosX, gaugePosY, 0));
             }
+            else
+            {
+                // ゲージ更新後1秒間待つ
+                StartCoroutine(DelayMethod(0.5f, () =>
+                {
+                    gameObject.SetActive(false);
+                    if (0 < levelUpCount)
+                    {
+                        // レベルアップイベント
+                        levelUpUI.GetComponent<LevelUpController>().LevelUpEvent(unitInfo, levelUpCount, callBackEvent);
+                    }
+                    else
+                    {
+                        // コールバックイベントの実行
+                        callBackEvent();
+                    }
+                }));
+            }
+            spawn = 0;
         }
     }
 
@@ -124,26 +92,22 @@ public class ExpGaugeController : MonoBehaviour
     public void GaugeUpdate(int getExp, UnitInfo unitInfo, Action callBackEvent)
     {
         this.unitInfo = unitInfo;
-        this.nextExp = GameManager.GetCommonCalc().GetExpMax(unitInfo.level);
-        this.addExp = getExp / ADD_VALUE_RATE;
-        this.expCalc = getExp;
         this.callBackEvent = callBackEvent;
-        this.levelUpCount = 0;
-        isUpdateStart = true;
-    }
+        nextExp = GameManager.GetCommonCalc().GetExpMax(unitInfo.level);
+        addExp = getExp / ADD_VALUE_RATE;
+        expCalc = getExp;
+        levelUpCount = 0;
+        spawn = 0;
 
-    /// <summary>
-    /// Expゲージの表示/非表示の切り替え
-    /// </summary>
-    /// <param name="value">If set to <c>true</c> value.</param>
-    private void ChangeActive(bool value)
-    {
-        // フラグの切り替え
-        isActive = value;
+        // expゲージの表示位置を取得
+        gaugePosX = GAUGE_RANGE_MAX / 2;
+        gaugePosY = lineRenderer.GetPosition(0).y;
 
-        expText.SetActive(value);
-        ExpGauge.SetActive(value);
-        ExpGaugeBg.SetActive(value);
+        // ゲージの初期値の設定
+        lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01((float)unitInfo.exp / nextExp) * GAUGE_RANGE_MAX - gaugePosX, gaugePosY, 0));
+
+        // ゲージの表示
+        gameObject.SetActive(true);
     }
 
     private IEnumerator DelayMethod(float waitTime, Action action)

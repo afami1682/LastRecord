@@ -69,7 +69,7 @@ public class CommonCalc
     {
         // 参考　=(技×3+幸運)/2+(装備武器の命中+非特効補正)+装備武器のレベル補正+3すくみ補正+クラス補正
         // =(技×3+幸運)/2+装備武器のレベル補正
-        int hitVal = (unitInfo.dexterity * 3 + unitInfo.luck) / 2 + 80 + 1; // 仮設定
+        int hitVal = (unitInfo.dexterity * 3 + unitInfo.luck) / 2 + 70 + 1; // 仮設定
 
         return (0 < hitVal) ? hitVal : 0;
     }
@@ -101,7 +101,7 @@ public class CommonCalc
     public int GetAttackCount(UnitInfo myUnit, UnitInfo targetUnit)
     {
         // 自分のスピード - 相手のスピード >= 8 なら2回
-        return (myUnit.speed - targetUnit.speed >= 8) ? 2 : 1;
+        return (myUnit.speed - targetUnit.speed >= 5) ? 2 : 1;
     }
 
     /// <summary>
