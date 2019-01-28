@@ -6,7 +6,7 @@ using System;
 
 public class CutInAnimController : MonoBehaviour
 {
-    const float ANIM_END_TIME = 1.8f;
+    const float ANIM_END_TIME = 1.4f;
 
     // ユニット画像の移動
     AnimationCurve unitImageMove;
@@ -53,21 +53,20 @@ public class CutInAnimController : MonoBehaviour
         panelGroup = GetComponent<CanvasGroup>();
 
         unitImageMove = new AnimationCurve(
-                        new Keyframe(0.0f, -800),
-                        new Keyframe(1.0f, 0),
-                        new Keyframe(ANIM_END_TIME, 100)
+                        new Keyframe(0.0f, -500),
+                        new Keyframe(0.6f, 0),
+                        new Keyframe(ANIM_END_TIME, 150)
                 );
 
         panelHeight = new AnimationCurve(
                       new Keyframe(0.0f, 0),
-                      new Keyframe(1.0f, 400),
-                      new Keyframe(ANIM_END_TIME, 400)
+                      new Keyframe(0.6f, 400)
                 );
 
         panelAlpha = new AnimationCurve(
                       new Keyframe(0.0f, 0),
-                      new Keyframe(1.0f, 1),
-                      new Keyframe(1.6f, 1),
+                      new Keyframe(0.6f, 1),
+                      new Keyframe(1.2f, 1),
                       new Keyframe(ANIM_END_TIME, 0)
                 );
 

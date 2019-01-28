@@ -1,12 +1,7 @@
 fileFormatVersion: 2
-guid: 03fe76642fd1b1345a65741d655bd2fe
+guid: 29933c8464da8c74ea583ec8afd871bd
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: pipo-btleffect150a_0
-    21300002: pipo-btleffect150a_1
-    21300004: pipo-btleffect150a_2
-    21300006: pipo-btleffect150a_3
-    21300008: pipo-btleffect150a_4
+  fileIDToRecycleName: {}
   externalObjects: {}
   serializedVersion: 7
   mipmaps:
@@ -109,111 +104,11 @@ TextureImporter:
     androidETC2FallbackOverride: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: pipo-btleffect150a_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 960
-        width: 640
-        height: 240
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3bfaa69c5e9faae48afb7343464408d6
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-btleffect150a_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 720
-        width: 640
-        height: 240
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 9f06d70d3b9f339449286493bceedd93
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-btleffect150a_2
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 480
-        width: 640
-        height: 240
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2a5089b8866616b468c87d2c5b556644
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-btleffect150a_3
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 240
-        width: 640
-        height: 240
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 69e28a32b2ebd53498911909e9920a0c
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-btleffect150a_4
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 640
-        height: 240
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0fe2aa2d20bcb9646a8f9b8a20ab290a
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 4d23aca91b3fb80429eaf10b9146acfa
+    spriteID: 9e2e6e45bca701f40aaf3f16e33d3beb
     vertices: []
     indices: 
     edges: []
