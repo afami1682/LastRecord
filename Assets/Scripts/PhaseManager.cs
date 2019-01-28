@@ -18,6 +18,7 @@ public class PhaseManager : MonoBehaviour
     public GameObject cursorObj;
     public Image playerTurnImage, enemyTurnImage;
     public ExpGaugeController expGaugeController;
+    public CutInAnimController cutInAnimController;
     Animator turnImageAnim;
 
     // マネージャースクリプト
@@ -515,6 +516,7 @@ public class PhaseManager : MonoBehaviour
                     attackEvent.myAttackState = playerAttackState;
                     attackEvent.targetUnitObj = enemyUnitObj;
                     attackEvent.targetHPText = enemyHPText;
+                    attackEvent.cutInAnimController = cutInAnimController;
                     battleManager.AddEvent(attackEvent);
 
                     playerAttackCount--;
@@ -538,6 +540,7 @@ public class PhaseManager : MonoBehaviour
                     attackEvent.myAttackState = enemyAttackState;
                     attackEvent.targetUnitObj = playerUnitObj;
                     attackEvent.targetHPText = playerHPText;
+                    attackEvent.cutInAnimController = cutInAnimController;
                     battleManager.AddEvent(attackEvent);
 
                     enemyAttackCount--;
@@ -836,6 +839,8 @@ public class PhaseManager : MonoBehaviour
                     attackEvent.targetUnitObj = playerUnitObj;
                     attackEvent.targetHPText = playerHPText;
 
+                    attackEvent.cutInAnimController = cutInAnimController;
+
                     battleManager.AddEvent(attackEvent);
 
                     enemyAttackCount--;
@@ -861,6 +866,8 @@ public class PhaseManager : MonoBehaviour
 
                     attackEvent.targetUnitObj = enemyUnitObj;
                     attackEvent.targetHPText = enemyHPText;
+
+                    attackEvent.cutInAnimController = cutInAnimController;
 
                     battleManager.AddEvent(attackEvent);
 

@@ -10,14 +10,19 @@ using System;
 /// </summary>
 public class AttackEvent : MonoBehaviour
 {
-    const float ATTACK_SPEED = 0.3f; // 攻撃アニメーションの速度
+    const float ATTACK_SPEED = 0.6f; // 攻撃アニメーションの速度
     const float ATTACK_MOVE = 0.4f; // 攻撃する時の移動距離
 
     int targetHP; // 敵HP
     int targetResidualHP; // ダーメージ処理後の敵HP
 
-    Animation anim;
-    AnimationClip clip;
+    // カットインアニメーション関連
+    public CutInAnimController cutInAnimController;
+    bool cutInAnim = false;
+
+    // 攻撃アニメーション
+    AnimationCurve moveX, moveY;
+    float time = 0;
 
     // 引き継ぎパラメータ
     public PhaseManager phaseManager;
@@ -55,110 +60,53 @@ public class AttackEvent : MonoBehaviour
         // 攻撃アニメーションの設定
         Vector3 pos = myUnitObj.transform.position;
 
-        // アニメーションカーブ（曲線）の宣言
-        AnimationCurve curveX = new AnimationCurve();
-        AnimationCurve curveY = new AnimationCurve();
-
         // アニメーションのキーフレームの設定(時間,値)
         Keyframe[] keysX = new Keyframe[3];
         Keyframe[] keysY = new Keyframe[3];
-        keysX[0] = new Keyframe(ATTACK_SPEED * 0, pos.x);
-        keysY[0] = new Keyframe(ATTACK_SPEED * 0, pos.y);
+        keysX[0] = new Keyframe(0, pos.x);
+        keysY[0] = new Keyframe(0, pos.y);
 
-        if (Mathf.Abs(pos.x - targetUnitObj.transform.position.x) <= 0f) keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x);
-        else if (pos.x < targetUnitObj.transform.position.x) keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x + ATTACK_MOVE);
-        else keysX[1] = new Keyframe(ATTACK_SPEED * 1, pos.x - ATTACK_MOVE);
+        if (Mathf.Abs(pos.x - targetUnitObj.transform.position.x) <= 0f)
+            keysX[1] = new Keyframe(ATTACK_SPEED / 2, pos.x);
+        else if (pos.x < targetUnitObj.transform.position.x)
+            keysX[1] = new Keyframe(ATTACK_SPEED / 2, pos.x + ATTACK_MOVE);
+        else
+            keysX[1] = new Keyframe(ATTACK_SPEED / 2, pos.x - ATTACK_MOVE);
 
-        if (Mathf.Abs(pos.y - targetUnitObj.transform.position.y) <= 0f) keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y);
-        else if (pos.y < targetUnitObj.transform.position.y) keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y + ATTACK_MOVE);
-        else keysY[1] = new Keyframe(ATTACK_SPEED * 1, pos.y - ATTACK_MOVE);
+        if (Mathf.Abs(pos.y - targetUnitObj.transform.position.y) <= 0f)
+            keysY[1] = new Keyframe(ATTACK_SPEED / 2, pos.y);
+        else if (pos.y < targetUnitObj.transform.position.y)
+            keysY[1] = new Keyframe(ATTACK_SPEED / 2, pos.y + ATTACK_MOVE);
+        else
+            keysY[1] = new Keyframe(ATTACK_SPEED / 2, pos.y - ATTACK_MOVE);
 
-        keysX[2] = new Keyframe(ATTACK_SPEED * 2, pos.x);
-        keysY[2] = new Keyframe(ATTACK_SPEED * 2, pos.y);
-        curveX = new AnimationCurve(keysX);
-        curveY = new AnimationCurve(keysY);
+        keysX[2] = new Keyframe(ATTACK_SPEED, pos.x);
+        keysY[2] = new Keyframe(ATTACK_SPEED, pos.y);
 
-        // アニメーションクリップの設定
-        clip = new AnimationClip
-        {
-            name = "moveAnim" // アニメーションの名前
-        };
-        clip.SetCurve("", typeof(Transform), "localPosition.x", curveX);
-        clip.SetCurve("", typeof(Transform), "localPosition.y", curveY);
-        clip.legacy = true;
-
-        // 作成したアニメーションのアタッチ
-        anim = myUnitObj.GetComponent<Animation>();
-        anim.AddClip(clip, clip.name);
+        moveX = new AnimationCurve(keysX);
+        moveY = new AnimationCurve(keysY);
 
         switch (myAttackState)
         {
             case Enums.BATTLE.NORMAL:
-                targetResidualHP = targetHP - myAttackPower;  // 通常攻撃命中
+                // 通常攻撃命中
+                targetResidualHP = Mathf.Clamp(targetHP - myAttackPower, 0, 999);
                 break;
 
             case Enums.BATTLE.DEATH_BLOW:
-                targetResidualHP = targetHP - myAttackPower * 3; // 必殺発動
+                // 必殺発動
+                targetResidualHP = Mathf.Clamp(targetHP - myAttackPower * 3, 0, 999);
+
+                // カットインアニメの登録(仮)
+                cutInAnim = true;
+                cutInAnimController.StartAnim(myUnitObj.GetComponent<UnitInfo>().id, () => { cutInAnim = false; });
                 break;
 
             case Enums.BATTLE.MISS:
-                targetResidualHP = targetHP; // 攻撃失敗
+                // 攻撃失敗
+                targetResidualHP = targetHP;
                 break;
         }
-
-        // HPは0未満にしない
-        targetResidualHP = targetResidualHP < 0 ? 0 : targetResidualHP;
-
-        // アニンメーションの再生
-        anim.Play(clip.name);
-
-        // 攻撃アニメーションの途中でダメージ処理
-        StartCoroutine(DelayMethod(ATTACK_SPEED / 2, () =>
-        {
-            switch (myAttackState)
-            {
-                case Enums.BATTLE.NORMAL:
-                    if (myAttackPower != 0)
-                    {
-                        // ダメージの反映
-                        (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
-                        GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
-
-                        // エフェクトを生成する
-                        GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack1");
-                        Instantiate(ef_attack, targetUnitObj.transform.position, Quaternion.identity);
-                    }
-                    else goto case Enums.BATTLE.NO_DAMAGE;
-                    break;
-
-                case Enums.BATTLE.DEATH_BLOW:
-                    if (myAttackPower != 0)
-                    {
-                        // ダメージの反映
-                        (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
-                        GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
-
-                        // エフェクトを生成する
-                        GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack2");
-                        Instantiate(ef_attack, targetUnitObj.transform.position, Quaternion.identity);
-                    }
-                    else goto case Enums.BATTLE.NO_DAMAGE;
-                    break;
-
-                case Enums.BATTLE.NO_DAMAGE:
-                    // NO DAMAGEのエフェクトを生成する
-                    GameObject noDamageObj = Resources.Load<GameObject>("Prefabs/NoDamage");
-                    Instantiate(noDamageObj, targetUnitObj.transform.position, Quaternion.identity);
-                    break;
-
-                case Enums.BATTLE.MISS:
-                    GameObject missObj = Resources.Load<GameObject>("Prefabs/Miss");
-                    Instantiate(missObj, targetUnitObj.transform.position, Quaternion.identity);
-                    break;
-            }
-            // ダメージ判定の終了
-            runninge[0] = false;
-        }));
     }
 
     /// <summary>
@@ -167,7 +115,64 @@ public class AttackEvent : MonoBehaviour
     /// <returns>イベントが実行中かどうか</returns>
     void Update()
     {
-        // ライフの減算（徐々に減らしていく）
+        // カットインアニメーションがあるなら終わるまで何もしない
+        if (cutInAnim) { return; }
+
+        // 時間計測
+        time += Time.deltaTime;
+
+        // 攻撃アニメーションの途中でダメージ処理を行う
+        if (runninge[0])
+        {
+            if (time < ATTACK_SPEED / 2)
+            {
+                switch (myAttackState)
+                {
+                    case Enums.BATTLE.NORMAL:
+                        if (myAttackPower != 0)
+                        {
+                            // ダメージの反映
+                            (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
+                            GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+
+                            // エフェクトを生成する
+                            GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack1");
+                            Instantiate(ef_attack, targetUnitObj.transform.position, Quaternion.identity);
+                        }
+                        else goto case Enums.BATTLE.NO_DAMAGE;
+                        break;
+
+                    case Enums.BATTLE.DEATH_BLOW:
+                        if (myAttackPower != 0)
+                        {
+                            // ダメージの反映
+                            (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
+                            GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+
+                            // エフェクトを生成する
+                            GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack2");
+                            Instantiate(ef_attack, targetUnitObj.transform.position, Quaternion.identity);
+                        }
+                        else goto case Enums.BATTLE.NO_DAMAGE;
+                        break;
+
+                    case Enums.BATTLE.NO_DAMAGE:
+                        // NO DAMAGEのエフェクトを生成する
+                        GameObject noDamageObj = Resources.Load<GameObject>("Prefabs/NoDamage");
+                        Instantiate(noDamageObj, targetUnitObj.transform.position, Quaternion.identity);
+                        break;
+
+                    case Enums.BATTLE.MISS:
+                        GameObject missObj = Resources.Load<GameObject>("Prefabs/Miss");
+                        Instantiate(missObj, targetUnitObj.transform.position, Quaternion.identity);
+                        break;
+                }
+                // ダメージ判定の終了
+                runninge[0] = false;
+            }
+        }
+
+        // ライフの減算処理（徐々に減らしていく）
         if (runninge[1])
             if (targetHP > targetResidualHP)
             {
@@ -186,14 +191,21 @@ public class AttackEvent : MonoBehaviour
                 runninge[1] = false; // HPの減算終了
             }
 
-        // アニメーションの終了検知
+        // アニメーション処理
         if (runninge[2])
-            if (!anim.IsPlaying(clip.name))
-                runninge[2] = false; // アニメーションの終了
+        {
+            // ユニットの移動
+            myUnitObj.transform.position = new Vector3(
+            moveX.Evaluate(time),
+            moveY.Evaluate(time),
+            0);
+
+            // アニメーションの終了検知
+            if (ATTACK_SPEED < time) { runninge[2] = false; }
+        }
 
         // 全ての小イベントが終了（false)になったら自身を削除する
-        if (runninge.All(value => value == false))
-            Destroy(this);
+        if (runninge.All(value => value == false)) Destroy(this);
     }
 
     /// <summary>
