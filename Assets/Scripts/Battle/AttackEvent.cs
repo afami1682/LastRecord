@@ -99,7 +99,7 @@ public class AttackEvent : MonoBehaviour
 
                 // カットインアニメの登録(仮)
                 cutInAnim = true;
-                cutInAnimController.StartAnim(myUnitObj.GetComponent<UnitInfo>().id, () => { cutInAnim = false; });
+                cutInAnimController.StartAnim(myUnitObj.GetComponent<UnitInfo>().id,"Critical Hit", () => { cutInAnim = false; });
                 break;
 
             case Enums.BATTLE.MISS:
