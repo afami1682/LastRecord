@@ -65,7 +65,7 @@ public class UnitInfoController : MonoBehaviour
         hp.text = unitInfo.hp.ToString();
         level.text = unitInfo.level.ToString();
         exp.text = unitInfo.exp.ToString();
-        movementRanve.text = unitInfo.movementRange.ToString();
+        movementRanve.text = unitInfo.movingRange.ToString();
         attackRange.text = unitInfo.attackRange.ToString();
         //statusList.Add(new Struct.NodeStatus("体力", unitInfo.vitality, 50));
         //statusList.Add(new Struct.NodeStatus("筋力", unitInfo.strength, 40));

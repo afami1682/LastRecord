@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     static UnitManager unitManager;
     static RouteManager routeManager;
     static EnemyAIManager enemyAIManager;
+    static AI.CommonCalc aICommonCalc;
     static CommonCalc commonCalc;
 
     private void Awake()
@@ -18,6 +19,7 @@ public class GameManager : MonoBehaviour
         unitManager = new UnitManager(mapManager.field);
         routeManager = new RouteManager(mapManager.field);
         enemyAIManager = new EnemyAIManager(mapManager.field);
+        aICommonCalc = new AI.CommonCalc(mapManager.field);
         commonCalc = new CommonCalc();
     }
 
@@ -44,6 +46,12 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <returns>The enemy ai.</returns>
     public static EnemyAIManager GetEnemyAI() { return enemyAIManager; }
+
+    /// <summary>
+    /// 外部呼び出し用
+    /// </summary>
+    /// <returns>The AIC ommon calculate.</returns>
+    public static AI.CommonCalc GetAICommonCalc() { return aICommonCalc; }
 
     /// <summary>
     /// 外部呼び出し用

@@ -115,17 +115,14 @@ public class Struct
     /// </summary>
     public struct UnitClassData
     {
-        public string classTypeName;
-        public int attackRange;
-        public int movementRange;
-        public int vitality;
-        public int strength;
-        public int dexterity;
-        public int intelligence;
-        public int speed;
-        public int defense;
-        public int mDefense;
-        public int luck;
-        public int physique;
+        public string className; // クラス名
+        public int vitality; // 体力
+        public int attack; // 攻撃
+        public int technical; // 技
+        public int speed; // 速さ
+        public int defense; // 防御
+        public int resist; // 魔防
+        public int luck; // 幸運
+        public int move; // 移動
     }
 }

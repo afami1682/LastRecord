@@ -10,7 +10,7 @@ public class MoveController : MonoBehaviour
     const float NEXT_MOVE_ERROR = 0.1F; // 移動の誤差補完値
 
     // 移動ルート管理用の2次元配列
-    List<Vector3> moveRoot = new List<Vector3>(); // 自動行動用、移動ルート
+    List<Vector2> moveRoot = new List<Vector2>(); // 自動行動用、移動ルート
     Vector3 movePos, nextPos; // 各移動状態管理用変数
     Animator animator;
     private bool moveFlg; // 単体での移動中かどうか
@@ -99,7 +99,7 @@ public class MoveController : MonoBehaviour
     /// 移動ルートの指定
     /// </summary>
     /// <param name="moveRoots">Move roots.</param>
-    public void SetMoveRoots(List<Vector3> moveRoots)
+    public void SetMoveRoots(List<Vector2> moveRoots)
     {
         moveRoot = moveRoots;
     }

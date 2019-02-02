@@ -27,15 +27,15 @@ public class HPGaugeController : MonoBehaviour
 
         // 初期のHP反映
         hp = unitInfo.hp;
-        lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01(((float)hp / 2) / (float)unitInfo.vitality) - 0.5f, -0.3f, 0));
+        lineRenderer.SetPosition(1, new Vector2(Mathf.Clamp01((float)hp / (float)unitInfo.hpMax) - 0.5f, -0.3f));
     }
 
     void Update()
     {
         // HPゲージの加算/減算と更新
         if (unitInfo.hp < hp)
-            lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01(((float)hp-- / 2) / (float)unitInfo.vitality) - 0.5f, -0.3f, 0));
+            lineRenderer.SetPosition(1, new Vector2(Mathf.Clamp01((float)hp-- / (float)unitInfo.hpMax) - 0.5f, -0.3f));
         else if (unitInfo.hp > hp)
-            lineRenderer.SetPosition(1, new Vector3(Mathf.Clamp01(((float)hp++ / 2) / (float)unitInfo.vitality) - 0.5f, -0.3f, 0));
+            lineRenderer.SetPosition(1, new Vector2(Mathf.Clamp01((float)hp++ / (float)unitInfo.hpMax) - 0.5f, -0.3f));
     }
 }

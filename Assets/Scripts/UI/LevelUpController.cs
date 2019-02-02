@@ -10,7 +10,7 @@ public class LevelUpController : MonoBehaviour
     const float RADIUS = 4f; // グラフの半径
     const float LINE_WIDTH = 0.01f; // 罫線の太さ
 
-    const float UPDATE_SPAWN = 0.4f; // 更新速度
+    const float UPDATE_SPAWN = 0.35f; // 更新速度
     private float spawn;
 
     // ステータスリスト
@@ -53,7 +53,7 @@ public class LevelUpController : MonoBehaviour
             {
                 // イベントを一つずつ実行
                 eventList[0]();
-                ReDraw(unitInfo);
+                ReDraw();
 
                 eventList.RemoveAt(0);
 
@@ -77,14 +77,14 @@ public class LevelUpController : MonoBehaviour
         // UIに各パラメータをセット
         faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
         unitName.text = unitInfo.unitName;
-        unitClass.text = unitInfo.classTypeName;
+        unitClass.text = unitInfo.className;
         level.text = unitInfo.level.ToString();
         statusList[0] = new Struct.NodeStatus("VIT", unitInfo.vitality, maxUnitInfo.vitality);
-        statusList[1] = new Struct.NodeStatus("ATK", unitInfo.strength, maxUnitInfo.strength);
-        statusList[2] = new Struct.NodeStatus("TEC", unitInfo.dexterity, maxUnitInfo.dexterity);
+        statusList[1] = new Struct.NodeStatus("STR", unitInfo.strengtht, maxUnitInfo.attack);
+        statusList[2] = new Struct.NodeStatus("TEC", unitInfo.technical, maxUnitInfo.technical);
         statusList[3] = new Struct.NodeStatus("SPPD", unitInfo.speed, maxUnitInfo.speed);
         statusList[4] = new Struct.NodeStatus("DEF", unitInfo.defense, maxUnitInfo.defense);
-        statusList[5] = new Struct.NodeStatus("RES", unitInfo.mDefense, maxUnitInfo.mDefense);
+        statusList[5] = new Struct.NodeStatus("RES", unitInfo.resist, maxUnitInfo.defense);
         statusList[6] = new Struct.NodeStatus("LUK", unitInfo.luck, maxUnitInfo.luck);
 
         rCSValMax.color = max;
@@ -147,26 +147,26 @@ public class LevelUpController : MonoBehaviour
                 });
 
                 if (unitInfo.vitality < maxUnitInfo.vitality)
-                    if(GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.vitality + 30))
-                    eventList.Add(() =>
-                    {
-                        unitInfo.vitality += addVal;
-                        rCSLevelUpLabel.CreateText(0, addVal);
-                    });
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.vitality + 30))
+                        eventList.Add(() =>
+                        {
+                            unitInfo.vitality += addVal;
+                            rCSLevelUpLabel.CreateText(0, addVal);
+                        });
 
-                if (unitInfo.strength < maxUnitInfo.strength)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.strength + 30))
+                if (unitInfo.strengtht < maxUnitInfo.attack)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.attack + 30))
                         eventList.Add(() =>
                 {
-                    unitInfo.strength += addVal;
+                    unitInfo.strengtht += addVal;
                     rCSLevelUpLabel.CreateText(1, addVal);
                 });
 
-                            if (unitInfo.dexterity < maxUnitInfo.dexterity)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.dexterity + 30))
+                if (unitInfo.technical < maxUnitInfo.technical)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.technical + 30))
                         eventList.Add(() =>
                 {
-                    unitInfo.dexterity += addVal;
+                    unitInfo.technical += addVal;
                     rCSLevelUpLabel.CreateText(2, addVal);
                 });
 
@@ -186,11 +186,11 @@ public class LevelUpController : MonoBehaviour
                     rCSLevelUpLabel.CreateText(4, addVal);
                 });
 
-                if (unitInfo.mDefense < maxUnitInfo.mDefense)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.mDefense + 30))
+                if (unitInfo.resist < maxUnitInfo.defense)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.defense + 30))
                         eventList.Add(() =>
                 {
-                    unitInfo.mDefense += addVal;
+                    unitInfo.resist += addVal;
                     rCSLevelUpLabel.CreateText(5, addVal);
                 });
 
@@ -207,6 +207,9 @@ public class LevelUpController : MonoBehaviour
 
             eventList.Add(() =>
             {
+                // ステータスの再計算
+                unitInfo.hpMax = unitInfo.vitality * 2;
+
                 gameObject.SetActive(false); // UI非表示
                 callBackEvent(); // コールバックイベントの実行
             });
@@ -216,16 +219,16 @@ public class LevelUpController : MonoBehaviour
     /// <summary>
     /// UIの再描画
     /// </summary>
-    private void ReDraw(UnitInfo unitInfo)
+    private void ReDraw()
     {
         // UIに各パラメータをセット
         level.text = unitInfo.level.ToString();
         statusList[0].val = unitInfo.vitality;
-        statusList[1].val = unitInfo.strength;
-        statusList[2].val = unitInfo.dexterity;
+        statusList[1].val = unitInfo.strengtht;
+        statusList[2].val = unitInfo.technical;
         statusList[3].val = unitInfo.speed;
         statusList[4].val = unitInfo.defense;
-        statusList[5].val = unitInfo.mDefense;
+        statusList[5].val = unitInfo.resist;
         statusList[6].val = unitInfo.luck;
 
         rCSValMax.ReDraw();

@@ -29,24 +29,28 @@ public class MoveMarkerManager : MonoBehaviour
                 RemoveMarker();
 
                 // 目標までのルートを取得
-                GameManager.GetRoute().CheckShortestRoute(ref phaseManager, phaseManager.cursorPos);
+                phaseManager.moveRoot =
+                GameManager.GetRoute().CheckShortestRoute(
+                    phaseManager.activeAreaManager.activeAreaList,
+                    phaseManager.focusUnitObj.transform.position,
+                    phaseManager.cursorPos);
 
                 // マーカの生成とスプライト変更
-                Vector3 nextPos = phaseManager.focusUnitObj.transform.position;
+                Vector2 nextPos = phaseManager.focusUnitObj.transform.position;
                 int spriteId = 0;
                 Quaternion angle = Quaternion.identity;
                 int moveRootCount = phaseManager.moveRoot.Count;
                 if (moveRootCount != 0)
                 {
-                    if (phaseManager.moveRoot[0] == Vector3.down) angle.eulerAngles = new Vector3(180, 0, 0);
-                    else if (phaseManager.moveRoot[0] == Vector3.left) angle.eulerAngles = new Vector3(0, 0, 90);
-                    else if (phaseManager.moveRoot[0] == Vector3.right) angle.eulerAngles = new Vector3(0, 0, -90);
+                    if (phaseManager.moveRoot[0] == Vector2.down) angle.eulerAngles = new Vector3(180, 0, 0);
+                    else if (phaseManager.moveRoot[0] == Vector2.left) angle.eulerAngles = new Vector3(0, 0, 90);
+                    else if (phaseManager.moveRoot[0] == Vector2.right) angle.eulerAngles = new Vector3(0, 0, -90);
                     markerObj.GetComponent<SpriteRenderer>().sprite = markerSprites[spriteId];
                     Instantiate(markerObj, nextPos, angle).transform.parent = moveMarkerObj.transform;
                 }
                 for (int i = 0; i < moveRootCount; i++)
                 {
-                    if (phaseManager.moveRoot[i] == Vector3.up)
+                    if (phaseManager.moveRoot[i] == Vector2.up)
                     {
                         if (i + 1 == moveRootCount)
                         {
@@ -55,9 +59,9 @@ public class MoveMarkerManager : MonoBehaviour
                         }
                         else
                         {
-                            if (phaseManager.moveRoot[i + 1] != Vector3.up)
+                            if (phaseManager.moveRoot[i + 1] != Vector2.up)
                             {
-                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.left ? new Vector3(0, 180, 0) : new Vector3(0, 0, 0);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector2.left ? new Vector3(0, 180, 0) : new Vector3(0, 0, 0);
                                 spriteId = 2;
                             }
                             else
@@ -67,14 +71,14 @@ public class MoveMarkerManager : MonoBehaviour
                             }
                         }
                     }
-                    else if (phaseManager.moveRoot[i] == Vector3.down)
+                    else if (phaseManager.moveRoot[i] == Vector2.down)
                     {
                         if (i + 1 == moveRootCount) { angle.eulerAngles = new Vector3(0, 0, 180); spriteId = 3; }
                         else
                         {
-                            if (phaseManager.moveRoot[i + 1] != Vector3.down)
+                            if (phaseManager.moveRoot[i + 1] != Vector2.down)
                             {
-                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.left ? new Vector3(0, 0, 180) : new Vector3(180, 0, 0);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector2.left ? new Vector3(0, 0, 180) : new Vector3(180, 0, 0);
                                 spriteId = 2;
                             }
                             else
@@ -85,7 +89,7 @@ public class MoveMarkerManager : MonoBehaviour
                         }
 
                     }
-                    else if (phaseManager.moveRoot[i] == Vector3.right)
+                    else if (phaseManager.moveRoot[i] == Vector2.right)
                     {
                         if (i + 1 == moveRootCount)
                         {
@@ -94,9 +98,9 @@ public class MoveMarkerManager : MonoBehaviour
                         }
                         else
                         {
-                            if (phaseManager.moveRoot[i + 1] != Vector3.right)
+                            if (phaseManager.moveRoot[i + 1] != Vector2.right)
                             {
-                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.up ? new Vector3(0, 180, 90) : new Vector3(0, 0, -90);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector2.up ? new Vector3(0, 180, 90) : new Vector3(0, 0, -90);
                                 spriteId = 2;
                             }
                             else
@@ -115,9 +119,9 @@ public class MoveMarkerManager : MonoBehaviour
                         }
                         else
                         {
-                            if (phaseManager.moveRoot[i + 1] != Vector3.left)
+                            if (phaseManager.moveRoot[i + 1] != Vector2.left)
                             {
-                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector3.up ? new Vector3(0, 0, 90) : new Vector3(0, 180, -90);
+                                angle.eulerAngles = phaseManager.moveRoot[i + 1] == Vector2.up ? new Vector3(0, 0, 90) : new Vector3(0, 180, -90);
                                 spriteId = 2;
                             }
                             else

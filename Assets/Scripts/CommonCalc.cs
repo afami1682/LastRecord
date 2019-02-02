@@ -25,7 +25,7 @@ public class CommonCalc
         // 攻撃力 = 筋力 + (武器の攻撃力 * 特攻係数) + 武器レベル補正値
         // 武器の攻撃力は6~20を想定 筋力と防御力はMax50
         // カンストだと 50 + (20 * 1) + 5 = 80 が最大攻撃力となる
-        return myUnit.strength + (10 * 1) + 1; // 仮で設定
+        return myUnit.strengtht + (10 * 1) + 1; // 仮で設定
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public class CommonCalc
     {
         // 参考　=(技×3+幸運)/2+(装備武器の命中+非特効補正)+装備武器のレベル補正+3すくみ補正+クラス補正
         // =(技×3+幸運)/2+装備武器のレベル補正
-        int hitVal = (unitInfo.dexterity * 3 + unitInfo.luck) / 2 + 70 + 1; // 仮設定
+        int hitVal = (unitInfo.technical * 3 + unitInfo.luck) / 2 + 70 + 1; // 仮設定
 
         return (0 < hitVal) ? hitVal : 0;
     }
@@ -116,7 +116,7 @@ public class CommonCalc
         // 参考 必殺回避	=幸運/2+装備武器の必殺回避+クラス補正
 
         // (技 -/ 2 + 武器補正値) - (敵の幸運 / 2)
-        int deathBlowRate = (myUnit.dexterity / 2 + 1) - (targetUnit.luck / 2);
+        int deathBlowRate = (myUnit.technical / 2 + 1) - (targetUnit.luck / 2);
 
         return Mathf.Clamp(deathBlowRate, 0, 100);
     }
@@ -150,17 +150,6 @@ public class CommonCalc
     }
 
     /// <summary>
-    /// posAからposBまでのセル数を返す
-    /// </summary>
-    /// <param name="posA"></param>
-    /// <param name="posB"></param>
-    /// <returns></returns>
-    public int GetCellDistance(Vector3 posA, Vector3 posB)
-    {
-        return Mathf.Abs((int)posA.x - (int)posB.x) + Mathf.Abs((int)posA.y - (int)posB.y);
-    }
-
-    /// <summary>
     /// レベル毎の最大経験値
     /// </summary>
     /// <returns>The exp max.</returns>
@@ -173,5 +162,16 @@ public class CommonCalc
         // Lv20 = 5000exp
         // Lv 40(MAX) = 9000exp (敵23体)
         return 1000 + (200 * level);
+    }
+
+    /// <summary>
+    /// posAからposBまでのセル数を返す
+    /// </summary>
+    /// <param name="posA"></param>
+    /// <param name="posB"></param>
+    /// <returns></returns>
+    public int GetCellDistance(Vector3 posA, Vector3 posB)
+    {
+        return Mathf.Abs((int)posA.x - (int)posB.x) + Mathf.Abs((int)posA.y - (int)posB.y);
     }
 }

@@ -28,7 +28,6 @@ public class AnimatinController : MonoBehaviour
             image = GetComponent<Image>();
             NextFrameImage();
             InvokeRepeating("NextFrameImage", 1 / fps, 1 / fps);
-
         }
     }
 

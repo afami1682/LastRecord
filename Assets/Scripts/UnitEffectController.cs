@@ -5,14 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class UnitEffectController : MonoBehaviour
 {
-    private void Start()
-    {
-    }
-
-    private void Update()
-    {
-    }
-
     /// <summary>
     /// グレースケールの切り替え
     /// </summary>

@@ -55,6 +55,16 @@ public class Enums
     }
 
     /// <summary>
+    /// AIのタイプ
+    /// </summary>
+    public enum AI_TYPE
+    {
+        NORMAL, // 敵が攻撃範囲に入ったら攻撃する
+        ATTACK, // 敵に向けて移動する
+        DEFENSE // 移動しない
+    }
+
+    /// <summary>
     /// Unitの状態
     /// </summary>
     public enum STATUS
@@ -77,7 +87,6 @@ public class Enums
         DEATH_BLOW, // 必殺技
         NO_DAMAGE, // ノーダメージ
         MISS // 攻撃失敗(回避された)
-
     }
 
     /// <summary>
@@ -85,44 +94,30 @@ public class Enums
     /// </summary>
     public enum CLASS_TYPE
     {
-        SOLDIER,
+        THIEF,
+        ROGUE,
+        ASSASSIN,
+        ARMOR_KNIGHT,
+        GENERAL,
+        SWORDSMAN,
+        SWORD_MASTER,
+        SPEARMEN,
+        LANCER,
+        WARRIOR,
+        BERSERKER,
         ARCHER,
-        MAGICIAN
-        //アサシン
-        //アーマーナイト
-        //ウォーリア
-        //グレートローど
-        //シスター
-        //シャーマン
-        //ジェネラル
-        //スナイパー
-        //ソシアルナイト
-        //ソルジャー
-        //ソードマスター
-        //トルバードル
-        //ドラゴンナイト　ますた
-        //パラディン
-        //ファルコンナイト
-        //ペガサスナイト
-        //ヴァルキュリア
-        //修道士
-        //傭兵
-        //剣士
-        //勇者
-        //司祭
-        //大賢者
-        //山賊
-        //市民
-        //戦士
-        //海賊
-        //狂戦士
-        //盗賊
-        //賢者
-        //踊り子
-        //輸送隊
-        //遊牧民
-        //遊牧騎兵
-        //魔道士
+        SNIPER,
+        WIZARD,
+        ARC_WIZARD,
+        SHERMAN,
+        NECROMANCER,
+        CLERIC,
+        PRIEST,
+        SISTER,
+        VALKYRIA,
+        DANCER,
+        BANDIT,
+        CITIZEN
     }
 
     /// <summary>
