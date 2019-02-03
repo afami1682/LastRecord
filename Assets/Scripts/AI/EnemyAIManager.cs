@@ -23,5 +23,4 @@ public class EnemyAIManager
         this.fieldHeight = field.height;
         this.commonCalc = new AI.CommonCalc(field);
     }
-
 }

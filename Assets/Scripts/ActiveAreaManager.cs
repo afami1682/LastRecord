@@ -60,20 +60,19 @@ public class ActiveAreaManager : MonoBehaviour
     /// <summary>
     /// 攻撃エリアの表示
     /// </summary>
-    /// <param name="pos">Position.</param>
-    /// <param name="attackRange">Attack range.</param>
-    public void CreateAttackArea(Vector3 pos, int attackRange)
+    /// <param name="targetUnitObj">Target unit object.</param>
+    public void CreateAttackArea(GameObject targetUnitObj, bool showArea)
     {
         // アクティブリストの生成と検証
         attackAreaList = new Struct.NodeMove[GameManager.GetMap().field.height, GameManager.GetMap().field.width];
+        GameManager.GetRoute().CheckAttackArea(ref attackAreaList, targetUnitObj.transform.position, targetUnitObj.GetComponent<UnitInfo>().attackRange);
 
-        // 攻撃エリアの検証と表示
-        // TODO あとで改良する
-        GameManager.GetRoute().CheckAttackArea(ref attackAreaList, pos, attackRange);
-        for (int ay = 0; ay < GameManager.GetMap().field.height; ay++)
-            for (int ax = 0; ax < GameManager.GetMap().field.width; ax++)
-                if (attackAreaList[ay, ax].aREA == Enums.AREA.ATTACK)
-                    Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = attackAreaObj.transform;
+        // 攻撃エリアの表示
+        if (showArea)
+            for (int ay = 0; ay < GameManager.GetMap().field.height; ay++)
+                for (int ax = 0; ax < GameManager.GetMap().field.width; ax++)
+                    if (attackAreaList[ay, ax].aREA == Enums.AREA.ATTACK)
+                        Instantiate(areaRed, new Vector3(ax, -ay, 0), Quaternion.identity).transform.parent = attackAreaObj.transform;
     }
 
     /// <summary>

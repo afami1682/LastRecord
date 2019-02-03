@@ -204,22 +204,44 @@ namespace AI
         }
 
         /// <summary>
-        /// アクティブエリア内にて攻撃できる特定の軍のユニットリストを返す
+        /// 行動エリア内にて攻撃できる特定の軍のユニットリストを返す
         /// </summary>
         /// <returns>The attack target list.</returns>
         /// <param name="activeAreaList">Active area list.</param>
         /// <param name="aRMY">A rmy.</param>
-        public List<GameObject> GetAttackTargetList(Struct.NodeMove[,] activeAreaList, Enums.ARMY aRMY)
+        public List<GameObject> GetActiveAreaTargetList(Struct.NodeMove[,] activeAreaList, Enums.ARMY aRMY)
         {
             // 攻撃範囲内にいるプレイヤーUnit
             var targetList = new List<GameObject>();
 
             // アクティブエリア内にて攻撃できるプレイヤーUnitを取得
             for (int y = 0; y < field.height; y++)
-
                 for (int x = 0; x < field.width; x++)
                     if (activeAreaList[y, x].aREA == Enums.AREA.MOVE ||
                         activeAreaList[y, x].aREA == Enums.AREA.ATTACK)
+                        if (GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)) &&
+                            GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)).GetComponent<UnitInfo>().aRMY == aRMY)
+                            targetList.Add(GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)));
+
+            // 攻撃できる対象がいなければ終了
+            return targetList.Count < 1 ? null : targetList;
+        }
+
+        /// <summary>
+        /// 攻撃エリア内にて攻撃できる特定の軍のユニットリストを返す
+        /// </summary>
+        /// <returns>The attack area target list.</returns>
+        /// <param name="attackAreaList">Attack area list.</param>
+        /// <param name="aRMY">A rmy.</param>
+        public List<GameObject> GetAttackAreaTargetList(Struct.NodeMove[,] attackAreaList, Enums.ARMY aRMY)
+        {
+            // 攻撃範囲内にいるプレイヤーUnit
+            var targetList = new List<GameObject>();
+
+            // アクティブエリア内にて攻撃できるプレイヤーUnitを取得
+            for (int y = 0; y < field.height; y++)
+                for (int x = 0; x < field.width; x++)
+                    if (attackAreaList[y, x].aREA == Enums.AREA.ATTACK)
                         if (GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)) &&
                             GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)).GetComponent<UnitInfo>().aRMY == aRMY)
                             targetList.Add(GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)));

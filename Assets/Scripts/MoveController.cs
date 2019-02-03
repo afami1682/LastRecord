@@ -66,12 +66,6 @@ public class MoveController : MonoBehaviour
 
                 // 1マスの移動完了
                 moveFlg = false;
-
-                // 移動全体の完了
-                //if (moveRoot.Count == 0)
-                //{
-                //    movedFlg = true;
-                //}
                 movedFlg |= moveRoot.Count == 0;
             }
         }
