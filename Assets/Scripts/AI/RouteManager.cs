@@ -200,26 +200,9 @@ public class RouteManager
         if (!IsMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, checkUnitObj.GetComponent<UnitInfo>().moveType))
             return;
 
-        // 移動先にユニットがいた場合のすり抜けチェック
-        if (GameManager.GetUnit().GetMapUnitInfo(checkPos))
-        {
-            switch (GameManager.GetUnit().GetMapUnitInfo(checkPos).aRMY)
-            {
-                case Enums.ARMY.ALLY:
-                    if (checkUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.ENEMY)
-                        return;
-                    break;
-                case Enums.ARMY.ENEMY:
-                    if (checkUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.ALLY ||
-                        checkUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.NEUTRAL)
-                        return;
-                    break;
-                case Enums.ARMY.NEUTRAL:
-                    if (checkUnitObj.GetComponent<UnitInfo>().aRMY == Enums.ARMY.ENEMY)
-                        return;
-                    break;
-            }
-        }
+        // 他Unitとのすれ違い判定
+        UnitInfo targetUnit = GameManager.GetUnit().GetMapUnitInfo(checkPos);
+        if (!GameManager.GetAICommonCalc().IsThrough(checkUnitObj.GetComponent<UnitInfo>(), targetUnit)) return;
 
         // 省コストで上書きできない場合は終了
         if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost != 0 &&

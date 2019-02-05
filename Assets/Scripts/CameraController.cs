@@ -31,7 +31,7 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         // カメラの追従
-        if (phaseManager.turnPlayer != Enums.ARMY.ALLY && phaseManager.phase != Enums.PHASE.START)
+        if (phaseManager.turnPlayer != Enums.UNIT_KIND.PLAYER && phaseManager.phase != Enums.PHASE.START)
         {
             // フォーカスユニットを追従する
             // カメラとの距離を計算

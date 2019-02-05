@@ -81,15 +81,25 @@ public class Struct
         public Enums.MOVE move;
         public int cost;
 
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        /// <param name="move">Move.</param>
-        /// <param name="cost">Cost.</param>
         public NodeRoot(Enums.MOVE move, int cost)
         {
             this.move = move;
             this.cost = cost;
+        }
+    }
+
+    /// <summary>
+    /// ソート用
+    /// </summary>
+    public struct SortObj
+    {
+        public int val;
+        public GameObject obj;
+
+        public SortObj(int val, GameObject obj)
+        {
+            this.val = val;
+            this.obj = obj;
         }
     }
 

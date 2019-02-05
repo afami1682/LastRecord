@@ -36,11 +36,13 @@ public class Enums
     /// <summary>
     /// 勢力
     /// </summary>
-    public enum ARMY
+    public enum UNIT_KIND
     {
-        ALLY, // プレイヤー側（青Unit）
+        PLAYER, // プレイヤー側（青Unit）
         ENEMY, // 敵（赤Unit）
-        NEUTRAL // 第３勢力（緑Unit）
+        NEUTRAL, // 第３勢力（緑Unit）
+        CRAZY, // 第4勢力（無差別攻撃）
+        GIMMICK // ギミック
     }
 
     /// <summary>

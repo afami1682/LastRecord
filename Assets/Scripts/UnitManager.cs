@@ -85,13 +85,13 @@ public class UnitManager
     /// 指定された軍のユニットリストを返す
     /// </summary>
     /// <returns>The get.</returns>
-    /// <param name="army">Army.</param>
-    public List<GameObject> GetUnitList(Enums.ARMY army)
+    /// <param name="unitKind">unitKind.</param>
+    public List<GameObject> GetUnitList(Enums.UNIT_KIND unitKind)
     {
         List<GameObject> units = new List<GameObject>();
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
-                if (mapUnitObj[y, x] != null && mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army)
+                if (mapUnitObj[y, x] != null && mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind)
                     units.Add(mapUnitObj[y, x]);
         return units;
     }
@@ -100,14 +100,14 @@ public class UnitManager
     /// 指定された軍の未行動ユニットがいるかどうかチェックし、ランダムの1体を返す
     /// </summary>
     /// <returns>The un behavior unit.</returns>
-    /// <param name="army">Army.</param>
-    public GameObject GetUnBehaviorRandomUnit(Enums.ARMY army)
+    /// <param name="unitKind">unitKind.</param>
+    public GameObject GetUnBehaviorRandomUnit(Enums.UNIT_KIND unitKind)
     {
         List<GameObject> units = new List<GameObject>();
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
-                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army &&
+                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind &&
                     !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().acted)
                     units.Add(mapUnitObj[y, x]);
         return (units.Count != 0)? units[Random.Range(0, units.Count - 1)]: null;
@@ -117,14 +117,14 @@ public class UnitManager
     /// 指定された軍の未行動ユニットがいるかどうかのチェック
     /// </summary>
     /// <returns>The get.</returns>
-    /// <param name="army">Army.</param>
-    public List<GameObject> GetUnBehaviorUnits(Enums.ARMY army)
+    /// <param name="unitKind">unitKind.</param>
+    public List<GameObject> GetUnBehaviorUnits(Enums.UNIT_KIND unitKind)
     {
         List<GameObject> units = new List<GameObject>();
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
-                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army &&
+                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind &&
                     !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().acted)
                     units.Add(mapUnitObj[y, x]);
         return units;
@@ -134,13 +134,13 @@ public class UnitManager
     /// 指定された軍のユニットを全て未行動にする
     /// </summary>
     /// <returns>The get.</returns>
-    /// <param name="army">Army.</param>
-    public void UnBehaviorUnitAll(Enums.ARMY army)
+    /// <param name="unitKind">unitKind.</param>
+    public void UnBehaviorUnitAll(Enums.UNIT_KIND unitKind)
     {
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
-                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().aRMY == army)
+                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind)
                 {
                     mapUnitObj[y, x].GetComponent<UnitInfo>().acted = false;
                     mapUnitObj[y, x].GetComponent<UnitEffectController>().GrayScale(false);

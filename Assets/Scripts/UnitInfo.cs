@@ -16,7 +16,7 @@ public class UnitInfo : MonoBehaviour
     public string className; // クラス名
 
     public Enums.AI_TYPE aIType; // AIタイプ
-    public Enums.ARMY aRMY; // 勢力
+    public Enums.UNIT_KIND unitKind; // 勢力
     public Enums.CLASS_TYPE classType; // クラスタイプ
     public Enums.MOVE_TYPE moveType; // 移動タイプ
     public Enums.STATUS status; // 状態異常
@@ -105,5 +105,18 @@ public class UnitInfo : MonoBehaviour
         resist = 24, // 魔防
         luck = 22, // 幸運
         move = 5 // 移動
+    };
+
+    private static readonly Struct.UnitClassData KEG_MAX_STATUS = new Struct.UnitClassData()
+    {
+        className = "タル", // クラス名
+        vitality = 5, // 体力
+        attack = 0, // 攻撃
+        technical = 0, // 技
+        speed = 0, // 速さ
+        defense = 0, // 防御
+        resist = 0, // 魔防
+        luck = 0, // 幸運
+        move = 0 // 移動
     };
 }

@@ -1,0 +1,964 @@
+fileFormatVersion: 2
+guid: 7b05818ab8152c349bf6abe4f2648c9b
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: 45_0
+    21300002: 45_1
+    21300004: 45_2
+    21300006: 45_3
+    21300008: 45_4
+    21300010: 45_5
+    21300012: 45_6
+    21300014: 45_7
+    21300016: 45_8
+    21300018: 45_9
+    21300020: 45_10
+    21300022: 45_11
+    21300024: 45_12
+    21300026: 45_13
+    21300028: 45_14
+    21300030: 45_15
+    21300032: 45_16
+    21300034: 45_17
+    21300036: 45_18
+    21300038: 45_19
+    21300040: 45_20
+    21300042: 45_21
+    21300044: 45_22
+    21300046: 45_23
+    21300048: 45_24
+    21300050: 45_25
+    21300052: 45_26
+    21300054: 45_27
+    21300056: 45_28
+    21300058: 45_29
+    21300060: 45_30
+    21300062: 45_31
+    21300064: 45_32
+    21300066: 45_33
+    21300068: 45_34
+    21300070: 45_35
+    21300072: 45_36
+    21300074: 45_37
+    21300076: 45_38
+    21300078: 45_39
+    21300080: 45_40
+    21300082: 45_41
+    21300084: 45_42
+    21300086: 45_43
+    21300088: 45_44
+    21300090: 45_45
+    21300092: 45_46
+    21300094: 45_47
+    21300096: 45_48
+    21300098: 45_49
+    21300100: 45_50
+    21300102: 45_51
+    21300104: 45_52
+    21300106: 45_53
+    21300108: 45_54
+    21300110: 45_55
+    21300112: 45_56
+    21300114: 45_57
+    21300116: 45_58
+    21300118: 45_59
+    21300120: 45_60
+    21300122: 45_61
+    21300124: 45_62
+    21300126: 45_63
+    21300128: 45_64
+    21300130: 45_65
+    21300132: 45_66
+    21300134: 45_67
+    21300136: 45_68
+    21300138: 45_69
+    21300140: 45_70
+    21300142: 45_71
+    21300144: 45_72
+    21300146: 45_73
+    21300148: 45_74
+    21300150: 45_75
+    21300152: 45_76
+    21300154: 45_77
+    21300156: 45_78
+    21300158: 45_79
+    21300160: 45_80
+    21300162: 45_81
+    21300164: 45_82
+    21300166: 45_83
+    21300168: 45_84
+    21300170: 45_85
+    21300172: 45_86
+    21300174: 45_87
+    21300176: 45_88
+    21300178: 45_89
+    21300180: 45_90
+    21300182: 45_91
+    21300184: 45_92
+    21300186: 45_93
+    21300188: 45_94
+    21300190: 45_95
+    21300192: 45_96
+    21300194: 45_97
+    21300196: 45_98
+    21300198: 45_99
+    21300200: 45_100
+    21300202: 45_101
+    21300204: 45_102
+    21300206: 45_103
+    21300208: 45_104
+    21300210: 45_105
+    21300212: 45_106
+    21300214: 45_107
+    21300216: 45_108
+    21300218: 45_109
+    21300220: 45_110
+    21300222: 45_111
+    21300224: 45_112
+    21300226: 45_113
+    21300228: 45_114
+    21300230: 45_115
+    21300232: 45_116
+    21300234: 45_117
+    21300236: 45_118
+    21300238: 45_119
+    21300240: 45_120
+    21300242: 45_121
+    21300244: 45_122
+    21300246: 45_123
+    21300248: 45_124
+    21300250: 45_125
+    21300252: 45_126
+    21300254: 45_127
+    21300256: 45_128
+    21300258: 45_129
+    21300260: 45_130
+    21300262: 45_131
+    21300264: 45_132
+    21300266: 45_133
+    21300268: 45_134
+    21300270: 45_135
+    21300272: 45_136
+    21300274: 45_137
+    21300276: 45_138
+    21300278: 45_139
+    21300280: 45_140
+    21300282: 45_141
+    21300284: 45_142
+    21300286: 45_143
+    21300288: 45_144
+    21300290: 45_145
+    21300292: 45_146
+    21300294: 45_147
+    21300296: 45_148
+    21300298: 45_149
+    21300300: 45_150
+    21300302: 45_151
+    21300304: 45_152
+    21300306: 45_153
+    21300308: 45_154
+    21300310: 45_155
+    21300312: 45_156
+    21300314: 45_157
+    21300316: 45_158
+    21300318: 45_159
+    21300320: 45_160
+    21300322: 45_161
+    21300324: 45_162
+    21300326: 45_163
+    21300328: 45_164
+    21300330: 45_165
+    21300332: 45_166
+    21300334: 45_167
+    21300336: 45_168
+    21300338: 45_169
+    21300340: 45_170
+    21300342: 45_171
+    21300344: 45_172
+    21300346: 45_173
+    21300348: 45_174
+    21300350: 45_175
+    21300352: 45_176
+    21300354: 45_177
+    21300356: 45_178
+    21300358: 45_179
+    21300360: 45_180
+    21300362: 45_181
+    21300364: 45_182
+    21300366: 45_183
+    21300368: 45_184
+    21300370: 45_185
+    21300372: 45_186
+    21300374: 45_187
+    21300376: 45_188
+    21300378: 45_189
+    21300380: 45_190
+    21300382: 45_191
+    21300384: 45_192
+    21300386: 45_193
+    21300388: 45_194
+    21300390: 45_195
+    21300392: 45_196
+    21300394: 45_197
+    21300396: 45_198
+    21300398: 45_199
+    21300400: 45_200
+    21300402: 45_201
+    21300404: ExplosionSmoke_0
+    21300406: ExplosionSmoke_1
+    21300408: ExplosionSmoke_2
+    21300410: ExplosionSmoke_3
+    21300412: ExplosionSmoke_4
+    21300414: ExplosionSmoke_5
+    21300416: ExplosionSmoke_6
+    21300418: ExplosionSmoke_7
+    21300420: ExplosionSmoke_8
+    21300422: ExplosionSmoke_9
+    21300424: ExplosionSmoke_10
+    21300426: ExplosionSmoke_11
+    21300428: ExplosionSmoke_12
+    21300430: ExplosionSmoke_13
+    21300432: ExplosionSmoke_14
+    21300434: ExplosionSmoke_15
+    21300436: ExplosionSmoke_16
+    21300438: ExplosionSmoke_17
+    21300440: ExplosionSmoke_18
+    21300442: ExplosionSmoke_19
+    21300444: ExplosionSmoke_20
+    21300446: ExplosionSmoke_21
+    21300448: ExplosionSmoke_22
+    21300450: ExplosionSmoke_23
+    21300452: ExplosionSmoke_24
+    21300454: ExplosionSmoke_25
+    21300456: ExplosionSmoke_26
+    21300458: ExplosionSmoke_27
+    21300460: ExplosionSmoke_28
+    21300462: ExplosionSmoke_29
+  externalObjects: {}
+  serializedVersion: 7
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: -1
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: -1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  platformSettings:
+  - serializedVersion: 2
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ExplosionSmoke_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2800
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b5ef41c01fb3f47df8327258111cc242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_1
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 2800
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f8735527192c64bffa9908dabb7cc72c
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_2
+      rect:
+        serializedVersion: 2
+        x: 1407
+        y: 2793
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b34ea0e838b3d480eb403f394a0cf3bd
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_3
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 2800
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 938001d5ed17e43b180d8fd66d27e4d6
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_4
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 2800
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 67d0edb7666024157a17214c1095902d
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_5
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 2800
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dddb1cdd56b2741dfa3c3d6cba1b6c6a
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2100
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2bdb3d5cb35a74f4aab4fd7f63e40ae0
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_7
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 2100
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 43b7b772e47e543149095eaa151bd808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_8
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 2100
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a2f07cf1bc6da46598679cb75ad5674c
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_9
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 2100
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f20864bc9baa54355b3d202717139702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_10
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 2100
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f63988a5c38f14c7f8cd3bce484184b8
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_11
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 2100
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be4798d4614b8480bac631ccdcb28f27
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1400
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 719e194c56d7f46c79ff93947543cadc
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_13
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 1400
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5a20fdadabbce4f64a4a25b52db3d207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_14
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 1400
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52375fe171c784e57bfcead45a289860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_15
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 1400
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 442b6786d74604c8bad91b1898159da1
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_16
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 1400
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0143d6e8a72fd4b7683d15341b1422a2
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_17
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 1400
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 32a474caf3bf2451686f2ed531383684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 700
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a60357a1e834b4fda9f4e83622aac6c3
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_19
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 700
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b718f6c571b524696a0bb0e7abb13cda
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_20
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 700
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3aa20cb6383c94090bacf72a74521fea
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_21
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 700
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2969670893cf6471aae0820279e76caf
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_22
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 700
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 151211824c15d463b9886f99695501f8
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_23
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 700
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 72e435560befa4283945b5dc1c7f4e0e
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f9769e6619fdc4205ac17bf1359b2c85
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_25
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 0
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 92350971675a04f35ad2a5122d970616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_26
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 0
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 227f0dc853e574b399e45d7991b861a5
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_27
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 0
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51d731e7f7f80458a8fda34f71361644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_28
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 0
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 82061df36deba4aa9a51521bf065e708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ExplosionSmoke_29
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 0
+        width: 700
+        height: 700
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e34bb4e8ee254e0ebeda3b64600ece5
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: de98903e65b6ead45ae399a192637b1e
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

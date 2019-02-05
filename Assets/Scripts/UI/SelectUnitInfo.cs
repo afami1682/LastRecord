@@ -41,7 +41,7 @@ public class SelectUnitInfo : MonoBehaviour
     {
         // フォーカスユニットがいるならユニット情報を表示する
         selectUnitInfo.SetActive(true);
-        faceImage.sprite = Resources.Load<Sprite>(string.Format("Sprite/UnitFace/Chara{0}", unitInfo.id));
+        faceImage.sprite = Resources.Load<Sprite>(string.Format("Sprite/UnitFace/Unit{0}", unitInfo.id));
         nameText.text = unitInfo.unitName;
         levelText.text = string.Format("Lv: {0}", unitInfo.level);
         lifeText.text = string.Format("HP: {0}/{1}", unitInfo.hp, unitInfo.hpMax);
