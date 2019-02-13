@@ -75,7 +75,7 @@ public class LevelUpController : MonoBehaviour
         spawn = 0;
 
         // UIに各パラメータをセット
-        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
+        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.id);
         unitName.text = unitInfo.unitName;
         unitClass.text = unitInfo.className;
         level.text = unitInfo.level.ToString();

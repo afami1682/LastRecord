@@ -25,7 +25,8 @@ public class AttackEvent : MonoBehaviour
     float time = 0;
 
     // 引き継ぎパラメータ
-    public PhaseManager phaseManager;
+    //public PhaseManager phaseManager;
+    public BattleManager battleManager;
     public GameObject myUnitObj, targetUnitObj; // Unitのオブジェクト
     public int myAttackPower, targetAttackPower; // 攻撃力
     public int myDeathblow, targetDeathblow; // 必殺の発生率
@@ -93,13 +94,13 @@ public class AttackEvent : MonoBehaviour
                 targetResidualHP = Mathf.Clamp(targetHP - myAttackPower, 0, 999);
                 break;
 
-            case Enums.BATTLE.DEATH_BLOW:
+            case Enums.BATTLE.CRITICAL:
                 // 必殺発動
                 targetResidualHP = Mathf.Clamp(targetHP - myAttackPower * 3, 0, 999);
 
                 // カットインアニメの登録(仮)
                 cutInAnim = true;
-                cutInAnimController.StartAnim(myUnitObj.GetComponent<UnitInfo>().id,"Critical Hit", () => { cutInAnim = false; });
+                cutInAnimController.StartAnim(myUnitObj.GetComponent<UnitInfo>().id, "Critical Hit", () => { cutInAnim = false; });
                 break;
 
             case Enums.BATTLE.MISS:
@@ -142,7 +143,7 @@ public class AttackEvent : MonoBehaviour
                         else goto case Enums.BATTLE.NO_DAMAGE;
                         break;
 
-                    case Enums.BATTLE.DEATH_BLOW:
+                    case Enums.BATTLE.CRITICAL:
                         if (myAttackPower != 0)
                         {
                             // ダメージの反映
@@ -185,8 +186,9 @@ public class AttackEvent : MonoBehaviour
                 if (targetHP <= 0)
                 {
                     UnitLoseEvent unitLoseEvent = targetUnitObj.AddComponent<UnitLoseEvent>();
-                    unitLoseEvent.phaseManager = phaseManager;
-                    phaseManager.battleManager.AddEvent(unitLoseEvent);
+                    //unitLoseEvent.phaseManager = phaseManager;
+                    unitLoseEvent.battleManager = battleManager;
+                    battleManager.AddEvent(unitLoseEvent);
                 }
                 runninge[1] = false; // HPの減算終了
             }
@@ -213,8 +215,7 @@ public class AttackEvent : MonoBehaviour
     /// </summary>
     private void OnDestroy()
     {
-        // 次のバトルイベントを実行する
-        phaseManager.battleManager.NextEvent();
+        battleManager.EndEvent();
     }
 
     /// <summary>

@@ -27,7 +27,7 @@ public class BattleStandby : MonoBehaviour
     /// <param name="deathblow">Deathblow.</param>
     public void SetMyUnitData(UnitInfo unitInfo, int attackPower, int avoidance, int deathblow)
     {
-        imgMy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
+        imgMy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.id);
         textMyName.text = unitInfo.unitName;
         textMyHP.text = unitInfo.hp.ToString();
         textMyAttackPower.text = attackPower.ToString();
@@ -44,7 +44,7 @@ public class BattleStandby : MonoBehaviour
     /// <param name="deathblow">Deathblow.</param>
     public void SetEnemyUnitData(UnitInfo unitInfo, int attackPower, int avoidance, int deathblow)
     {
-        imgEnemy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
+        imgEnemy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.id);
         textEnemyName.text = unitInfo.unitName;
         textEnemyHP.text = unitInfo.hp.ToString();
         textEnemyAttackPower.text = (attackPower != -1) ? attackPower.ToString() : "-";

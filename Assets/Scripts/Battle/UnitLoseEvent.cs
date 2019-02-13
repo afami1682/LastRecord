@@ -6,14 +6,15 @@ using System.Linq;
 /// </summary>
 public class UnitLoseEvent : MonoBehaviour
 {
-    public PhaseManager phaseManager;
+    //public PhaseManager phaseManager;
+    public BattleManager battleManager;
     SpriteRenderer spriteRenderer;
 
     const float FADE_TIME = 0.8f; // フェードタイム
     float currentRemainTime;
 
     // 各イベントの実行フラグ
-    bool[] runninge = new bool[] {
+    bool[] runninge = {
         true // フェードアウト中
     };
 
@@ -56,6 +57,6 @@ public class UnitLoseEvent : MonoBehaviour
     private void OnDestroy()
     {
         // 次のバトルイベントを実行する
-        phaseManager.battleManager.NextEvent();
+        battleManager.EndEvent();
     }
 }

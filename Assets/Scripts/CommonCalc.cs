@@ -110,7 +110,7 @@ public class CommonCalc
     /// <param name="myUnit"></param>
     /// <param name="targetUnit"></param>
     /// <returns></returns>
-    public int GetDeathBlowRete(UnitInfo myUnit, UnitInfo targetUnit)
+    public int GetCriticalRete(UnitInfo myUnit, UnitInfo targetUnit)
     {
         // 参考 必殺	=(技-4)/2+装備武器の必殺+クラス補正
         // 参考 必殺回避	=幸運/2+装備武器の必殺回避+クラス補正

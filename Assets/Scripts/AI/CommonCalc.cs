@@ -88,10 +88,10 @@ namespace AI
             // キャラが移動できないマスなら何もしない
             if (!IsMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, unitInfo.moveType)) return;
 
-            // 他Unitとのすれ違い判定
+            // 攻撃対象はスルーできない
             UnitInfo targetUnit = GameManager.GetUnit().GetMapUnitInfo(checkPos);
             if (targetUnit == null)
-                if (!IsThrough(unitInfo, targetUnit)) return;
+                if (IsAttackTarget(unitInfo, targetUnit)) return;
 
             // 省コストで上書きできない場合は終了
             if (costList[-(int)checkPos.y, (int)checkPos.x] != 0 &&
@@ -212,46 +212,46 @@ namespace AI
         }
 
         /// <summary>
-        /// ユニット同士のスルー（通過）判定
+        /// 攻撃対象かどうかを返す
         /// </summary>
         /// <returns><c>true</c>, if through was ised, <c>false</c> otherwise.</returns>
         /// <param name="targetUnit">Target unit.</param>
         /// <param name="targetUnit2">Target unit2.</param>
-        public bool IsThrough(UnitInfo targetUnit, UnitInfo targetUnit2)
+        public bool IsAttackTarget(UnitInfo targetUnit, UnitInfo targetUnit2)
         {
             if (targetUnit2 != null)
                 switch (targetUnit.unitKind)
                 {
                     case Enums.UNIT_KIND.PLAYER:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return false;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     case Enums.UNIT_KIND.ENEMY:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.PLAYER) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.NEUTRAL) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return false;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.PLAYER) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.NEUTRAL) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     case Enums.UNIT_KIND.CRAZY:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.PLAYER) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.NEUTRAL) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return false;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.PLAYER) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.NEUTRAL) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     case Enums.UNIT_KIND.NEUTRAL:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return false;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return false;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return true;
+                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     default:
                         break;
                 }
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -321,7 +321,7 @@ namespace AI
                 targetUnitInfo = targetList[i].GetComponent<UnitInfo>();
                 damage = GameManager.GetCommonCalc().GetAttackDamage(unitInfo, targetUnitInfo);
                 hitRate = GameManager.GetCommonCalc().GetHitRate(unitInfo, targetUnitInfo);
-                deathBlowRate = GameManager.GetCommonCalc().GetDeathBlowRete(unitInfo, targetUnitInfo);
+                deathBlowRate = GameManager.GetCommonCalc().GetCriticalRete(unitInfo, targetUnitInfo);
                 attackCount = GameManager.GetCommonCalc().GetAttackCount(unitInfo, targetUnitInfo);
 
                 // 評価ポイントの計算( ダメージ * 攻撃回数 + 命中率 / 2 + 必殺率)

@@ -46,7 +46,7 @@ public class CutInAnimController : MonoBehaviour
         this.callBackEvent = callBackEvent;
         oneFrameTime = 1f / FPS;
         time = 0;
-        unitImageObj.GetComponent<Image>().sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitId);
+        unitImageObj.GetComponent<Image>().sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitId);
         unitImageRect = unitImageObj.GetComponent<RectTransform>();
         panelRect = gameObject.GetComponent<RectTransform>();
         actionNameObj.GetComponent<Text>().text = actionName;

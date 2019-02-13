@@ -27,7 +27,7 @@ public class ActiveAreaManager : MonoBehaviour
     /// <summary>
     /// アクティブエリアの生成と表示
     /// </summary>
-    /// <param name="phaseManager">Phase manager.</param>
+    /// <param name="checkUnitObj">Check unit object.</param>
     /// <param name="showArea">If set to <c>true</c> show area.</param>
     public void CreateActiveArea(GameObject checkUnitObj, bool showArea)
     {

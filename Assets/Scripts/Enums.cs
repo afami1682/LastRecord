@@ -86,7 +86,7 @@ public class Enums
     public enum BATTLE
     {
         NORMAL, // 通常攻撃
-        DEATH_BLOW, // 必殺技
+        CRITICAL, // クリティカル
         NO_DAMAGE, // ノーダメージ
         MISS // 攻撃失敗(回避された)
     }

@@ -202,7 +202,7 @@ public class RouteManager
 
         // 他Unitとのすれ違い判定
         UnitInfo targetUnit = GameManager.GetUnit().GetMapUnitInfo(checkPos);
-        if (!GameManager.GetAICommonCalc().IsThrough(checkUnitObj.GetComponent<UnitInfo>(), targetUnit)) return;
+        if (GameManager.GetAICommonCalc().IsAttackTarget(checkUnitObj.GetComponent<UnitInfo>(), targetUnit)) return;
 
         // 省コストで上書きできない場合は終了
         if (activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost != 0 &&

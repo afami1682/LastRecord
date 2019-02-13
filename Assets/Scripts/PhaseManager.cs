@@ -19,55 +19,43 @@ public class PhaseManager : MonoBehaviour
     public Image playerTurnImage, enemyTurnImage;
     public ExpGaugeController expGaugeController;
     public CutInAnimController cutInAnimController;
-    Animator turnImageAnim;
+    private Animator turnImageAnim;
 
     // マネージャースクリプト
     public BattleManager battleManager;
     public MoveMarkerManager moveMarkerManager;
     public ActiveAreaManager activeAreaManager;
-    PhaseManager phaseManager;
+    private PhaseManager phaseManager;
 
+    // カーソル座標関連
     [HideInInspector]
     public Vector3 cursorPos, oldCursorPos;
 
-    // フォーカス（選択中）Unit関連
+    // 攻撃対象のUnit
     [HideInInspector]
-    public GameObject checkUnitObj, focusUnitObj;
-    Vector3 oldFocusUnitPos;
+    public GameObject playerUnitObj, enemyUnitObj;
+
+    // フォーカスUnitのデータ関連
+    [HideInInspector]
+    public GameObject checkUnitObj;
+    [HideInInspector]
+    public GameObject focusUnitObj;
     [HideInInspector]
     public List<Vector2> moveRoot; // 移動ルートの座標引き渡し用
     private Enums.AI_TYPE aIType; // 選択中のAIタイプ
-    List<GameObject> attackTargetList; // 攻撃ターゲットリスト
+    private List<GameObject> attackTargetList; // 攻撃ターゲットリスト
+    private Vector3 oldFocusUnitPos; // 移動前の座標
 
-    // バトル関連
-    private bool isBattle;
-    [HideInInspector]
-    public bool playerAttack;
-    [HideInInspector]
-    public GameObject playerUnitObj, enemyUnitObj; // Unitのオブジェクト
-    [HideInInspector]
-    public int playerAttackPower, enemyAttackPower; // 攻撃力
-    [HideInInspector]
-    public int playerDeathblow, enemyDeathblow; // 必殺の発生率
-    [HideInInspector]
-    public int playerAttackCount, enemyAttackCount;// 攻撃回数
-    [HideInInspector]
-    public int playerHitRate, enemyHitRate;// 命中率
-    [HideInInspector]
-    public Enums.BATTLE playerAttackState, enemyAttackState; // 攻撃成功判定
-    [HideInInspector]
-    public Text playerHPText, enemyHPText; // 表示用
-
-    // 行動ターン
-    [HideInInspector]
-    public Enums.PHASE phase = Enums.PHASE.START;
-
-    // 行動するターンプレイヤー
+    // 行動するターンプレイヤー管理用
     [HideInInspector]
     public Enums.UNIT_KIND turnPlayer;
 
+    // フェイズ管理用
+    [HideInInspector]
+    public Enums.PHASE phase = Enums.PHASE.START;
+
     // 各行動イベント
-    Action StartPhase, // プレイヤーのターン開始時
+    private Action StartPhase, // プレイヤーのターン開始時
     StandbyPhase, // Unit選択中
     FoucusPhase, // Unit選択時
     MovePhase, // Unit行動時
@@ -78,21 +66,8 @@ public class PhaseManager : MonoBehaviour
 
     void Start()
     {
-        SaveData.Instance.Test = new Test();
-        SaveData.Instance.Test.Data1 = 5;
-
-        SaveData.Instance.Save(); // セーブ
-
-        SaveData.Instance.Test.Data1 = 1;
-        Debug.Log(SaveData.Instance.Test.Data1); // 1が出力される
-
-        //SaveData.Instance.Reload();
-
-        //Debug.Log(SaveData.Instance.Test.Data1); // 5が出力される
-
         // インスタンスの初期化
         phaseManager = this;
-        isBattle = false;
 
         // プレイヤーターンから始める
         TurnChange(Enums.UNIT_KIND.PLAYER);
@@ -399,6 +374,13 @@ public class PhaseManager : MonoBehaviour
             activeAreaManager.attackAreaObj.SetActive(true);
             activeMenuUI.SetActive(true);
         }
+
+        // TODO フォーカスユニット自身をクリックしたら行動終了
+        //if (Input.GetMouseButtonDown(0) && activeMenuUI.activeSelf)
+        //{
+        //    if (focusUnitObj.transform.position == cursorPos)
+        //        MoveEndBtn();
+        //}
     }
 
     /// <summary>
@@ -413,63 +395,59 @@ public class PhaseManager : MonoBehaviour
         {
             // カーソルを敵ユニットに合わせた時の処理
             if (GameManager.GetUnit().GetMapUnitInfo(cursorPos) &&
-                GameManager.GetUnit().GetMapUnitInfo(cursorPos).unitKind == Enums.UNIT_KIND.ENEMY &&
+               GameManager.GetAICommonCalc().IsAttackTarget(focusUnitObj.GetComponent<UnitInfo>(), GameManager.GetUnit().GetMapUnitInfo(cursorPos)) &&
                 activeAreaManager.attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK)
             {
-
-                // バトルパラメータのセット
-                enemyUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
-                playerHPText = battleStandbyUI.GetComponent<BattleStandby>().textMyHP;
-                enemyHPText = battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP;
-
-                playerAttackPower = GameManager.GetCommonCalc().GetAttackDamage(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
-                playerHitRate = GameManager.GetCommonCalc().GetHitRate(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
-                playerDeathblow = GameManager.GetCommonCalc().GetDeathBlowRete(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
-                playerAttackCount = GameManager.GetCommonCalc().GetAttackCount(focusUnitObj.GetComponent<UnitInfo>(), enemyUnitObj.GetComponent<UnitInfo>());
-
-                if (GameManager.GetCommonCalc().GetCellDistance(
-                    enemyUnitObj.transform.position,
-                    focusUnitObj.transform.position) <= enemyUnitObj.GetComponent<UnitInfo>().attackRange)
+                switch (GameManager.GetUnit().GetMapUnitInfo(cursorPos).unitKind)
                 {
-                    // 反撃可能
-                    enemyAttackPower = GameManager.GetCommonCalc().GetAttackDamage(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-                    enemyHitRate = GameManager.GetCommonCalc().GetHitRate(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-                    enemyDeathblow = GameManager.GetCommonCalc().GetDeathBlowRete(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-                    enemyAttackCount = GameManager.GetCommonCalc().GetAttackCount(enemyUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-                }
-                else
-                {
-                    // 反撃不可
-                    enemyAttackPower = -1;
-                    enemyHitRate = -1;
-                    enemyDeathblow = -1;
-                    enemyAttackCount = 0;
-                }
+                    case Enums.UNIT_KIND.GIMMICK:
+                        break;
 
-                // 敵の向きに合わせてUnitのアニメーション変更
-                Vector3 distance = enemyUnitObj.transform.position - focusUnitObj.transform.position;
-                if (Mathf.Abs(distance.y) <= Mathf.Abs(distance.x))
-                {
-                    if (enemyUnitObj.transform.position.x > focusUnitObj.transform.position.x)
-                        focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.RIGHT);
-                    else
-                        focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.LEFT);
-                }
-                else
-                {
-                    if (enemyUnitObj.transform.position.y > focusUnitObj.transform.position.y)
-                        focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.UP);
-                    else
-                        focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
-                }
+                    default:
+                        // 敵の取得
+                        enemyUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
 
-                // UIの切り替え
-                if (!battleStandbyUI.activeSelf)
-                    battleStandbyUI.SetActive(true);
-                battleStandbyUI.GetComponent<BattleStandby>().SetMyUnitData(
-                    focusUnitObj.GetComponent<UnitInfo>(), playerAttackPower, playerHitRate, playerDeathblow);
-                battleStandbyUI.GetComponent<BattleStandby>().SetEnemyUnitData(
-                    enemyUnitObj.GetComponent<UnitInfo>(), enemyAttackPower, enemyHitRate, enemyDeathblow);
+                        // バトルパラメータのセット
+                        battleManager.SetParam(
+                            focusUnitObj,
+                            enemyUnitObj,
+                            battleStandbyUI.GetComponent<BattleStandby>().textMyHP,
+                            battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP);
+
+                        // 敵の向きに合わせてUnitのアニメーション変更
+                        Vector3 distance = enemyUnitObj.transform.position - focusUnitObj.transform.position;
+                        if (Mathf.Abs(distance.y) <= Mathf.Abs(distance.x))
+                        {
+                            if (enemyUnitObj.transform.position.x > focusUnitObj.transform.position.x)
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.RIGHT);
+                            else
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.LEFT);
+                        }
+                        else
+                        {
+                            if (enemyUnitObj.transform.position.y > focusUnitObj.transform.position.y)
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.UP);
+                            else
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
+                        }
+
+                        // UIの切り替え
+                        if (!battleStandbyUI.activeSelf)
+                            battleStandbyUI.SetActive(true);
+
+                        battleStandbyUI.GetComponent<BattleStandby>().SetMyUnitData(
+                            focusUnitObj.GetComponent<UnitInfo>(),
+                             battleManager.myAttackPower,
+                            battleManager.myHitRate,
+                             battleManager.myCriticalRate);
+
+                        battleStandbyUI.GetComponent<BattleStandby>().SetEnemyUnitData(
+                            enemyUnitObj.GetComponent<UnitInfo>(),
+                            battleManager.targetAttackPower,
+                             battleManager.targetHitRate,
+                              battleManager.targetCriticalRate);
+                        break;
+                }
             }
             else
                 if (battleStandbyUI.activeSelf)
@@ -527,70 +505,9 @@ public class PhaseManager : MonoBehaviour
     /// </summary>
     void PlayerBattlePhase()
     {
-        if (!isBattle)
+        phase = Enums.PHASE.STOP;
+        battleManager.BattleStart(() =>
         {
-            while (true)
-            {
-                // こちらの攻撃
-                if (0 < playerAttackCount)
-                {
-                    // 必殺の検証
-                    playerAttackState = GameManager.GetCommonCalc().ProbabilityDecision(playerDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
-
-                    // 通常攻撃命中判定
-                    if (playerAttackState != Enums.BATTLE.DEATH_BLOW)
-                        playerAttackState = GameManager.GetCommonCalc().GetHitDecision(playerHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
-
-                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
-                    attackEvent.phaseManager = this;
-                    attackEvent.myUnitObj = focusUnitObj;
-                    attackEvent.myAttackPower = playerAttackPower;
-                    attackEvent.myAttackState = playerAttackState;
-                    attackEvent.targetUnitObj = enemyUnitObj;
-                    attackEvent.targetHPText = enemyHPText;
-                    attackEvent.cutInAnimController = cutInAnimController;
-                    battleManager.AddEvent(attackEvent);
-
-                    playerAttackCount--;
-                }
-
-                // 敵の反撃
-                if (0 < enemyAttackCount)
-                {
-                    // 必殺の検証
-                    enemyAttackState = GameManager.GetCommonCalc().ProbabilityDecision(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
-
-                    // 通常攻撃命中判定
-                    if (enemyAttackState != Enums.BATTLE.DEATH_BLOW)
-                        enemyAttackState = GameManager.GetCommonCalc().GetHitDecision(enemyHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
-
-                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
-                    attackEvent.phaseManager = this;
-                    attackEvent.myUnitObj = enemyUnitObj;
-                    attackEvent.myAttackPower = enemyAttackPower;
-                    attackEvent.myAttackState = enemyAttackState;
-                    attackEvent.targetUnitObj = focusUnitObj;
-                    attackEvent.targetHPText = playerHPText;
-                    attackEvent.cutInAnimController = cutInAnimController;
-                    battleManager.AddEvent(attackEvent);
-
-                    enemyAttackCount--;
-                }
-
-                // 戦闘イベント登録終了
-                if (playerAttackCount <= 0 && enemyAttackCount <= 0) break;
-            }
-
-            // バトルの実行
-            battleManager.StartEvent();
-            isBattle = true;
-        }
-        else if (!battleManager.isBattle())
-        {
-            // 攻撃終了処理
-            isBattle = false;
 
             // プレイヤーUnitが生存していれば経験値取得処理を行う
             if (focusUnitObj)
@@ -608,7 +525,7 @@ public class PhaseManager : MonoBehaviour
             {
                 phase = Enums.PHASE.RESULT;
             }
-        }
+        });
     }
 
     /// <summary>
@@ -810,34 +727,11 @@ public class PhaseManager : MonoBehaviour
     void EnemyBattleStandbyPhase()
     {
         // バトルパラメータのセット
-        enemyHPText = battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP;
-        playerHPText = battleStandbyUI.GetComponent<BattleStandby>().textMyHP;
-
-        // 敵ユニット(攻撃する側)
-        enemyAttackPower = GameManager.GetCommonCalc().GetAttackDamage(focusUnitObj.GetComponent<UnitInfo>(), playerUnitObj.GetComponent<UnitInfo>());
-        enemyHitRate = GameManager.GetCommonCalc().GetHitRate(focusUnitObj.GetComponent<UnitInfo>(), playerUnitObj.GetComponent<UnitInfo>());
-        enemyDeathblow = GameManager.GetCommonCalc().GetDeathBlowRete(focusUnitObj.GetComponent<UnitInfo>(), playerUnitObj.GetComponent<UnitInfo>());
-        enemyAttackCount = GameManager.GetCommonCalc().GetAttackCount(focusUnitObj.GetComponent<UnitInfo>(), playerUnitObj.GetComponent<UnitInfo>());
-
-        // プレイヤーユニット
-        if (GameManager.GetCommonCalc().GetCellDistance(
-            playerUnitObj.transform.position,
-            focusUnitObj.transform.position) <= playerUnitObj.GetComponent<UnitInfo>().attackRange)
-        {
-            // 反撃可能
-            playerAttackPower = GameManager.GetCommonCalc().GetAttackDamage(playerUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-            playerHitRate = GameManager.GetCommonCalc().GetHitRate(playerUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-            playerDeathblow = GameManager.GetCommonCalc().GetDeathBlowRete(playerUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-            playerAttackCount = GameManager.GetCommonCalc().GetAttackCount(playerUnitObj.GetComponent<UnitInfo>(), focusUnitObj.GetComponent<UnitInfo>());
-        }
-        else
-        {
-            // 反撃不可
-            playerAttackPower = -1;
-            playerHitRate = -1;
-            playerDeathblow = -1;
-            playerAttackCount = 0;
-        }
+        battleManager.SetParam(
+            focusUnitObj,
+            playerUnitObj,
+            battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP,
+            battleStandbyUI.GetComponent<BattleStandby>().textMyHP);
 
         // 敵の向きに合わせてUnitのアニメーション変更
         Vector2 distance = playerUnitObj.transform.position - focusUnitObj.transform.position;
@@ -879,78 +773,9 @@ public class PhaseManager : MonoBehaviour
 
     void EnemyBattlePhase()
     {
-        if (!isBattle)
+        phase = Enums.PHASE.STOP;
+        battleManager.BattleStart(() =>
         {
-            while (true)
-            {
-                // こちらの攻撃
-                if (0 < enemyAttackCount)
-                {
-                    // 必殺の検証
-                    enemyAttackState = GameManager.GetCommonCalc().ProbabilityDecision(enemyDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
-
-                    // 通常攻撃命中判定
-                    if (enemyAttackState != Enums.BATTLE.DEATH_BLOW)
-                        enemyAttackState = GameManager.GetCommonCalc().GetHitDecision(enemyHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
-
-                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
-                    attackEvent.phaseManager = this;
-
-                    attackEvent.myUnitObj = focusUnitObj;
-                    attackEvent.myAttackPower = enemyAttackPower;
-                    attackEvent.myAttackState = enemyAttackState;
-
-                    attackEvent.targetUnitObj = playerUnitObj;
-                    attackEvent.targetHPText = playerHPText;
-
-                    attackEvent.cutInAnimController = cutInAnimController;
-
-                    battleManager.AddEvent(attackEvent);
-
-                    enemyAttackCount--;
-                }
-
-                // プレイヤーUnitの反撃
-                if (0 < playerAttackCount)
-                {
-                    // 必殺の検証
-                    playerAttackState = GameManager.GetCommonCalc().ProbabilityDecision(playerDeathblow) ? Enums.BATTLE.DEATH_BLOW : Enums.BATTLE.NORMAL;
-
-                    // 通常攻撃命中判定
-                    if (playerAttackState != Enums.BATTLE.DEATH_BLOW)
-                        playerAttackState = GameManager.GetCommonCalc().GetHitDecision(playerHitRate) ? Enums.BATTLE.NORMAL : Enums.BATTLE.MISS;
-
-                    // 通常攻撃か必殺が発生したら攻撃イベントとして登録する
-                    AttackEvent attackEvent = gameObject.AddComponent<AttackEvent>();
-                    attackEvent.phaseManager = this;
-
-                    attackEvent.myUnitObj = playerUnitObj;
-                    attackEvent.myAttackPower = playerAttackPower;
-                    attackEvent.myAttackState = playerAttackState;
-
-                    attackEvent.targetUnitObj = focusUnitObj;
-                    attackEvent.targetHPText = enemyHPText;
-
-                    attackEvent.cutInAnimController = cutInAnimController;
-
-                    battleManager.AddEvent(attackEvent);
-
-                    playerAttackCount--;
-                }
-
-                // 戦闘イベント登録終了
-                if (playerAttackCount <= 0 && enemyAttackCount <= 0) break;
-            }
-
-            // バトルの実行
-            battleManager.StartEvent();
-            isBattle = true;
-        }
-        else if (!battleManager.isBattle())
-        {
-            // バトル終了
-            isBattle = false;
 
             // プレイヤーUnitが生存していれば経験値取得処理を行う
             if (playerUnitObj)
@@ -968,7 +793,7 @@ public class PhaseManager : MonoBehaviour
             {
                 phase = Enums.PHASE.RESULT;
             }
-        }
+        });
     }
 
     void EnemyResultPhase()
