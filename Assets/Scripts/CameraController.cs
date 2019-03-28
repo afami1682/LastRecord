@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// カメラ移動制御
+/// </summary>
 public class CameraController : MonoBehaviour
 {
     const int CAM_TRACKING_WIDTH = 7;
     const int CAM_TRACKING_HEIGHT = 4;
+    const float CAM_MOVE_SPEED = 15f;
 
     Vector3 cursorPos, oldCursorPos;
     Camera mainCamera;
@@ -13,7 +17,7 @@ public class CameraController : MonoBehaviour
     Vector2 displayMin;
     Vector2 displayMax;
 
-    private void Start()
+    void Start()
     {
         mainCamera = Camera.main;
         phaseManager = GameObject.Find("PhaseManager").GetComponent<PhaseManager>();
@@ -35,7 +39,7 @@ public class CameraController : MonoBehaviour
             // フォーカスユニットを追従する
             // カメラとの距離を計算
             if (phaseManager.focusUnitObj)
-                Move(mainCamera.transform.position - phaseManager.focusUnitObj.transform.position, 15f);
+                Move(mainCamera.transform.position - phaseManager.focusUnitObj.transform.position, CAM_MOVE_SPEED);
         }
         else
         {
