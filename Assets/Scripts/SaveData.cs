@@ -5,7 +5,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
-
 /// <summary>
 /// クラスを丸ごとJsonで保存するデータクラス
 /// </summary>
@@ -34,8 +33,7 @@ public class SaveData : ISerializationCallbackReceiver
     //保存されるデータ(public or SerializeFieldを付ける)
     //=================================================================================
 
-
-    public Test Test = new Test();
+    
     public Struct.CellInfo data = new Struct.CellInfo();
     public int SampleInt = 10;
     public Vector3 v = new Vector3(4,4,2);
