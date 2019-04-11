@@ -38,10 +38,10 @@ namespace AI
         /// </summary>
         /// <returns>The uni move costs.</returns>
         /// <param name="targetUnitObj">Target unit object.</param>
-        /// <param name="unitKind">unitKind.</param>
-        public List<Struct.SortObj> NearUniMoveCosts(GameObject targetUnitObj, Enums.UNIT_KIND unitKind)
+        /// <param name="UnitKind">UnitKind.</param>
+        public List<Struct.SortObj> NearUniMoveCosts(GameObject targetUnitObj, Enums.UNIT_KIND UnitKind)
         {
-            var unitList = GameManager.GetUnit().GetUnitList(unitKind);
+            var unitList = GameManager.GetUnit().GetUnitList(UnitKind);
             var costList = GetMoveAreaCosts(targetUnitObj);
 
             Vector2 pos;
@@ -86,7 +86,7 @@ namespace AI
             if (!IsInField((int)checkPos.x, -(int)checkPos.y)) return;
 
             // キャラが移動できないマスなら何もしない
-            if (!IsMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, unitInfo.moveType)) return;
+            if (!IsMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, unitInfo.MoveType)) return;
 
             // 攻撃対象はスルーできない
             UnitInfo targetUnit = GameManager.GetUnit().GetMapUnitInfo(checkPos);
@@ -220,32 +220,32 @@ namespace AI
         public bool IsAttackTarget(UnitInfo targetUnit, UnitInfo targetUnit2)
         {
             if (targetUnit2 != null)
-                switch (targetUnit.unitKind)
+                switch (targetUnit.UnitKind)
                 {
                     case Enums.UNIT_KIND.PLAYER:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.ENEMY) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.CRAZY) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     case Enums.UNIT_KIND.ENEMY:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.PLAYER) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.NEUTRAL) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.PLAYER) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.CRAZY) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.NEUTRAL) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     case Enums.UNIT_KIND.CRAZY:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.PLAYER) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.NEUTRAL) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.PLAYER) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.ENEMY) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.NEUTRAL) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     case Enums.UNIT_KIND.NEUTRAL:
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.ENEMY) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.CRAZY) return true;
-                        if (targetUnit2.unitKind == Enums.UNIT_KIND.GIMMICK) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.ENEMY) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.CRAZY) return true;
+                        if (targetUnit2.UnitKind == Enums.UNIT_KIND.GIMMICK) return true;
                         break;
 
                     default:
@@ -259,8 +259,8 @@ namespace AI
         /// </summary>
         /// <returns>The attack target list.</returns>
         /// <param name="activeAreaList">Active area list.</param>
-        /// <param name="unitKind">A rmy.</param>
-        public List<GameObject> GetActiveAreaTargetList(Struct.NodeMove[,] activeAreaList, Enums.UNIT_KIND unitKind)
+        /// <param name="UnitKind">A rmy.</param>
+        public List<GameObject> GetActiveAreaTargetList(Struct.NodeMove[,] activeAreaList, Enums.UNIT_KIND UnitKind)
         {
             // 攻撃範囲内にいるプレイヤーUnit
             var targetList = new List<GameObject>();
@@ -271,7 +271,7 @@ namespace AI
                     if (activeAreaList[y, x].aREA == Enums.AREA.MOVE ||
                         activeAreaList[y, x].aREA == Enums.AREA.ATTACK)
                         if (GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)) &&
-                            GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)).GetComponent<UnitInfo>().unitKind == unitKind)
+                            GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)).GetComponent<UnitInfo>().UnitKind == UnitKind)
                             targetList.Add(GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)));
 
             // 攻撃できる対象がいなければ終了
@@ -283,8 +283,8 @@ namespace AI
         /// </summary>
         /// <returns>The attack area target list.</returns>
         /// <param name="attackAreaList">Attack area list.</param>
-        /// <param name="unitKind">A rmy.</param>
-        public List<GameObject> GetAttackAreaTargetList(Struct.NodeMove[,] attackAreaList, Enums.UNIT_KIND unitKind)
+        /// <param name="UnitKind">A rmy.</param>
+        public List<GameObject> GetAttackAreaTargetList(Struct.NodeMove[,] attackAreaList, Enums.UNIT_KIND UnitKind)
         {
             // 攻撃範囲内にいるプレイヤーUnit
             var targetList = new List<GameObject>();
@@ -294,7 +294,7 @@ namespace AI
                 for (int x = 0; x < field.width; x++)
                     if (attackAreaList[y, x].aREA == Enums.AREA.ATTACK)
                         if (GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)) &&
-                            GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)).GetComponent<UnitInfo>().unitKind == unitKind)
+                            GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)).GetComponent<UnitInfo>().UnitKind == UnitKind)
                             targetList.Add(GameManager.GetUnit().GetMapUnitObj(new Vector2(x, -y)));
 
             // 攻撃できる対象がいなければ終了
@@ -354,8 +354,8 @@ namespace AI
             var attackLocationList = new List<Vector2>();
 
             // 下列の左側からチェックしていく
-            for (int y = (int)targetUnitPos2.y - targetUnitInfo1.attackRange; y <= -(int)targetUnitPos2.y + targetUnitInfo1.attackRange; y++)
-                for (int x = (int)targetUnitPos2.x - targetUnitInfo1.attackRange; x <= (int)targetUnitPos2.x + targetUnitInfo1.attackRange; x++)
+            for (int y = (int)targetUnitPos2.y - targetUnitInfo1.AttackRange; y <= -(int)targetUnitPos2.y + targetUnitInfo1.AttackRange; y++)
+                for (int x = (int)targetUnitPos2.x - targetUnitInfo1.AttackRange; x <= (int)targetUnitPos2.x + targetUnitInfo1.AttackRange; x++)
                 {
                     // 配列の外（マップ外）は飛ばす
                     if (!IsInField((int)x, -(int)y)) continue;
@@ -365,7 +365,7 @@ namespace AI
                     GameManager.GetUnit().GetMapUnitObj(new Vector2(x, y)) != null) continue;
 
                     // 攻撃が届かない範囲を除く
-                    if (targetUnitInfo1.attackRange < GameManager.GetCommonCalc().GetCellDistance(new Vector2(x, y), targetUnitPos2)) continue;
+                    if (targetUnitInfo1.AttackRange < GameManager.GetCommonCalc().GetCellDistance(new Vector2(x, y), targetUnitPos2)) continue;
 
                     switch (activeAreaList[-y, x].aREA)
                     {
@@ -415,11 +415,11 @@ namespace AI
         /// <returns>The near unit move position.</returns>
         /// <param name="targetUnitObj">Target unit object.</param>
         /// <param name="activeAreaList">Active area list.</param>
-        /// <param name="unitKind">Unit kind.</param>
-        public List<Vector2> GetNearUnitMovePos(GameObject targetUnitObj, Struct.NodeMove[,] activeAreaList, Enums.UNIT_KIND unitKind)
+        /// <param name="UnitKind">Unit kind.</param>
+        public List<Vector2> GetNearUnitMovePos(GameObject targetUnitObj, Struct.NodeMove[,] activeAreaList, Enums.UNIT_KIND UnitKind)
         {
             // 一番近いPlayerUnitの座標を取得
-            var list = NearUniMoveCosts(targetUnitObj, unitKind);
+            var list = NearUniMoveCosts(targetUnitObj, UnitKind);
 
             // 標的までのコストリストを取得
             var costList = GetMoveAreaCosts(list[0].obj);

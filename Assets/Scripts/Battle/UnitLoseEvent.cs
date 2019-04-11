@@ -6,7 +6,6 @@ using System.Linq;
 /// </summary>
 public class UnitLoseEvent : MonoBehaviour
 {
-    //public PhaseManager phaseManager;
     public BattleManager battleManager;
     SpriteRenderer spriteRenderer;
 

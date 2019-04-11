@@ -7,44 +7,134 @@ using UnityEngine;
 /// </summary>
 public class UnitInfo : MonoBehaviour
 {
-    public int id;
-    public int level;
-    public int hp; // HPの初期値は体力の2倍の数値
-    public int hpMax; // HPの最大値
-    public int exp;
-    public string unitName;
-    public string className; // クラス名
+    [Header("基本パラメータ")]
+    public Enums.AI_TYPE AiType; // AIタイプ
+    public Enums.UNIT_KIND UnitKind; // 勢力
+    public Enums.CLASS_TYPE ClassType; // クラスタイプ
+    public Enums.MOVE_TYPE MoveType; // 移動タイプ
+    public Enums.STATUS Status; // 状態異常
 
-    public Enums.AI_TYPE aIType; // AIタイプ
-    public Enums.UNIT_KIND unitKind; // 勢力
-    public Enums.CLASS_TYPE classType; // クラスタイプ
-    public Enums.MOVE_TYPE moveType; // 移動タイプ
-    public Enums.STATUS status; // 状態異常
+    // ユニークID
+    [SerializeField]
+    int id = 0;
+    public int Id { get { return id; } }
 
-    public int movingRange; // 移動範囲
-    public int attackRange; // 攻撃範囲
+    // レベル
+    [SerializeField]
+    int level;
+    public int Level { get { return level; } }
 
-    public bool acted; // 行動したかどうか
+    // 経験値
+    [SerializeField]
+    int exp;
+    public int Exp { get { return exp; } }
 
-    [Header("成長パラメータ")]
-    public int vitality; // 体力
-    public int strengtht; // 筋力
-    public int technical; // 技量
-    public int speed; // 速さ
-    public int defense; // 防御
-    public int resist; // 魔防
-    public int luck; // 幸運
-    public int move; // 移動
+    // HPの初期値は体力の2倍の数値
+    [SerializeField]
+    int hp;
+    public int Hp { get { return hp; } }
+
+    // HPの最大値
+    [SerializeField]
+    int hPMax;
+    public int HpMax { get { return hPMax; } }
+
+    // ユニットの名前
+    [SerializeField]
+    string unitName = string.Empty;
+    public string UnitName { get { return unitName; } }
+
+    // クラス名（ジョブ)
+    [SerializeField]
+    string unitClassName;
+    public string UnitClassName { get { return unitClassName; } }
+
+    // 攻撃範囲
+    [SerializeField]
+    int attackRange;
+    public int AttackRange { get { return attackRange; } }
+
+    // 移動範囲
+    [SerializeField]
+    int movementRange;
+    public int MovementRange { get { return movementRange; } }
+
+    public bool Acted; // 行動したかどうか
+
+    [Header("成長パラメター")]
+
+    // 体力
+    [SerializeField]
+    int vitality;
+    [HideInInspector]
+    public int Vitality { get { return vitality; } }
+
+    // 筋力
+    [SerializeField]
+    int strengtht;
+    [HideInInspector]
+    public int Strengtht { get { return strengtht; } }
+
+    // 技量
+    [SerializeField]
+    int technical;
+    [HideInInspector]
+    public int Technical { get { return technical; } }
+
+    // 速さ
+    [SerializeField]
+    int speed;
+    [HideInInspector]
+    public int Speed { get { return speed; } }
+
+    // 防御
+    [SerializeField]
+    int defense;
+    [HideInInspector]
+    public int Defense { get { return defense; } }
+
+    // 魔防
+    [SerializeField]
+    int resist;
+    public int Resist { get { return resist; } }
+
+    // 幸運
+    [SerializeField]
+    int luck;
+    [HideInInspector]
+    public int Luck { get { return luck; } }
+
+    [Header("実ステータス")]
+
+    public int StatusVitality; // 体力
+    public int StatusStrengtht; // 筋力
+    public int StatusTechnical; // 技量
+    public int StatusSpeed; // 速さ
+    public int StatusDefense; // 防御
+    public int StatusResist; // 魔防
+    public int StatusLuck; // 幸運
 
     void Start()
     {
-        // 初期HPの設定
-        hpMax = vitality * 2;
-        hp = hpMax;
+        // 成長パラメータのロード(現時点ではInspectorから設定)
 
-        className = GetUnitClassData(classType).className;
-        // attackRange = 1;
-        movingRange = GetUnitClassData(classType).move;
+        // 実ステータスの設定
+        StatusVitality = vitality;
+        StatusStrengtht = strengtht;
+        StatusTechnical = technical;
+        StatusSpeed = speed;
+        StatusDefense = defense;
+        StatusResist = resist;
+        StatusLuck = luck;
+
+        // 基本パラメータのロード(現時点ではInspectorから設定)
+        hPMax = vitality * 2;
+        hp = hPMax;
+
+        Struct.UnitClassData unitClassData = GetUnitClassData(ClassType);
+        unitClassName = unitClassData.UnitClassName;
+        attackRange = unitClassData.AttackRange;
+        movementRange = unitClassData.MovementRange;
     }
 
     /// <summary>
@@ -57,66 +147,130 @@ public class UnitInfo : MonoBehaviour
         switch (classType)
         {
             case Enums.CLASS_TYPE.SWORDSMAN:
-                return SWORDSMAN_MAX_STATUS;
+                return SwordsmanMaxStatus;
             case Enums.CLASS_TYPE.WIZARD:
-                return WIZARD_MAX_STATUS;
+                return WizardMaxStatus;
             case Enums.CLASS_TYPE.ARCHER:
-                return ARCHER_MAX_STATUS;
+                return ArcherMaxStatus;
             default:
-                return SWORDSMAN_MAX_STATUS;
+                return SwordsmanMaxStatus;
         }
     }
 
+    /// <summary>
+    /// ダメージを与える
+    /// </summary>
+    /// <param name="damage">Damage.</param>
+    public void Damaged(int damage)
+    {
+        hp = Mathf.Clamp(hp - damage, 0, 999);
+    }
+
+    /// <summary>
+    /// 回復する
+    /// </summary>
+    /// <param name="point">Point.</param>
+    public void Recover(int point)
+    {
+        hp = Mathf.Clamp(hp + point, 0, hPMax);
+    }
+
+    /// <summary>
+    /// 経験値の加算
+    /// </summary>
+    /// <param name="val">Value.</param>
+    public void AddExp(int val)
+    {
+        exp += val;
+    }
+
+    /// <summary>
+    /// Expのリセット
+    /// </summary>
+    public void ResetExp()
+    {
+        exp = 0;
+    }
+
+    /// <summary>
+    /// 新しいステータスの設定
+    /// </summary>
+    /// <param name="level">Level.</param>
+    /// <param name="vitality">Vitality.</param>
+    /// <param name="strengtht">Strengtht.</param>
+    /// <param name="technical">Technical.</param>
+    /// <param name="speed">Speed.</param>
+    /// <param name="defense">Defense.</param>
+    /// <param name="resist">Resist.</param>
+    /// <param name="luck">Luck.</param>
+    public void NewStatus(int level, int vitality, int strengtht, int technical, int speed, int defense, int resist, int luck)
+    {
+        this.level = level;
+        this.vitality = vitality;
+        this.strengtht = strengtht;
+        this.technical = technical;
+        this.speed = speed;
+        this.defense = defense;
+        this.resist = resist;
+        this.luck = luck;
+
+        hPMax = vitality * 2;
+    }
+
     // 4 平均　9
-    private static readonly Struct.UnitClassData SWORDSMAN_MAX_STATUS = new Struct.UnitClassData()
+    private static readonly Struct.UnitClassData SwordsmanMaxStatus = new Struct.UnitClassData()
     {
-        className = "剣士", // クラス名
-        vitality = 36, // 体力
-        attack = 26, // 攻撃
-        technical = 26, // 技
-        speed = 25, // 速さ
-        defense = 26, // 防御
-        resist = 24, // 魔防
-        luck = 22, // 幸運
-        move = 5 // 移動
+        UnitClassName = "剣士", // クラス名
+        AttackRange = 1, // 攻撃範囲
+        MovementRange = 5, // 移動範囲
+        Vitality = 36, // 体力
+        Attack = 26, // 攻撃
+        Technical = 26, // 技
+        Speed = 25, // 速さ
+        Defense = 26, // 防御
+        Resist = 24, // 魔防
+        Luck = 22, // 幸運
     };
 
-    private static readonly Struct.UnitClassData WIZARD_MAX_STATUS = new Struct.UnitClassData()
+    private static readonly Struct.UnitClassData WizardMaxStatus = new Struct.UnitClassData()
     {
-        className = "ウィザード", // クラス名
-        vitality = 36, // 体力
-        attack = 26, // 攻撃
-        technical = 26, // 技
-        speed = 25, // 速さ
-        defense = 26, // 防御
-        resist = 24, // 魔防
-        luck = 22, // 幸運
-        move = 5 // 移動
+        UnitClassName = "ウィザード", // クラス名
+        AttackRange = 2, // 攻撃範囲
+        MovementRange = 5, // 移動範囲
+        Vitality = 36, // 体力
+        Attack = 26, // 攻撃
+        Technical = 26, // 技
+        Speed = 25, // 速さ
+        Defense = 26, // 防御
+        Resist = 24, // 魔防
+        Luck = 22, // 幸運
     };
 
-    private static readonly Struct.UnitClassData ARCHER_MAX_STATUS = new Struct.UnitClassData()
+    private static readonly Struct.UnitClassData ArcherMaxStatus = new Struct.UnitClassData()
     {
-        className = "射手", // クラス名
-        vitality = 36, // 体力
-        attack = 25, // 攻撃
-        technical = 26, // 技
-        speed = 25, // 速さ
-        defense = 26, // 防御
-        resist = 24, // 魔防
-        luck = 22, // 幸運
-        move = 5 // 移動
+        UnitClassName = "射手", // クラス名
+        AttackRange = 2, // 攻撃範囲
+        MovementRange = 5, // 移動範囲
+        Vitality = 36, // 体力
+        Attack = 26, // 攻撃
+        Technical = 26, // 技
+        Speed = 25, // 速さ
+        Defense = 26, // 防御
+        Resist = 24, // 魔防
+        Luck = 22, // 幸運
     };
 
-    private static readonly Struct.UnitClassData KEG_MAX_STATUS = new Struct.UnitClassData()
+    private static readonly Struct.UnitClassData KegMaxStatus = new Struct.UnitClassData()
     {
-        className = "タル", // クラス名
-        vitality = 5, // 体力
-        attack = 0, // 攻撃
-        technical = 0, // 技
-        speed = 0, // 速さ
-        defense = 0, // 防御
-        resist = 0, // 魔防
-        luck = 0, // 幸運
-        move = 0 // 移動
+        UnitClassName = "樽", // クラス名
+        AttackRange = 0, // 攻撃範囲
+        MovementRange = 5, // 移動範囲
+        Vitality = 1, // 体力
+        Attack = 0, // 攻撃
+        Technical = 0, // 技
+        Speed = 0, // 速さ
+        Defense = 0, // 防御
+        Resist = 0, // 魔防
+        Luck = 0, // 幸運
     };
 }

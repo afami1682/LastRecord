@@ -59,14 +59,14 @@ public class UnitInfoController : MonoBehaviour
     public void SetUnitData(UnitInfo unitInfo)
     {
         // UIに各パラメータをセット
-        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.id);
-        unitName.text = unitInfo.unitName;
-        unitClass.text = unitInfo.classType.ToString();
-        hp.text = unitInfo.hp.ToString();
-        level.text = unitInfo.level.ToString();
-        exp.text = unitInfo.exp.ToString();
-        movementRanve.text = unitInfo.movingRange.ToString();
-        attackRange.text = unitInfo.attackRange.ToString();
+        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Chara" + unitInfo.Id);
+        unitName.text = unitInfo.UnitName;
+        unitClass.text = unitInfo.UnitClassName.ToString();
+        hp.text = unitInfo.Hp.ToString();
+        level.text = unitInfo.Level.ToString();
+        exp.text = unitInfo.Exp.ToString();
+        movementRanve.text = unitInfo.MovementRange.ToString();
+        attackRange.text = unitInfo.AttackRange.ToString();
         //statusList.Add(new Struct.NodeStatus("体力", unitInfo.vitality, 50));
         //statusList.Add(new Struct.NodeStatus("筋力", unitInfo.strength, 40));
         //statusList.Add(new Struct.NodeStatus("魔力", unitInfo.intelligence, 26));

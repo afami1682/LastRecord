@@ -14,7 +14,6 @@ public class AttackEvent : MonoBehaviour
     const float ATTACK_MOVE = 0.4f; // 攻撃する時の移動距離
 
     int targetHP; // 敵HP
-    int targetResidualHP; // ダーメージ処理後の敵HP
 
     // カットインアニメーション関連
     public CutInAnimController cutInAnimController;
@@ -25,7 +24,6 @@ public class AttackEvent : MonoBehaviour
     float time = 0;
 
     // 引き継ぎパラメータ
-    //public PhaseManager phaseManager;
     public BattleManager battleManager;
     public GameObject myUnitObj, targetUnitObj; // Unitのオブジェクト
     public int myAttackPower, targetAttackPower; // 攻撃力
@@ -49,10 +47,10 @@ public class AttackEvent : MonoBehaviour
     void Start()
     {
         // ダメージ減算処理
-        targetHP = targetUnitObj.GetComponent<UnitInfo>().hp; // 現在のHP
+        targetHP = targetUnitObj.GetComponent<UnitInfo>().Hp; // 現在のHP
 
         // 自軍か敵Unitの体力が0以下なら終了
-        if (myUnitObj.GetComponent<UnitInfo>().hp <= 0 || targetHP <= 0)
+        if (myUnitObj.GetComponent<UnitInfo>().Hp <= 0 || targetHP <= 0)
         {
             Destroy(this);
             return;
@@ -87,26 +85,12 @@ public class AttackEvent : MonoBehaviour
         moveX = new AnimationCurve(keysX);
         moveY = new AnimationCurve(keysY);
 
-        switch (myAttackState)
+
+        // クリティカルならカットインアニメを登録する
+        if (myAttackState == Enums.BATTLE.CRITICAL)
         {
-            case Enums.BATTLE.NORMAL:
-                // 通常攻撃命中
-                targetResidualHP = Mathf.Clamp(targetHP - myAttackPower, 0, 999);
-                break;
-
-            case Enums.BATTLE.CRITICAL:
-                // 必殺発動
-                targetResidualHP = Mathf.Clamp(targetHP - myAttackPower * 3, 0, 999);
-
-                // カットインアニメの登録(仮)
-                cutInAnim = true;
-                cutInAnimController.StartAnim(myUnitObj.GetComponent<UnitInfo>().id, "Critical Hit", () => { cutInAnim = false; });
-                break;
-
-            case Enums.BATTLE.MISS:
-                // 攻撃失敗
-                targetResidualHP = targetHP;
-                break;
+            cutInAnim = true;
+            cutInAnimController.StartAnim(myUnitObj.GetComponent<UnitInfo>().Id, "Critical Hit", () => { cutInAnim = false; });
         }
     }
 
@@ -133,8 +117,7 @@ public class AttackEvent : MonoBehaviour
                         if (myAttackPower != 0)
                         {
                             // ダメージの反映
-                            (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
-                            GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+                            targetUnitObj.GetComponent<UnitInfo>().Damaged(myAttackPower);
 
                             // エフェクトを生成する
                             GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack1");
@@ -147,8 +130,7 @@ public class AttackEvent : MonoBehaviour
                         if (myAttackPower != 0)
                         {
                             // ダメージの反映
-                            (targetUnitObj).GetComponent<UnitInfo>().hp = targetResidualHP;
-                            GameManager.GetUnit().GetMapUnitInfo(targetUnitObj.transform.position).hp = targetResidualHP;
+                            targetUnitObj.GetComponent<UnitInfo>().Damaged(myAttackPower * 3);
 
                             // エフェクトを生成する
                             GameObject ef_attack = Resources.Load<GameObject>("Prefabs/ef_attack2");
@@ -175,9 +157,9 @@ public class AttackEvent : MonoBehaviour
 
         // ライフの減算処理（徐々に減らしていく）
         if (runninge[1])
-            if (targetHP > targetResidualHP)
+            if (targetHP > targetUnitObj.GetComponent<UnitInfo>().Hp)
             {
-                targetHP--;
+                --targetHP;
                 targetHPText.text = targetHP.ToString();
             }
             else
@@ -186,7 +168,6 @@ public class AttackEvent : MonoBehaviour
                 if (targetHP <= 0)
                 {
                     UnitLoseEvent unitLoseEvent = targetUnitObj.AddComponent<UnitLoseEvent>();
-                    //unitLoseEvent.phaseManager = phaseManager;
                     unitLoseEvent.battleManager = battleManager;
                     battleManager.AddEvent(unitLoseEvent);
                 }

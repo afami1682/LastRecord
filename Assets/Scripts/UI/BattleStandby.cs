@@ -27,9 +27,9 @@ public class BattleStandby : MonoBehaviour
     /// <param name="deathblow">Deathblow.</param>
     public void SetMyUnitData(UnitInfo unitInfo, int attackPower, int avoidance, int deathblow)
     {
-        imgMy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.id);
-        textMyName.text = unitInfo.unitName;
-        textMyHP.text = unitInfo.hp.ToString();
+        imgMy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.Id);
+        textMyName.text = unitInfo.UnitName;
+        textMyHP.text = unitInfo.Hp.ToString();
         textMyAttackPower.text = attackPower.ToString();
         textMyAvoidance.text = string.Format("{0}%", avoidance.ToString());
         textMyDeathblow.text = string.Format("{0}%", deathblow.ToString());
@@ -44,9 +44,9 @@ public class BattleStandby : MonoBehaviour
     /// <param name="deathblow">Deathblow.</param>
     public void SetEnemyUnitData(UnitInfo unitInfo, int attackPower, int avoidance, int deathblow)
     {
-        imgEnemy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.id);
-        textEnemyName.text = unitInfo.unitName;
-        textEnemyHP.text = unitInfo.hp.ToString();
+        imgEnemy.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.Id);
+        textEnemyName.text = unitInfo.UnitName;
+        textEnemyHP.text = unitInfo.Hp.ToString();
         textEnemyAttackPower.text = (attackPower != -1) ? attackPower.ToString() : "-";
         textEnemyAvoidance.text = (avoidance != -1) ? string.Format("{0}%", avoidance.ToString()) : "-";
         textEnemyDeathblow.text = (deathblow != -1) ? string.Format("{0}%", deathblow.ToString()) : "-";

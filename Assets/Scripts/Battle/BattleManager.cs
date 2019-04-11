@@ -70,7 +70,7 @@ public class BattleManager : MonoBehaviour
         // 敵の反撃値
         if (GameManager.GetCommonCalc().GetCellDistance(
                             targetUnitObj.transform.position,
-                            myUnitObj.transform.position) <= targetUnitInfo.attackRange)
+                            myUnitObj.transform.position) <= targetUnitInfo.AttackRange)
         {
             // 反撃可能
             targetAttackPower = GameManager.GetCommonCalc().GetAttackDamage(targetUnitInfo, myUnitInfo);

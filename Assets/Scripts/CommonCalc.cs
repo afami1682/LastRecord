@@ -25,7 +25,7 @@ public class CommonCalc
         // 攻撃力 = 筋力 + (武器の攻撃力 * 特攻係数) + 武器レベル補正値
         // 武器の攻撃力は6~20を想定 筋力と防御力はMax50
         // カンストだと 50 + (20 * 1) + 5 = 80 が最大攻撃力となる
-        return myUnit.strengtht + (10 * 1) + 1; // 仮で設定
+        return myUnit.Strengtht + (10 * 1) + 1; // 仮で設定
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class CommonCalc
     {
         //  攻撃力- 防御力 - 地形ボーナス
         int damage = GetAttackPoin(myUnit)
-            - targetUnit.defense
+            - targetUnit.Defense
                         - GameManager.GetMap().field.cells[
                             -(int)targetUnit.transform.position.y,
                             (int)targetUnit.transform.position.x
@@ -69,7 +69,7 @@ public class CommonCalc
     {
         // 参考　=(技×3+幸運)/2+(装備武器の命中+非特効補正)+装備武器のレベル補正+3すくみ補正+クラス補正
         // =(技×3+幸運)/2+装備武器のレベル補正
-        int hitVal = (unitInfo.technical * 3 + unitInfo.luck) / 2 + 70 + 1; // 仮設定
+        int hitVal = (unitInfo.Technical * 3 + unitInfo.Luck) / 2 + 70 + 1; // 仮設定
 
         return (0 < hitVal) ? hitVal : 0;
     }
@@ -83,7 +83,7 @@ public class CommonCalc
     {
         // 参考 =(速×3+幸運)/2+装備武器の回避+地形効果+クラス補正
         //  =(速×3+幸運)/2 + 地形効果
-        int dodgeVal = (unitInfo.speed * 3 + unitInfo.luck) / 2
+        int dodgeVal = (unitInfo.Speed * 3 + unitInfo.Luck) / 2
             + GameManager.GetMap().field.cells[
             -(int)unitInfo.transform.position.y,
             (int)unitInfo.transform.position.x
@@ -101,7 +101,7 @@ public class CommonCalc
     public int GetAttackCount(UnitInfo myUnit, UnitInfo targetUnit)
     {
         // 自分のスピード - 相手のスピード >= 8 なら2回
-        return (myUnit.speed - targetUnit.speed >= 5) ? 2 : 1;
+        return (myUnit.Speed - targetUnit.Speed >= 5) ? 2 : 1;
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public class CommonCalc
         // 参考 必殺回避	=幸運/2+装備武器の必殺回避+クラス補正
 
         // (技 -/ 2 + 武器補正値) - (敵の幸運 / 2)
-        int deathBlowRate = (myUnit.technical / 2 + 1) - (targetUnit.luck / 2);
+        int deathBlowRate = (myUnit.Technical / 2 + 1) - (targetUnit.Luck / 2);
 
         return Mathf.Clamp(deathBlowRate, 0, 100);
     }

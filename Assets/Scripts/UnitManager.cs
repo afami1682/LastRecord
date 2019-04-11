@@ -27,7 +27,7 @@ public class UnitManager
     /// </summary>
     /// <returns>The map unit object.</returns>
     /// <param name="pos">Position.</param>
-    public GameObject GetMapUnitObj(Vector3 pos)
+    public GameObject GetMapUnitObj(Vector2 pos)
     {
         return mapUnitObj[-(int)pos.y, (int)pos.x];
     }
@@ -37,7 +37,7 @@ public class UnitManager
     /// </summary>
     /// <returns>The map unit info.</returns>
     /// <param name="pos">Position.</param>
-    public UnitInfo GetMapUnitInfo(Vector3 pos)
+    public UnitInfo GetMapUnitInfo(Vector2 pos)
     {
         return mapUnitObj[-(int)pos.y, (int)pos.x] != null ? mapUnitObj[-(int)pos.y, (int)pos.x].GetComponent<UnitInfo>() : null;
     }
@@ -56,7 +56,7 @@ public class UnitManager
     /// </summary>
     /// <param name="pos">Position.</param>
     /// <param name="gameObject">Game object.</param>
-    public void AddMapUnitObj(Vector3 pos, GameObject gameObject)
+    public void AddMapUnitObj(Vector2 pos, GameObject gameObject)
     {
         mapUnitObj[-(int)pos.y, (int)pos.x] = gameObject;
     }
@@ -66,7 +66,7 @@ public class UnitManager
     /// </summary>
     /// <param name="oldPos">Old position.</param>
     /// <param name="newPos">New position.</param>
-    public void MoveMapUnitObj(Vector3 oldPos, Vector3 newPos)
+    public void MoveMapUnitObj(Vector2 oldPos, Vector2 newPos)
     {
         mapUnitObj[-(int)newPos.y, (int)newPos.x] = mapUnitObj[-(int)oldPos.y, (int)oldPos.x];
         if (oldPos != newPos) mapUnitObj[-(int)oldPos.y, (int)oldPos.x] = null;
@@ -76,7 +76,7 @@ public class UnitManager
     /// 配置リスト上のユニット情報を削除する
     /// </summary>
     /// <param name="pos">Position.</param>
-    public void RemoveMapUnitObj(Vector3 pos)
+    public void RemoveMapUnitObj(Vector2 pos)
     {
         mapUnitObj[-(int)pos.y, (int)pos.x] = null;
     }
@@ -91,7 +91,7 @@ public class UnitManager
         List<GameObject> units = new List<GameObject>();
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
-                if (mapUnitObj[y, x] != null && mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind)
+                if (mapUnitObj[y, x] != null && mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().UnitKind == unitKind)
                     units.Add(mapUnitObj[y, x]);
         return units;
     }
@@ -107,8 +107,8 @@ public class UnitManager
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
-                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind &&
-                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().acted)
+                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().UnitKind == unitKind &&
+                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().Acted)
                     units.Add(mapUnitObj[y, x]);
         return (units.Count != 0)? units[Random.Range(0, units.Count - 1)]: null;
     }
@@ -124,8 +124,8 @@ public class UnitManager
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
-                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind &&
-                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().acted)
+                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().UnitKind == unitKind &&
+                    !mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().Acted)
                     units.Add(mapUnitObj[y, x]);
         return units;
     }
@@ -140,9 +140,9 @@ public class UnitManager
         for (int y = 0; y < fieldHeight; y++)
             for (int x = 0; x < fieldWidth; x++)
                 if (mapUnitObj[y, x] != null &&
-                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().unitKind == unitKind)
+                    mapUnitObj[y, x].gameObject.GetComponent<UnitInfo>().UnitKind == unitKind)
                 {
-                    mapUnitObj[y, x].GetComponent<UnitInfo>().acted = false;
+                    mapUnitObj[y, x].GetComponent<UnitInfo>().Acted = false;
                     mapUnitObj[y, x].GetComponent<UnitEffectController>().GrayScale(false);
                 }
     }

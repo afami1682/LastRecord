@@ -41,11 +41,11 @@ public class SelectUnitInfo : MonoBehaviour
     {
         // フォーカスユニットがいるならユニット情報を表示する
         selectUnitInfo.SetActive(true);
-        faceImage.sprite = Resources.Load<Sprite>(string.Format("Sprite/UnitFace/Unit{0}", unitInfo.id));
-        nameText.text = unitInfo.unitName;
-        levelText.text = string.Format("Lv: {0}", unitInfo.level);
-        lifeText.text = string.Format("HP: {0}/{1}", unitInfo.hp, unitInfo.hpMax);
-        lifeRate = Mathf.Clamp01((float)unitInfo.hp / (float)unitInfo.hpMax);
+        faceImage.sprite = Resources.Load<Sprite>(string.Format("Sprite/UnitFace/Unit{0}", unitInfo.Id));
+        nameText.text = unitInfo.UnitName;
+        levelText.text = string.Format("Lv: {0}", unitInfo.Level);
+        lifeText.text = string.Format("HP: {0}/{1}", unitInfo.Hp, unitInfo.HpMax);
+        lifeRate = Mathf.Clamp01((float)unitInfo.Hp / (float)unitInfo.HpMax);
         gageImageRect.sizeDelta = new Vector2(
             lifeRate * (float)gageImageBk.sizeDelta.x,
                                           gageImageBk.sizeDelta.y);

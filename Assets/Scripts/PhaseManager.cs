@@ -33,7 +33,7 @@ public class PhaseManager : MonoBehaviour
 
     // 攻撃対象のUnit
     [HideInInspector]
-    public GameObject playerUnitObj, enemyUnitObj;
+    public GameObject playerUnitObj, enemyUnitObj, gimmickUnitObj;
 
     // フォーカスUnitのデータ関連
     [HideInInspector]
@@ -209,8 +209,7 @@ public class PhaseManager : MonoBehaviour
     {
         // TODO 行動終了時は体力回復(仮実装)
         UnitInfo u = focusUnitObj.GetComponent<UnitInfo>();
-
-        u.hp += Mathf.Clamp(u.hpMax - u.hp, 0, 10);
+        u.Recover(10);
 
         PlayerResultPhase();
     }
@@ -234,8 +233,11 @@ public class PhaseManager : MonoBehaviour
 
             // ランダムな未行動ユニット1体の座標にカーソルを合わせる
             focusUnitObj = GameManager.GetUnit().GetUnBehaviorRandomUnit(Enums.UNIT_KIND.PLAYER);
-            cursorPos = focusUnitObj.transform.position;
-            cursorObj.transform.position = cursorPos;
+            if (focusUnitObj)
+            {
+                cursorPos = focusUnitObj.transform.position;
+                cursorObj.transform.position = cursorPos;
+            }
         }
         else
         {
@@ -274,7 +276,6 @@ public class PhaseManager : MonoBehaviour
                 selectUnitInfoUI.GetComponent<SelectUnitInfo>().ShowUnitInfo(GameManager.GetUnit().GetMapUnitInfo(cursorPos));
             else
                 selectUnitInfoUI.GetComponent<SelectUnitInfo>().CloseUnitInfo();
-
         }
 
         // クリック処理
@@ -285,10 +286,10 @@ public class PhaseManager : MonoBehaviour
 
             // 未行動の自軍ユニットであればフォーカスし、アクティブエリアを表示する
             if (GameManager.GetUnit().GetMapUnitInfo(cursorPos) != null && activeAreaManager.activeAreaList == null)
-                switch (GameManager.GetUnit().GetMapUnitInfo(cursorPos).unitKind)
+                switch (GameManager.GetUnit().GetMapUnitInfo(cursorPos).UnitKind)
                 {
                     case Enums.UNIT_KIND.PLAYER:
-                        if (!GameManager.GetUnit().GetMapUnitInfo(cursorPos).acted)
+                        if (!GameManager.GetUnit().GetMapUnitInfo(cursorPos).Acted)
                         {
                             // フォーカスユニットの取得
                             focusUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
@@ -398,9 +399,51 @@ public class PhaseManager : MonoBehaviour
                GameManager.GetAICommonCalc().IsAttackTarget(focusUnitObj.GetComponent<UnitInfo>(), GameManager.GetUnit().GetMapUnitInfo(cursorPos)) &&
                 activeAreaManager.attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK)
             {
-                switch (GameManager.GetUnit().GetMapUnitInfo(cursorPos).unitKind)
+                switch (GameManager.GetUnit().GetMapUnitInfo(cursorPos).UnitKind)
                 {
                     case Enums.UNIT_KIND.GIMMICK:
+                        // ギミックの取得
+                        gimmickUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
+
+                        //// バトルパラメータのセット
+                        //battleManager.SetParam(
+                            //focusUnitObj,
+                            //enemyUnitObj,
+                            //battleStandbyUI.GetComponent<BattleStandby>().textMyHP,
+                            //battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP);
+
+                        // ギミックの向きに合わせてUnitのアニメーション変更
+                        Vector3 distance = gimmickUnitObj.transform.position - focusUnitObj.transform.position;
+                        if (Mathf.Abs(distance.y) <= Mathf.Abs(distance.x))
+                        {
+                            if (gimmickUnitObj.transform.position.x > focusUnitObj.transform.position.x)
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.RIGHT);
+                            else
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.LEFT);
+                        }
+                        else
+                        {
+                            if (gimmickUnitObj.transform.position.y > focusUnitObj.transform.position.y)
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.UP);
+                            else
+                                focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
+                        }
+
+                        // UIの切り替え
+                        if (!battleStandbyUI.activeSelf)
+                            battleStandbyUI.SetActive(true);
+
+                        battleStandbyUI.GetComponent<BattleStandby>().SetMyUnitData(
+                            focusUnitObj.GetComponent<UnitInfo>(),
+                             battleManager.myAttackPower,
+                            battleManager.myHitRate,
+                             battleManager.myCriticalRate);
+
+                        battleStandbyUI.GetComponent<BattleStandby>().SetEnemyUnitData(
+                            enemyUnitObj.GetComponent<UnitInfo>(),
+                            battleManager.targetAttackPower,
+                             battleManager.targetHitRate,
+                              battleManager.targetCriticalRate);
                         break;
 
                     default:
@@ -415,8 +458,8 @@ public class PhaseManager : MonoBehaviour
                             battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP);
 
                         // 敵の向きに合わせてUnitのアニメーション変更
-                        Vector3 distance = enemyUnitObj.transform.position - focusUnitObj.transform.position;
-                        if (Mathf.Abs(distance.y) <= Mathf.Abs(distance.x))
+                        Vector3 distance2 = enemyUnitObj.transform.position - focusUnitObj.transform.position;
+                        if (Mathf.Abs(distance2.y) <= Mathf.Abs(distance2.x))
                         {
                             if (enemyUnitObj.transform.position.x > focusUnitObj.transform.position.x)
                                 focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.RIGHT);
@@ -459,11 +502,11 @@ public class PhaseManager : MonoBehaviour
                 // アクティブエリア（攻撃可能マス）で攻撃対象を選択する
                 if (activeAreaManager.attackAreaList[-(int)cursorPos.y, (int)cursorPos.x].aREA == Enums.AREA.ATTACK &&
                     GameManager.GetUnit().GetMapUnitInfo(cursorPos) &&
-                        GameManager.GetUnit().GetMapUnitInfo(cursorPos).unitKind == Enums.UNIT_KIND.ENEMY)
+                        GameManager.GetUnit().GetMapUnitInfo(cursorPos).UnitKind == Enums.UNIT_KIND.ENEMY)
                 {
                     // 移動完了
                     GameManager.GetUnit().MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
-                    focusUnitObj.GetComponent<UnitInfo>().acted = true; // 行動済み
+                    focusUnitObj.GetComponent<UnitInfo>().Acted = true; // 行動済み
 
                     // 戦闘開始
                     // ターンとUIの切り替え
@@ -508,21 +551,21 @@ public class PhaseManager : MonoBehaviour
         phase = Enums.PHASE.STOP;
         battleManager.BattleStart(() =>
         {
-
             // プレイヤーUnitが生存していれば経験値取得処理を行う
-            if (focusUnitObj)
+            if (GameManager.GetUnit().GetMapUnitObj(focusUnitObj.transform.position))
             {
                 // 経験値処理が終わるまでフェーズを停止
                 phase = Enums.PHASE.STOP;
 
                 // Exp取得処理の開始
-                expGaugeController.GaugeUpdate(1000, focusUnitObj.GetComponent<UnitInfo>(), () =>
+                expGaugeController.GaugeUpdate(1500, focusUnitObj.GetComponent<UnitInfo>(), () =>
                 {
                     phase = Enums.PHASE.RESULT;
                 });
             }
             else
             {
+                focusUnitObj = null;
                 phase = Enums.PHASE.RESULT;
             }
         });
@@ -546,10 +589,10 @@ public class PhaseManager : MonoBehaviour
             focusUnitObj.GetComponent<UnitEffectController>().GrayScale(true);
 
             // 未移動であれば移動済みとする
-            if (!focusUnitObj.GetComponent<UnitInfo>().acted)
+            if (!focusUnitObj.GetComponent<UnitInfo>().Acted)
             {
                 GameManager.GetUnit().MoveMapUnitObj(oldFocusUnitPos, focusUnitObj.transform.position);
-                focusUnitObj.GetComponent<UnitInfo>().acted = true; // 行動済み
+                focusUnitObj.GetComponent<UnitInfo>().Acted = true; // 行動済み
             }
         }
 
@@ -620,7 +663,7 @@ public class PhaseManager : MonoBehaviour
     void EnemyFoucusPhase()
     {
         // AIタイプの取得と処理の切り分け
-        aIType = checkUnitObj.GetComponent<UnitInfo>().aIType;
+        aIType = checkUnitObj.GetComponent<UnitInfo>().AiType;
         switch (aIType)
         {
             case Enums.AI_TYPE.NORMAL:
@@ -778,13 +821,13 @@ public class PhaseManager : MonoBehaviour
         {
 
             // プレイヤーUnitが生存していれば経験値取得処理を行う
-            if (playerUnitObj)
+            if (GameManager.GetUnit().GetMapUnitObj(playerUnitObj.transform.position))
             {
                 // 経験値処理が終わるまでフェーズを停止
                 phase = Enums.PHASE.STOP;
 
                 // Exp取得処理の開始
-                expGaugeController.GaugeUpdate(1000, playerUnitObj.GetComponent<UnitInfo>(), () =>
+                expGaugeController.GaugeUpdate(1500, playerUnitObj.GetComponent<UnitInfo>(), () =>
                 {
                     phase = Enums.PHASE.RESULT;
                 });
@@ -804,7 +847,7 @@ public class PhaseManager : MonoBehaviour
 
         // フォーカスされなかった場合は行動済みにする
         if (checkUnitObj)
-            checkUnitObj.GetComponent<UnitInfo>().acted = true;
+            checkUnitObj.GetComponent<UnitInfo>().Acted = true;
 
         if (focusUnitObj)
         {
@@ -815,7 +858,7 @@ public class PhaseManager : MonoBehaviour
             focusUnitObj.GetComponent<UnitEffectController>().GrayScale(true);
 
             // 行動済みにする
-            focusUnitObj.GetComponent<UnitInfo>().acted = true;
+            focusUnitObj.GetComponent<UnitInfo>().Acted = true;
         }
 
         // 初期化

@@ -46,7 +46,7 @@ public class ActiveAreaManager : MonoBehaviour
                     if (showArea) Instantiate(areaBlue, new Vector3(x, -y, 0), Quaternion.identity).transform.parent = activeAreaObj.transform;
 
                     // 攻撃エリアの検証
-                    GameManager.GetRoute().CheckAttackArea(ref activeAreaList, new Vector3(x, -y, 0), checkUnitObj.GetComponent<UnitInfo>().attackRange);
+                    GameManager.GetRoute().CheckAttackArea(ref activeAreaList, new Vector3(x, -y, 0), checkUnitObj.GetComponent<UnitInfo>().AttackRange);
                 }
 
         // 攻撃エリアの表示
@@ -65,7 +65,7 @@ public class ActiveAreaManager : MonoBehaviour
     {
         // アクティブリストの生成と検証
         attackAreaList = new Struct.NodeMove[GameManager.GetMap().field.height, GameManager.GetMap().field.width];
-        GameManager.GetRoute().CheckAttackArea(ref attackAreaList, targetUnitObj.transform.position, targetUnitObj.GetComponent<UnitInfo>().attackRange);
+        GameManager.GetRoute().CheckAttackArea(ref attackAreaList, targetUnitObj.transform.position, targetUnitObj.GetComponent<UnitInfo>().AttackRange);
 
         // 攻撃エリアの表示
         if (showArea)

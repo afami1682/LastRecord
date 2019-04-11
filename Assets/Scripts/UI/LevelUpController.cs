@@ -10,7 +10,7 @@ public class LevelUpController : MonoBehaviour
     const float RADIUS = 4f; // グラフの半径
     const float LINE_WIDTH = 0.01f; // 罫線の太さ
 
-    const float UPDATE_SPAWN = 0.35f; // 更新速度
+    const float UPDATE_SPAWN = 0.35f; // 更新速度(0.35)
     private float spawn;
 
     // ステータスリスト
@@ -19,7 +19,7 @@ public class LevelUpController : MonoBehaviour
     public Image faceImage;
     public Text unitName;
     public Text unitClass;
-    public Text level;
+    public Text levelText;
     private List<Action> eventList = new List<Action>();
 
     private UnitInfo unitInfo; // 表示するユニット情報
@@ -53,7 +53,6 @@ public class LevelUpController : MonoBehaviour
             {
                 // イベントを一つずつ実行
                 eventList[0]();
-                ReDraw();
 
                 eventList.RemoveAt(0);
 
@@ -71,21 +70,21 @@ public class LevelUpController : MonoBehaviour
     public void LevelUpEvent(UnitInfo unitInfo, int addLevel, Action callBackEvent)
     {
         this.unitInfo = unitInfo;
-        this.maxUnitInfo = UnitInfo.GetUnitClassData(unitInfo.classType);
+        this.maxUnitInfo = UnitInfo.GetUnitClassData(unitInfo.ClassType);
         spawn = 0;
 
-        // UIに各パラメータをセット
-        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.id);
-        unitName.text = unitInfo.unitName;
-        unitClass.text = unitInfo.className;
-        level.text = unitInfo.level.ToString();
-        statusList[0] = new Struct.NodeStatus("VIT", unitInfo.vitality, maxUnitInfo.vitality);
-        statusList[1] = new Struct.NodeStatus("STR", unitInfo.strengtht, maxUnitInfo.attack);
-        statusList[2] = new Struct.NodeStatus("TEC", unitInfo.technical, maxUnitInfo.technical);
-        statusList[3] = new Struct.NodeStatus("SPPD", unitInfo.speed, maxUnitInfo.speed);
-        statusList[4] = new Struct.NodeStatus("DEF", unitInfo.defense, maxUnitInfo.defense);
-        statusList[5] = new Struct.NodeStatus("RES", unitInfo.resist, maxUnitInfo.defense);
-        statusList[6] = new Struct.NodeStatus("LUK", unitInfo.luck, maxUnitInfo.luck);
+        // UIにレベルアップ前のパラメータをセット
+        faceImage.sprite = Resources.Load<Sprite>("Sprite/UnitFace/Unit" + unitInfo.Id);
+        unitName.text = unitInfo.UnitName;
+        unitClass.text = unitInfo.UnitClassName;
+        levelText.text = String.Format("Lv: {0}", unitInfo.Level);
+        statusList[0] = new Struct.NodeStatus("VIT", unitInfo.Vitality, maxUnitInfo.Vitality);
+        statusList[1] = new Struct.NodeStatus("STR", unitInfo.Strengtht, maxUnitInfo.Attack);
+        statusList[2] = new Struct.NodeStatus("TEC", unitInfo.Technical, maxUnitInfo.Technical);
+        statusList[3] = new Struct.NodeStatus("SPPD", unitInfo.Speed, maxUnitInfo.Speed);
+        statusList[4] = new Struct.NodeStatus("DEF", unitInfo.Defense, maxUnitInfo.Defense);
+        statusList[5] = new Struct.NodeStatus("RES", unitInfo.Resist, maxUnitInfo.Defense);
+        statusList[6] = new Struct.NodeStatus("LUK", unitInfo.Luck, maxUnitInfo.Luck);
 
         rCSValMax.color = max;
         rCSValMax.radius = RADIUS;
@@ -131,105 +130,227 @@ public class LevelUpController : MonoBehaviour
         rCSLevelUpLabel.statusListCount = statusList.Length;
         rCSLevelUpLabel.statusValMax = VALUE_MAX;
 
+        // UIを表示
         gameObject.SetActive(true);
 
-        // 1秒後にイベントを開始
+        // 1秒後にレベルアップ処理を開始
         StartCoroutine(DelayMethod(1f, () =>
         {
-            // イベントの登録
-            int addVal = 1;
+            int oldLevel;
+            int oldVitality;
+            int oldStrengtht;
+            int oldTechnical;
+            int oldSpeed;
+            int oldDefense;
+            int oldResist;
+            int oldLuck;
+
+            int newLevel;
+            int newVitality;
+            int newStrengtht;
+            int newTechnical;
+            int newSpeed;
+            int newDefense;
+            int newResist;
+            int newLuck;
+
             for (int i = 0; i < addLevel; i++)
             {
+                // 現在のステータスを取得
+                oldLevel = unitInfo.Level;
+                oldVitality = unitInfo.Vitality;
+                oldStrengtht = unitInfo.Strengtht;
+                oldTechnical = unitInfo.Technical;
+                oldSpeed = unitInfo.Speed;
+                oldDefense = unitInfo.Defense;
+                oldResist = unitInfo.Resist;
+                oldLuck = unitInfo.Luck;
+
+                newLevel = unitInfo.Level;
+                newVitality = unitInfo.Vitality;
+                newStrengtht = unitInfo.Strengtht;
+                newTechnical = unitInfo.Technical;
+                newSpeed = unitInfo.Speed;
+                newDefense = unitInfo.Defense;
+                newResist = unitInfo.Resist;
+                newLuck = unitInfo.Luck;
+
                 // レベル加算
+                newLevel++;
                 eventList.Add(() =>
                 {
-                    unitInfo.level += addVal;
+                    ReDraw(newLevel,
+                    unitInfo.Vitality,
+                    oldStrengtht,
+                    oldTechnical,
+                    oldSpeed,
+                    oldDefense,
+                    oldResist,
+                    oldLuck);
                 });
 
-                if (unitInfo.vitality < maxUnitInfo.vitality)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.vitality + 30))
+                // 体力
+                if (unitInfo.Vitality < maxUnitInfo.Vitality)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.Vitality + 30))
+                    {
+                        newVitality++;
                         eventList.Add(() =>
                         {
-                            unitInfo.vitality += addVal;
-                            rCSLevelUpLabel.CreateText(0, addVal);
+                            rCSLevelUpLabel.CreateText(0, newVitality);
+                            ReDraw(newLevel,
+                            newVitality,
+                            oldStrengtht,
+                            oldTechnical,
+                            oldSpeed,
+                            oldDefense,
+                            oldResist,
+                            oldLuck);
                         });
+                    }
 
-                if (unitInfo.strengtht < maxUnitInfo.attack)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.attack + 30))
+                // 力
+                if (unitInfo.Strengtht < maxUnitInfo.Attack)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.Attack + 30))
+                    {
+                        newStrengtht++;
                         eventList.Add(() =>
-                {
-                    unitInfo.strengtht += addVal;
-                    rCSLevelUpLabel.CreateText(1, addVal);
-                });
+                        {
+                            rCSLevelUpLabel.CreateText(1, newStrengtht);
+                            ReDraw(newLevel,
+                            newVitality,
+                            newStrengtht,
+                            oldTechnical,
+                            oldSpeed,
+                            oldDefense,
+                            oldResist,
+                            oldLuck);
+                        });
+                    }
 
-                if (unitInfo.technical < maxUnitInfo.technical)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.technical + 30))
+                // 技量
+                if (unitInfo.Technical < maxUnitInfo.Technical)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.Technical + 30))
+                    {
+                        newTechnical++;
                         eventList.Add(() =>
-                {
-                    unitInfo.technical += addVal;
-                    rCSLevelUpLabel.CreateText(2, addVal);
-                });
+                        {
+                            rCSLevelUpLabel.CreateText(2, newTechnical);
+                            ReDraw(newLevel,
+                            newVitality,
+                            newStrengtht,
+                            newTechnical,
+                            oldSpeed,
+                            oldDefense,
+                            oldResist,
+                            oldLuck);
+                        });
+                    }
 
-                if (unitInfo.speed < maxUnitInfo.speed)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.speed + 30))
+                // 速さ
+                if (unitInfo.Speed < maxUnitInfo.Speed)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.Speed + 30))
+                    {
+                        newSpeed++;
                         eventList.Add(() =>
-                {
-                    unitInfo.speed += addVal;
-                    rCSLevelUpLabel.CreateText(3, addVal);
-                });
+                        {
+                            rCSLevelUpLabel.CreateText(3, newSpeed);
+                            ReDraw(newLevel,
+                            newVitality,
+                            newStrengtht,
+                            newTechnical,
+                            newSpeed,
+                            oldDefense,
+                            oldResist,
+                            oldLuck);
+                        });
+                    }
 
-                if (unitInfo.defense < maxUnitInfo.defense)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.defense + 30))
+                // 防御
+                if (unitInfo.Defense < maxUnitInfo.Defense)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.Defense + 30))
+                    {
+                        newDefense++;
                         eventList.Add(() =>
-                {
-                    unitInfo.defense += addVal;
-                    rCSLevelUpLabel.CreateText(4, addVal);
-                });
+                        {
+                            rCSLevelUpLabel.CreateText(4, newDefense);
+                            ReDraw(newLevel,
+                             newVitality,
+                             newStrengtht,
+                             newTechnical,
+                             newSpeed,
+                             newDefense,
+                             oldResist,
+                             oldLuck);
+                        });
+                    }
 
-                if (unitInfo.resist < maxUnitInfo.defense)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.defense + 30))
+                // 魔防
+                if (unitInfo.Resist < maxUnitInfo.Resist)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.Resist + 30))
+                    {
+                        newResist++;
                         eventList.Add(() =>
-                {
-                    unitInfo.resist += addVal;
-                    rCSLevelUpLabel.CreateText(5, addVal);
-                });
+                        {
+                            rCSLevelUpLabel.CreateText(5, newResist);
+                            ReDraw(newLevel,
+                            newVitality,
+                            newStrengtht,
+                            newTechnical,
+                            newSpeed,
+                            newDefense,
+                            newResist,
+                            oldLuck);
+                        });
+                    }
 
-                if (unitInfo.luck < maxUnitInfo.luck)
-                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.luck + 30))
+                // 運
+                if (unitInfo.Luck < maxUnitInfo.Luck)
+                    if (GameManager.GetCommonCalc().ProbabilityDecision(maxUnitInfo.Luck + 30))
+                    {
                         eventList.Add(() =>
-                {
-                    unitInfo.luck += addVal;
-                    rCSLevelUpLabel.CreateText(6, addVal);
-                });
+                        {
+                            newLuck++;
+                            rCSLevelUpLabel.CreateText(6, newLuck);
+                            ReDraw(newLevel,
+                            newVitality,
+                            newStrengtht,
+                            newTechnical,
+                            newSpeed,
+                            newDefense,
+                            newResist,
+                            newLuck);
+                        });
+                    }
 
-                eventList.Add(() => { rCSLevelUpLabel.Reset(); });
+                // ステータスの更新
+                unitInfo.NewStatus(newLevel, newVitality, newStrengtht, newTechnical, newSpeed, newDefense, newResist, newLuck);
+
+                // ラベルのリセット
+                eventList.Add(rCSLevelUpLabel.Reset);
             }
 
             eventList.Add(() =>
-            {
-                // ステータスの再計算
-                unitInfo.hpMax = unitInfo.vitality * 2;
-
-                gameObject.SetActive(false); // UI非表示
-                callBackEvent(); // コールバックイベントの実行
-            });
+                            {
+                                gameObject.SetActive(false); // UI非表示
+                                callBackEvent(); // コールバックイベントの実行
+                            });
         }));
     }
 
     /// <summary>
     /// UIの再描画
     /// </summary>
-    private void ReDraw()
+    private void ReDraw(int level, int vitality, int strengtht, int technical, int speed, int defense, int resist, int luck)
     {
         // UIに各パラメータをセット
-        level.text = unitInfo.level.ToString();
-        statusList[0].val = unitInfo.vitality;
-        statusList[1].val = unitInfo.strengtht;
-        statusList[2].val = unitInfo.technical;
-        statusList[3].val = unitInfo.speed;
-        statusList[4].val = unitInfo.defense;
-        statusList[5].val = unitInfo.resist;
-        statusList[6].val = unitInfo.luck;
+        levelText.text = String.Format("Lv: {0}", level);
+        statusList[0].val = vitality;
+        statusList[1].val = strengtht;
+        statusList[2].val = technical;
+        statusList[3].val = speed;
+        statusList[4].val = defense;
+        statusList[5].val = resist;
+        statusList[6].val = luck;
 
         rCSValMax.ReDraw();
 

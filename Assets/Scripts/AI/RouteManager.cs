@@ -197,7 +197,7 @@ public class RouteManager
             return;
 
         // キャラが移動できないマスなら何もしない
-        if (!IsMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, checkUnitObj.GetComponent<UnitInfo>().moveType))
+        if (!IsMoveing(field.cells[-(int)checkPos.y, (int)checkPos.x].category, checkUnitObj.GetComponent<UnitInfo>().MoveType))
             return;
 
         // 他Unitとのすれ違い判定
@@ -218,7 +218,7 @@ public class RouteManager
         }
 
         // 移動コストを超えた場合は終了
-        if (checkUnitObj.GetComponent<UnitInfo>().movingRange <= activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost) return;
+        if (checkUnitObj.GetComponent<UnitInfo>().MovementRange <= activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost) return;
 
         // 次に検証する座標を指定（上下左右）
         CheckMoveAreaRecursive(ref activeAreaList, checkUnitObj, checkPos + Vector2.up, activeAreaList[-(int)checkPos.y, (int)checkPos.x].cost);
@@ -293,11 +293,11 @@ public class RouteManager
     /// </summary>
     /// <returns><c>true</c>, if moveing was ised, <c>false</c> otherwise.</returns>
     /// <param name="cellCategory">Cell category.</param>
-    /// <param name="moveType">Move type.</param>
-    public static bool IsMoveing(int cellCategory, Enums.MOVE_TYPE moveType)
+    /// <param name="MoveType">Move type.</param>
+    public static bool IsMoveing(int cellCategory, Enums.MOVE_TYPE MoveType)
     {
         // キャラ毎の移動可能かどうかのチェック
-        switch (moveType)
+        switch (MoveType)
         {
             case Enums.MOVE_TYPE.WALKING:
                 if (cellCategory == 1) return false;
