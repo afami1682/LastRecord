@@ -405,13 +405,6 @@ public class PhaseManager : MonoBehaviour
                         // ギミックの取得
                         gimmickUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
 
-                        //// バトルパラメータのセット
-                        //battleManager.SetParam(
-                            //focusUnitObj,
-                            //enemyUnitObj,
-                            //battleStandbyUI.GetComponent<BattleStandby>().textMyHP,
-                            //battleStandbyUI.GetComponent<BattleStandby>().textEnemyHP);
-
                         // ギミックの向きに合わせてUnitのアニメーション変更
                         Vector3 distance = gimmickUnitObj.transform.position - focusUnitObj.transform.position;
                         if (Mathf.Abs(distance.y) <= Mathf.Abs(distance.x))
@@ -429,24 +422,14 @@ public class PhaseManager : MonoBehaviour
                                 focusUnitObj.GetComponent<MoveController>().PlayAnim(Enums.MOVE.DOWN);
                         }
 
-                        // UIの切り替え
-                        if (!battleStandbyUI.activeSelf)
-                            battleStandbyUI.SetActive(true);
-
-                        battleStandbyUI.GetComponent<BattleStandby>().SetMyUnitData(
-                            focusUnitObj.GetComponent<UnitInfo>(),
-                             battleManager.myAttackPower,
-                            battleManager.myHitRate,
-                             battleManager.myCriticalRate);
-
-                        battleStandbyUI.GetComponent<BattleStandby>().SetEnemyUnitData(
-                            enemyUnitObj.GetComponent<UnitInfo>(),
-                            battleManager.targetAttackPower,
-                             battleManager.targetHitRate,
-                              battleManager.targetCriticalRate);
+                        // ギミックが選択された時のイベント呼び出し
+                        gimmickUnitObj.GetComponent<GimmickBaseController>().SelectStart();
                         break;
 
                     default:
+                        // ギミックの選択が外された時のイベント呼び出し
+                        if (gimmickUnitObj) gimmickUnitObj.GetComponent<GimmickBaseController>().SelectEnd();
+
                         // 敵の取得
                         enemyUnitObj = GameManager.GetUnit().GetMapUnitObj(cursorPos);
 

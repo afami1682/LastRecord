@@ -2,35 +2,60 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KegController : MonoBehaviour
+public class KegController : GimmickBaseController
 {
     const int explosionArea = 2;
     const int damage = 10;
 
-    void Start()
+
+    override protected void Start()
     {
-        // GameManagerにユニット情報を登録する
-        GameManager.GetUnit().AddMapUnitObj(transform.position, gameObject);
+        base.Start();
     }
 
-    void Update()
+    protected override void Update()
     {
-
+        base.Update();
     }
 
     /// <summary>
     /// ターゲットに指定された時のイベント
     /// </summary>
-    public void Targeted()
+    public override void SelectStart()
     {
+        base.SelectStart();
+        // ユニットの攻撃範囲を非表示にする
+
+
+
+        // 爆発範囲を表示する
+
+
+
+    }
+
+    /// <summary>
+    /// ターゲットが外された時のイベント
+    /// </summary>
+    public override void SelectEnd()
+    {
+        base.SelectEnd();
+        // ユニットの攻撃範囲を表示する
+
+
+        // 爆発範囲を削除する
+
+
+
 
     }
 
     /// <summary>
     /// 攻撃された時のイベント
     /// </summary>
-    public void Attacked()
+    public override void GimmickEvent()
     {
+        base.GimmickEvent();
         // ダメージ判定
         // エリアパネルの表示
         Vector2 checkPos;
